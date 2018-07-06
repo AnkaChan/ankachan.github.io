@@ -1,0 +1,447 @@
+<!-- <!DOCTYPE html> -->
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>He Chen </title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Le styles -->
+    <link href="./assets_files/bootstrap.min.css" rel="stylesheet">
+    <link href="./assets_files/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="./assets_files/yangqing.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="assets/js/html5shiv.js"></script>
+    <![endif]-->
+    <link rel="icon" href="./assets_files/favicon.ico">
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+	</script>
+	<script type="text/javascript"
+	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+</head>
+
+<body>
+
+
+<div class="container span3 hidden-phone">
+    <div id="floating_sidebar" class="span3">
+        <!-- We use a fancy nav bar if there is enough space -->
+        <!--<hr class="hidden-phone">-->
+        <br>
+        <ul class="nav nav-list bs-docs-sidenav hidden-phone">
+            <li><a href="#top">About</a></li>
+            <!--<li><a href="#research">Research</a></li>-->
+            <li><a href="#publications">Publications</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <!--<li><a href="#teaching">Teaching</a></li>-->
+            <li><a target="_blank"
+                   href="https://www.google.com/">CV</a>
+            </li>
+        </ul>
+        <hr class="hidden-phone">
+        <div class="text-center hidden-phone">
+            <img src="assets_files/me.jpg" alt="photo" class="logo-image">
+            <br><br>
+            ankachan@126.com <br>
+            <img src="./assets_files/GitHub-Mark.png" class="icon-adjust"> <a target="_blank"
+                                                                              href="http://www.github.com/ankachan/">Github</a>
+            <img src="./assets_files/qq.png" class="icon-adjust"> 994823712
+            <img src="./assets_files/wechat.png" class="icon-adjust"> anka199210<br>
+        </div>
+
+        <!-- Otherwise, we simply use a flat list of links -->
+
+    </div>
+</div>
+
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="span9">
+            <br>
+            <h3>
+                He Chen (陈赫) aka Anka Chan
+            </h3>
+            <h5>
+                ankachan@126.com</a>
+            </h5>
+            <!-- Do I want to show a pic on the phone screen?
+            <div class="text-center visible-phone">
+                <img src="assets/img/Yihui.png" alt="photo" width="150px"/>
+            </div>
+            -->
+            <!-- <a class="visible-phone pull-left" href="http://daggerfs.com/index.html#">
+                <img class="media-object" src="assets_files/me.jpg" width="96px" style="margin: 0px 10px">
+            </a>
+			 -->
+            <p>
+                I'm a master of Computational Mathematics from <a
+                    href="https://en.wikipedia.org/wiki/Dalian_University_of_Technology/">Dalian University of Technology.</a>, 
+			with my interest focus on Computer Graphics, Computer Vision and 3D scanning.  
+				<br />
+				I have multiple education backgrounds, 
+				which covers electric engineering, mathematics and computer science. I recieved a bachelor's degree in Electrical 
+				Engineering from <a
+                    href="https://en.wikipedia.org/wiki/Hunan_University/">Hunan University.</a>, where I spent a lot time in developing
+				embeded image processing system. Studying image processing made me grow interested in math, 
+				and finally lead me to choose math as my major in graduate stage. I learned math by self-study, and I took the 
+				national post-graduate entrance examination of mathematics. In the competition with math majors, I am the 1st to 
+				pass the exam. In the master stage, my grade ranked top in computational mathematics major of School of Mathematics 
+				in DLUT. I won the title of Outstanding Graduate and Outstanding Master Graduation Thesis in my school.
+				<br />
+				I have been maintaining a open source mesh processing library:<a
+                    href="https://github.com/MeshFrame/MeshFrame/">MeshFrame.</a>, 
+				as a main contributor for over a year. 
+				This is a lightweight, efficient, header-only grid processing framework with better efficiency superior to other 
+				state-of-the-art libraries. It supports dynamic mesh structure editing,  supports runtime dynamic properties, 
+				supports triangle/tetrahedral mesh, with a built-in viewer, and also includes a number of implementations of mesh processing algorithms. 
+            </p>
+            <p><strong>
+                I am currently applying for Ph.D. Also open to one-year research position. If you're interested, don’t hesitate to contact me.
+            </strong></p>
+
+
+            <!--
+             *** Research ***
+            -->
+            <h3>
+            <a name="research"></a> Research
+            </h3>
+            <p>
+            My current research topics include:
+            </p><ul>
+			<li> <strong>Point Cloud</strong>: Point cloud normal estimation, point cloud denoising, point cloud alignment.
+            </li><li> <strong>3D Scanning</strong>: Data algning, texture synthesis, mesh reconstruction. Currently focus on registration of depth and feature preserving 
+			reconstruction.
+			</li><li> <strong>MeshFrame</strong>: A lightweight, efficient, header-only grid processing framework with better efficiency superior to other 
+				state-of-the-art libraries. It supports dynamic mesh structure editing,  supports runtime dynamic properties, 
+				supports triangle/tetrahedral mesh.
+            </li><li> <strong>Volumetric parameterization</strong>: Given an abitrary volumetric object in form of tetrahedral mesh, and make a bijective PL(Piecewise Linear)
+			map from object to a canonical 
+			region. I have a parameterization method preserving as much original mesh subdivision structure as possible.
+            </li><li> <strong>3D Face Reconstruction</strong>：I have been researching on full face reconstruction from multi-angle RGB-D data and face sequence reconstruction.
+			I have developed some cutting-edge application on both PC and mobile platform.
+            </li></ul>
+            <p></p>
+
+
+            <!--
+             *** Publications ***
+            -->
+            <h3>
+                <a name="publications"></a> Publications
+            </h3>
+			 <!--
+            <p>
+                Link to <a target="_blank"
+                                           href="https://scholar.google.com/citations?user=z2w3scIAAAAJ&amp;hl=en"
+                                           target="_blank">[Google Scholar]</a>
+                <a href="projects.html"> [Unpublished Projects]</a>
+            </p>
+			-->
+        <div class="media">
+                <a class="pull-left">
+                    <img class="media-object" src="./assets_files/MultiNormal.png" width="200px" height="250px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>
+                             Multi-Normal Estimation via Pair Consistency Voting
+                     </strong>
+						<br />
+						<i>IEEE Transactions on Visualization and Computer Graphics(TVCG)  </i>
+						<a
+							href="https://ieeexplore.ieee.org/document/8340177/">[Page]</a>, 
+						<a
+							href="https://www.computer.org/csdl/trans/tg/preprint/08340177.pdf">[PDF].</a>
+						<br />
+                        Jie Zhang, Junjie Cao (co-first authors), Xiuping Liu, He Chen, Bo Li, Ligang Liu
+                    </p>
+                    <p class="abstract-text">
+                        This paper presents a unified definition for point cloud normal of feature and non-feature points, 
+						which allows feature points to possess multiple normals.
+						This definition facilitates several succeeding operations, such as feature points extraction and point cloud filtering.
+						We also develop a feature preserving normal estimation method which outputs multiple normals per feature point.
+						In addition, we introduce an error measure compatible with traditional normal estimators, and present the first benchmark 
+						for normal estimation, composed of 152 synthesized data with various features and sampling densities, and 288 real scans 
+						with different noise levels.
+                    </p>
+                </div>
+            </div> 
+		<div class="media">
+                <a class="pull-left">
+                    <img class="media-object" src="./assets_files/NeighborhoodShift.png" width="200px" height="250px">
+                </a>
+				<br />
+                <div class="media-body">
+					
+                    <p class="media-heading">
+                        <strong>
+                             Normal Estimation via Shifted Neighborhood for point cloud
+                     </strong>
+					 <br />
+						<i>Journal of Computational and Applied Mathematics  </i>
+						<a
+							href="https://www.sciencedirect.com/science/article/pii/S0377042717301978/">[Page]</a>, 
+						<a
+							href="https://www.sciencedirect.com/sdfe/pdf/download/read/noindex/pii/S0377042717301978/1-s2.0-S0377042717301978-main.pdf">[PDF].</a>
+						<br />
+						Junjie Cao, He Chen, Jie Zhang, Yujiao Li, Xiuping Liu, Changqing Zou
+                    </p>
+                    <p class="abstract-text">
+                        We present a fast and quality normal estimator based on neighborhood shift.
+						Instead of using the neighborhood centered at the point, we wish to locate a neighborhood containing 
+						the point but clear of sharp features, which is usually not centering at the point.
+						Two specific neighborhood shift techniques are designed in view of the complex structure of sharp 
+						features and the characteristic of raw point clouds.
+                    </p>
+                </div>
+            </div>        
+			<div class="media">
+                <a class="pull-left">
+                    <img class="media-object" src="./assets_files/knapsack.png" width="200px" height="250px">
+                </a>
+				<br />
+                <div class="media-body">
+					
+                    <p class="media-heading">
+                        <strong>
+                             Online Knapsack Problem Under Concave Functions
+                     </strong>
+					 <br />
+						<i>Frontiers in Algorithmics </i>
+						<a
+							href="http://www.bookmetrix.com/detail/chapter/46f96b06-8172-489a-8044-4a136e2a689f#downloads/">[Page]</a>, 
+						<a
+							href="http://www.bookmetrix.com/detail_full/chapter/46f96b06-8172-489a-8044-4a136e2a689f#downloads/">[PDF].</a>
+						<br />
+						Xin Han, Ning Ma, Kazuhisa Makino, He Chen
+                    </p>
+                    <p class="abstract-text">
+                       In this paper, we address an online knapsack problem under concave function $f ( x )$, i.e., an item with 
+					   size x has its profit $f ( x )$. We first obtain a simple lower bound $\max \{q, \frac{f'(0)}{f(1)}\}$ , 
+					   where $q \approx 1.618$ , then show that this bound is not tight, and give an improved lower bound. Finally, 
+					   we find the online algorithm for linear function [ 8 ] can be employed to the concave case, and prove its 
+					   competitive ratio is $\frac{f'(0)}{f(1/q)}$ , then we give a refined online algorithm with a competitive 
+					   ratio $\frac{f'(0)}{f(1)} +1$ . And we also give optimal algorithms for some piecewise linear functions.
+                    </p>
+                </div>
+            </div>   
+			<div class="media">
+                <a class="pull-left">
+                    <img class="media-object" src="./assets_files/meshSaliency.png" width="200px" height="250px">
+                </a>
+				<br />
+                <div class="media-body">
+					
+                    <p class="media-heading">
+                        <strong>
+                             Mesh saliency detection via double absorbing Markov chain in feature space
+                     </strong>
+					 <br />
+						<i>The Visual Computer </i>
+						<a
+							href="https://link.springer.com/article/10.1007/s00371-015-1184-x/">[Page]</a>,
+							<a
+							href="https://www.researchgate.net/profile/Junjie_Cao/publication/284722787_Mesh_saliency_detection_via_double_absorbing_Markov_chain_in_feature_space/links/5657776208aeafc2aac10256.pdf">[PDF].</a>
+						<br />
+						Xiuping Liu, Pingping Tao, Junjie Cao, He Chen, Changqing Zou
+                    </p>
+                    <p class="abstract-text">
+                       We propose a mesh saliency detection approach using absorbing Markov chain. Unlike most 
+					   of the existing methods based on some center-surround operator, our method employs feature 
+					   variance to obtain insignificant regions and considers both background and foreground cues. 
+					   
+                    </p>
+                </div>
+            </div> 
+
+            <!--<div class="media">-->
+            <!--<a class="pull-left" href="#top">-->
+            <!--<img class="media-object" src="./assets_files/decaf-features.png" width="96px" height="96px">-->
+            <!--</a>-->
+            <!--<div class="media-body">-->
+            <!--<p class="media-heading">-->
+            <!--<strong>DeCAF: A Deep Convolutional Activation Feature for Generic Visual Recognition</strong><br>-->
+            <!--J Donahue, Y Jia, O Vinyals, J Hoffman, N Zhang, E Tzeng, T Darrell. arXiv preprint.<br>-->
+            <!--<a target="_blank" href="http://arxiv.org/abs/1310.1531">[ArXiv Link]</a>-->
+            <!--<a target="_blank" href="http://decaf.berkeleyvision.org/">[Live Demo]</a>-->
+            <!--<a target="_blank" href="https://github.com/UCB-ICSI-Vision-Group/decaf-release/">[Software]</a>-->
+            <!--<a target="_blank" href="http://www.eecs.berkeley.edu/~jiayq/decaf_pretrained/">[Pretrained ImageNet Model]</a>-->
+            <!--</p>-->
+            <!--<p class="abstract-text">-->
+            <!--We evaluate whether features extracted from the activation of a deep convolutional network trained in a fully supervised fashion on a large, fixed set of object recognition tasks can be re-purposed to novel generic tasks. We also released the software and pre-trained network to do large-scale image classification.-->
+            <!--</p>-->
+            <!--</div>-->
+            <!--</div>-->
+
+            <!--
+             *** Projects ***
+            -->
+            <h3>
+                <a name="projects"></a> Projects
+            </h3>
+            Link to my <a target="_blank" href="https://github.com//ankachan/">[github public projects]</a>
+
+            <div class="media">
+                <a class="pull-left">
+                    <img class="media-object"
+                         src="./assets_files/MeshFrame.png"
+                         width="200px" height="200px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>
+                            MeshFrame: An efficient header-only mesh processing library
+                        </strong>
+                        <a target="_blank"
+                           href="https://github.com/MeshFrame/MeshFrame/">[Link]</a>
+                     
+                    </p>
+                    <p class="abstract-text">
+						A open source mesh processing library I developed and maintained as a major contributor, 
+						which is a lightweight, efficient, header-only grid processing framework. Its speed is superior to other 
+						state-of-the-art libraries like OpenMesh, MeshLab or CGAL. It supports dynamic 
+						mesh structure editing, supports runtime dynamic properties, supports triangle/tetrahedral mesh, 
+						with a built-in viewer, and also includes a large number of grid processing algorithms.
+						
+                    </p>
+                </div>
+            </div>
+
+            <div class="media">
+                <a class="pull-left">
+                   <img class="media-object"
+                         src="./assets_files/FaceRecon2.png"
+                         width="200px" height="200px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>
+                            3DFace:A cross-platform face reconstruction application
+                        </strong>
+                        
+                    </p>
+                    <p class="abstract-text">
+                        I developed a 3D face reconstruction algorithm using a depth camera. Users can be allowed 
+						to automatically capture facial data in the process of rotating face in front of the camera, 
+						and use multi-frame alignment technology to merge the geometric and texture data from each 
+						angle of the human face, and outputs a more complete human face model in a short peroid of time. Both the mobile and 
+						the PC versions of this algorithm have been implemented. On PC, the procedure takes 300ms, 
+						on mobile phone the procedure takes 3s.
+                    </p>
+                </div>
+            </div>
+
+            <div class="media">
+                <a class="pull-left">
+                   <img class="media-object"
+                         src="./assets_files/PointCloudAlignment.png"
+                         width="200px" height="200px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>
+                            3D scanner data processing software
+                        </strong>
+                        
+                    </p>
+                    <p class="abstract-text">
+                        Developed a software for a 3D scanner, to support point cloud denoising,  point cloud manual editing, 
+						point cloud alignment, SLAM global optimization, point cloud reconstruction, feature recovery, mesh
+						simplification and other functions, supporting scan data with up to tens of millions of point. In the 
+						software development team I am responsible for the implementation of all point cloud processing core algorithms.
+                    </p>
+                </div>
+            </div>           
+
+            <div class="media">
+                <a class="pull-left">
+                   <img class="media-object"
+                         src="./assets_files/Wing.jpg"
+                         width="200px" height="200px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>The Wing Surface Modeling and Gridding </strong>
+                        
+                    </p>
+                    <p class="abstract-text">
+                        Generate the wing surface using B-spline parametric surfaces, mastered the method of parametric 
+						surfaces for surface subdivision, and learned to use  parametric surface processing software Gmsh.
+                    </p>
+                </div>
+            </div>
+			<div class="media">
+                <a class="pull-left">
+                   <img class="media-object"
+                         src="./assets_files/SmartCar.png"
+                         width="200px" height="200px">
+                </a>
+                <div class="media-body">
+                    <p class="media-heading">
+                        <strong>The Smart Car Competition </strong>
+                  
+                    </p>
+                    <p class="abstract-text">
+                        I took part in the smart car competition. In my group, I mainly in charge of the track detecting and 
+						controlling algorithm. I learned a lot knowledge about automatic control, embeded system and 
+						image processing algorithm.
+						
+                    </p>
+                </div>
+            </div>
+            <!-- Footer
+            ================================================== -->
+            <hr>
+            <footer class="footer">
+                <div class='hidden-phone'>
+                <!--<h3 class="text-center"><a name="wall"></a><strong>works</strong></h3>-->
+                <section id="photos">
+                   
+                </section>
+                
+               
+                </div>
+                <div class="row">
+                    <div class="span12">
+                        <p>
+                            modified from <a target="_blank" href="http://daggerfs.com/">© Yangqing Jia 2013</a>
+                        </p>
+                    </div>
+                </div>
+
+            </footer>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="assets/js/bootstrap-affix.js"></script>
+    <script src="assets/js/holder/holder.js"></script>
+    <script src="assets/js/application.js"></script>
+-->
