@@ -1,0 +1,101 @@
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>3D Face </title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Le styles -->
+	
+	<link rel="icon" href="./assets_files/favicon.ico">
+	
+	<style>
+	body {
+        margin: 0 auto;
+        width: 1024px;
+        height: 300px;
+    }
+	</style>
+</head>
+
+<body>
+	<h1 style="text-align:center">
+	3D Face : A cross-platform face reconstruction application
+	</h1>
+		<br />
+	<br />
+	<br />
+	<div  style="text-align:center">
+			<table style="margin:auto">
+			<tr>
+			<td><img src="./assets_files/FaceRecon/FaceWithTexture01.png" width="280px"></td>
+			<td><img src="./assets_files/FaceRecon/FaceWithDetail03.png" width="280px"></td>
+			
+			<td><img src="./assets_files/FaceRecon/texture.bmp" width="280px"></td>
+			</tr>
+			<tr>
+			<th> With Texture </ th>
+			<th> White Model </ th>
+			<th> Texture </ th>
+ 			</tr>
+			</table>
+			
+			<br />
+	</div>
+
+	<p>
+	D Face is a face reconstruction application that can be expand to various kinds of depth cameras. Users can be allowed to automatically 
+	capture facial data by rotating face in front of the camera, and use multi-frame alignment 
+	technology to merge the geometric and texture data from each angle of the human face,  and outputs a more complete 
+	human face model in a short period of time. Both the mobile and the PC versions of this algorithm have been implemented.
+	On PC, the procedure takes 300ms, on mobile phone the procedure takes 3s.
+	</p>
+	
+	<h2>
+		Choice of Depth Camera
+	</h2>
+	
+	<div  style="text-align:center">
+			<table style="margin:auto">
+			<tr>
+			<td><img src="./assets_files/DepthModule/camera1.jpg" height="160px"></td>
+			<td><img src="./assets_files/DepthModule/cellPhone.jpg" height="160px"></td>
+			<td><img src="./assets_files/DepthModule/kinect.jpg"  height="160px"></td>
+			<td><img src="./assets_files/DepthModule/orbec.jpg"  height="160px"></td>
+			</tr>
+		
+			</table>
+			
+			<br />
+	</div>
+	<p>
+	Our algorithm can output face model with rich details using low cost depth camera, such as kinect or embeded depth camera on mobile phone, 
+	which cannot capture subtle 3D feature of face.
+	The depth information from multiple angle will be automatically aligned to make a coarse contour of human face, then more detial will be 
+	retrieved from texture.
+	</ p>
+	
+	<h2>
+		Multi-Angle Data Capture
+	</h2>
+	<table style="margin:auto">
+			<tr>
+			<td><img src="./assets_files/RotateFace/rotate.png" height="200px"></td>
+			<td><img src="./assets_files/RotateFace/r.png" height="200px"></td>
+			<td><img src="./assets_files/RotateFace/l.png"  height="200px"></td>
+			</tr>
+			</table>
+	Our algorithm will automatically capture appropriate data from certain angle of user's face, all user needs to do 
+	is keep rotating face in front of camera. Our algorithm will automatically determine the posture of user's face, and
+	record data. The data will be aligned and merged in a fast way to make full model of user's face.
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<div  style="text-align:center">
+	<h3>
+	Back to <a href="./index.html"> My WebSite </a> 
+	</h3>
+	</div>
+	
+</body>
