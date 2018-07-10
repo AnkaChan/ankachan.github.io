@@ -105,6 +105,20 @@
 		Depth Refinement
 	</h2>
 	
+	With coarse model generated in formal stages, the depth refinement algorithm takes raw noisy depth data and an aligned RGB image as input, 
+	and approximates the varying incident lighting, which is then used for geometry refinement. The lighting model we 
+	use can handle natural scene illumination. It is integrated in a shape from shading like technique to improve the 
+	visual fidelity of the reconstructed object.
+	<table style="margin:auto">
+			<tr>
+			<td><img src="./assets_files/DepthRefinement/Before00.png" height="400px"></td>
+			<td><img src="./assets_files/DepthRefinement/After01.png" height="400px"></td>
+			</tr>
+			<tr>
+			<th> Coarse Model </ th>
+			<th> Refined Model </ th>
+			</tr>
+			</table>
 	
 	<br />
 	<br />
