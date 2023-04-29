@@ -83,20 +83,18 @@
             </a>
 			 -->
             <p>
-               I'm a PhD of Computing in the <a href="https://www.utah.edu/">University of Utah</a>
-			with my interest focused on Computer Graphics, Computer Vision. More specifically, in high accuracy motion capture technology.
-				<br /> I am very proud of the next generate motion capture system I created with <a href="https://www.cs.utah.edu/~ladislav/"> Ladislav Kavan </a>, my current advisor.
-				I have interdisciplinary education backgrounds, 
-				which covers electric engineering, mathematics and computer science. 
-		   I am ranked top ranked student in computational mathematics major of School of Mathematics 
-				in <a href="https://en.dlut.edu.cn/">DLUT</a>. I won the title of Outstanding Graduate and Outstanding Master Graduation Thesis in my school.
-				<br />
-				I have been maintaining a open source mesh processing library:<a
-                    href="https://github.com/MeshFrame/MeshFrame/">MeshFrame</a>, 
-				as a main contributor for over a year. 
-				This is a lightweight, efficient, header-only mesh processing framework with better efficiency superior to other 
-				state-of-the-art libraries. It supports dynamic mesh structure editing,  supports runtime dynamic properties, 
-				supports triangle/tetrahedral mesh, with a built-in viewer, and also includes a number of implementations of mesh processing algorithms. 
+               I'm a PhD of Computing in the <a href="https://www.utah.edu/">University of Utah</a> 
+			with my interest focused on Computer Graphics, Computer Vision. To be more specific, my research revolves around <strong> capturing the deformation of non-rigid objects and studying the physics problems arise from it</strong>.
+			I am currently advised under Prof. Cem Yuksel, prior to that I was objects by Prof. Ladislav Kavan.
+			</p>
+			<p>
+			I have interdisciplinary education backgrounds, which covers electric engineering, mathematics and computer science. 
+			I obtained by master's degree of computational mathematics with first class honours from the School of Mathematics 
+			at <a href="https://en.dlut.edu.cn/">DLUT</a>. I also won the title of Outstanding Graduate and Outstanding Master Graduation Thesis. Prior to that I have a bachelor's degree of Eletric Engineering at Human Univsersity.
+			<br />
+            </p>
+			<p>
+			<strong> Explanation/pronouciation of My Name</strong>: Please don't be confused by my first name, "He." Although it looks like a pronoun, it is pronounced as "hə" (similar to "her" without the "r"), which means "prominent" in Chinese. However, I would greatly appreciate it if you could call me by my preferred name, Anka.
             </p>
 			
            <!-- <p><strong>
@@ -143,7 +141,8 @@
             <p>
             My current research topics include:
             </p><ul>
-            <li> <strong>Next Gen Motion Capture</strong>:  A system to capture more than 1000 unique points on the surfaceof a moving human body. Directly obtain 4D (spatial temporal) data from human motion.
+            <li> <strong>Next Gen Motion Capture</strong>:  A system to capture thousand of unique points on the surface of a deformable object, including human body and clothes. Directly obtain 4D (spatial temporal) data from the motion.
+			<li> <strong>Physics Based Animation</strong>: My works covers time integrator, collision detection and resolution.
 			<li> <strong>Point Cloud</strong>: Point cloud normal estimation, point cloud denoising, point cloud alignment.
             </li><li> <strong>3D Scanning</strong>: Data algning, texture synthesis, mesh reconstruction. Currently focus on registration of depth and feature preserving 
 			reconstruction.
@@ -175,19 +174,26 @@
             -->
             <div class="media">
                 <a >
-                    <iframe width="840" height="473" src="https://www.youtube.com/embed/oK6PjWmJQkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe width="640" height="360" src="https://www.youtube.com/embed/oK6PjWmJQkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </a>
                 <div class="media-body">
                     <p class="media-heading">
                         <strong>
-                            [Incoming Work] Real-Time Robust Collision Handling
+                            Shortest Path to Boundary for Self-Intersecting Meshes
                      </strong>
+						<br />
+						<i>[Accepted] ACM Transactions on Graphics 42(4) [Proceedings of SIGGRAPH], 2023  </i>
+						<!-- <a
+                            href="https://ieeexplore.ieee.org/document/8340177/">[Article Page]</a>,  -->
+                        <a
+							href="./Projects/VolumetricShortestPath/ComingSoon.html">[Project Page]</a>
+                        <br />
+                        He Chen, Elie Diaz, Cem Yuksel
+                    </p>
                         
                     </p>
                     <p class="abstract-text">
-                        This is a PBA project focusing on collision handling. 
-                        This is a very robust collision-handling method capable of solving complicated self-intersections even after it has already happened. We do not require to start with a penetration-free state or inversion-free state.
-                        At the same time, this method is very efficient and it only takes a little portion of the total running time (less than 5%). Combined with PBD (other simulation frameworks are also supported) and a GPU implementation, most of the examples shown can be simulated in real-time.
+                        TWe introduce a method for efficiently computing the exact shortest path to the boundary of a mesh from a given internal point in the presence of self-intersections. We provide a formal definition of shortest boundary paths for self-intersecting objects and present a robust algorithm for computing the actual shortest boundary path. The resulting method offers an effective solution for collision and self-collision handling while simulating deformable volumetric objects, using fast simulation techniques that provide no guarantees on collision resolution. Our evaluation includes complex self-collision scenarios with a large number of active contacts, showing that our method can successfully handle them by introducing a relatively minor computational overhead.
                     </p>
                 </div>
             </div> 
