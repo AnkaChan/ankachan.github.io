@@ -7,7 +7,7 @@ date: 2018-06-01
 venue: 'IEEE Transactions on Visualization and Computer Graphics (TVCG)'
 paperurl: 'https://www.computer.org/csdl/trans/tg/preprint/08340177.pdf'
 citation: 'Jie Zhang, Junjie Cao (co-first authors), Xiuping Liu, Anka He Chen, Bo Li, Ligang Liu. (2018). &quot;Multi-Normal Estimation via Pair Consistency Voting.&quot; <i>IEEE Transactions on Visualization and Computer Graphics</i>.'
-featured: true
+featured: false
 header:
   teaser: publications/MultiNormal.png
 ---

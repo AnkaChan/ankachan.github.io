@@ -7,7 +7,7 @@ date: 2016-03-01
 venue: 'The Visual Computer'
 paperurl: 'https://www.researchgate.net/profile/Junjie_Cao/publication/284722787_Mesh_saliency_detection_via_double_absorbing_Markov_chain_in_feature_space/links/5657776208aeafc2aac10256.pdf'
 citation: 'Xiuping Liu, Pingping Tao, Junjie Cao, He Chen, Changqing Zou. (2016). &quot;Mesh Saliency Detection via Double Absorbing Markov Chain in Feature Space.&quot; <i>The Visual Computer</i>.'
-featured: true
+featured: false
 header:
   teaser: publications/meshSaliency.png
 ---
