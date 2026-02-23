@@ -16,9 +16,9 @@ I am investigating the use of deep learning methods to speed up the convergence 
 research also includes developing high-resolution deformation capture systems. Those systems are designed to collect real-world
 data on non-rigid objects, facilitating the study of inverse physics problems.
 
-## Selected Publications
+## Explanation/pronunciation of My Name
 
-**Explanation/pronunciation of My Name**: Please don't be confused by my first name, "He." Although it looks like a pronoun, it is pronounced as "hə" (similar to "her" without the "r"), which means "prominent" in Chinese. However, I would greatly appreciate it if you could call me by my preferred name, Anka.
+Please don't be confused by my first name, "He." Although it looks like a pronoun, it is pronounced as "hə" (similar to "her" without the "r"), which means "prominent" in Chinese. However, I would greatly appreciate it if you could call me by my preferred name, Anka.
 
 ## Education
 
@@ -38,9 +38,7 @@ data on non-rigid objects, facilitating the study of inverse physics problems.
 - Focus: Physics-based simulation, Computer Graphics
 - Location: Kirkland, Washington
 
-## Research
-
-My current research topics include:
+## Selected Publications
 
 {% assign featured_pubs = site.publications | where: "featured", true | sort: "date" | reverse %}
 {% for post in featured_pubs %}
