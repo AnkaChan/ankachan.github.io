@@ -9,12 +9,12 @@ redirect_from:
 ---
 
 ## About Me
-I am currently a research scientist at NVIDIA specializing in physics-based simulation and the capture of non-rigid objects. I got my PhD in
+I am currently a research scientist at NVIDIA specializing in physics-based simulation and physical AI. I got my PhD in
 Graphics from the University of Utah. My recent research concentrates on creating parallel solutions for implicit time integration,
 aiming to deliver robust and efficient strategies for handling elasticity, collisions, and the dynamics of rigid bodies. Additionally,
 I am investigating the use of deep learning methods to speed up the convergence of physics solvers. A significant portion of my
 research also includes developing high-resolution deformation capture systems. Those systems are designed to collect real-world
-data on non-rigid objects, facilitating the study of inverse physics problems.
+data on non-rigid objects, facilitating the study of inverse physics problems. In summary, my works serves the goal of building infrastructure for Physical AI.
 
 ## Explanation/pronunciation of My Name
 
@@ -34,9 +34,10 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 
 ## Work Experience
 
-**Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2024 - Present
-- Focus: Physics-based simulation, Computer Graphics
-- Location: Kirkland, Washington
+**Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2025 - Present
+*Kirkland, Washington*
+
+I am part of the team that created the [Warp](https://github.com/NVIDIA/warp) differentiable language and Newton solver. Newton solver is the next-generation world simulator for physical AI that NVIDIA is actively promoting. I created and am leading the development of one of its core solvers: the VBD (Vertex Block Descent) solver. VBD is a robust and parallel physics solver optimized for GPU architectures, capable of simulating coupled multiphysics systems including robots, soft bodies, cloth, cables, and rigid bodies. VBD provides unprecedented precision and speed, making it the ideal algorithm for building world simulators. This algorithm is one of my representative works during my PhD and contributed to winning the ACM SIGGRAPH / Eurographics Symposium on Computer Animation (SCA) 2025 Best Doctoral Dissertation Award.
 
 ## Selected Publications
 
