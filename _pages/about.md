@@ -14,7 +14,9 @@ Graphics from the University of Utah. My recent research concentrates on creatin
 aiming to deliver robust and efficient strategies for handling elasticity, collisions, and the dynamics of rigid bodies. Additionally,
 I am investigating the use of deep learning methods to speed up the convergence of physics solvers. A significant portion of my
 research also includes developing high-resolution deformation capture systems. Those systems are designed to collect real-world
-data on non-rigid objects, facilitating the study of inverse physics problems. In summary, my works serves the goal of building infrastructure for Physical AI.
+data on non-rigid objects, facilitating the study of inverse physics problems. In summary, my work serves the goal of building infrastructure for Physical AI.
+
+I am a member of the team that developed the [Warp](https://github.com/NVIDIA/warp) differentiable programming language and the [Newton](https://github.com/newton-physics/newton) solver. Newton is a next-generation world simulator for physical AI that NVIDIA is actively developing. I am the creator and one of the principal developers of one of Newton's core solvers: the [VBD (Vertex Block Descent) solver](/publication/2024-vbd). The VBD solver represents one of my principal contributions during my doctoral studies. It is a robust and parallel physics solver optimized for GPU architectures, capable of simulating coupled multiphysics systems including robots, soft bodies, cloth, cables, and rigid bodies. VBD achieves unprecedented precision and computational efficiency, establishing it as an ideal algorithm for constructing world simulators. 
 
 ## Explanation/pronunciation of My Name
 
@@ -34,10 +36,8 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 
 ## Work Experience
 
-**Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2025 - Present
-*Kirkland, Washington*
-
-I am part of the team that created the [Warp](https://github.com/NVIDIA/warp) differentiable language and Newton solver. Newton solver is the next-generation world simulator for physical AI that NVIDIA is actively promoting. I created and am leading the development of one of its core solvers: the VBD (Vertex Block Descent) solver. VBD is a robust and parallel physics solver optimized for GPU architectures, capable of simulating coupled multiphysics systems including robots, soft bodies, cloth, cables, and rigid bodies. VBD provides unprecedented precision and speed, making it the ideal algorithm for building world simulators. This algorithm is one of my representative works during my PhD and contributed to winning the ACM SIGGRAPH / Eurographics Symposium on Computer Animation (SCA) 2025 Best Doctoral Dissertation Award.
+**Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2024 - Present
+    - Focus: Physics-based simulation, Physical AI
 
 ## Selected Publications
 
