@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="MeshFrame - Header-Only Mesh Processing Library">
+  <meta name="description" content="MeshFrame is a lightweight, header-only C++ mesh processing framework with blazing fast performance, supporting triangular and tetrahedral meshes.">
+  <meta name="keywords" content="mesh processing, C++, header-only, triangular mesh, tetrahedral mesh, computer graphics">
+  <meta name="author" content="Anka He Chen">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MeshFrame">
+  <meta property="og:description" content="A lightweight, header-only C++ mesh processing framework with blazing fast performance.">
+  <meta property="og:url" content="https://ankachan.github.io/Projects/MeshFrame/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@AnkaHeChen">
+  <meta name="twitter:title" content="MeshFrame">
+
+  <title>MeshFrame - Header-Only Mesh Processing Library</title>
+
+  <link rel="icon" type="image/x-icon" href="static/images/ico.png">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  </noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+</head>
+<body>
+
+<main id="main-content">
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">MeshFrame</h1>
+          <div class="is-size-4 publication-authors">
+            <span class="author-block" style="font-weight: 500;">
+              A Header-Only, Blazing Fast Mesh Processing Library
+            </span>
+          </div>
+          <div class="is-size-5 publication-authors" style="margin-top: 0.5em;">
+            <span class="author-block">
+              <a href="https://ankachan.github.io/" target="_blank">Anka He Chen</a>,
+            </span>
+            <span class="author-block">
+              Haoyu Chen, Yiming Zhu
+            </span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://github.com/MeshFrame/MeshFrame" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-github"></i>
+                </span>
+                <span>MeshFrame (Original)</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://github.com/AnkaChan/MeshFrame2" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-github"></i>
+                </span>
+                <span>MeshFrame2 (Latest)</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Overview -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            <strong>MeshFrame</strong> is a lightweight, header-only C++ mesh processing framework designed for efficiency and speed. It provides superior performance compared to other state-of-the-art libraries such as OpenMesh, MeshLab, and CGAL for common mesh processing tasks.
+          </p>
+          <p>
+            MeshFrame supports dynamic mesh structure editing at runtime, runtime dynamic properties, and both triangular and tetrahedral meshes. Being header-only, it requires no pre-compilation and can be easily integrated into any C++ project.
+          </p>
+          <p>
+            <strong>MeshFrame2</strong> is the latest evolution, serving as the core mesh data structure library in the <a href="/Projects/Gaia/">Gaia Engine</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Key Features</h2>
+    <div class="columns is-multiline">
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-bolt"></i> Blazing Fast</h3>
+          <p>Superior efficiency compared to OpenMesh, CGAL, and MeshLab for common mesh processing operations.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-feather"></i> Header-Only</h3>
+          <p>No pre-compilation required. Simply include the headers in your C++ project and start using it immediately.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-shapes"></i> Triangle & Tetrahedral Mesh</h3>
+          <p>Full support for both triangular surface meshes and tetrahedral volume meshes with unified API design.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-edit"></i> Dynamic Editing</h3>
+          <p>Supports dynamic mesh structure editing at runtime, including vertex/face/edge insertion and deletion.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-sliders-h"></i> Runtime Properties</h3>
+          <p>Attach arbitrary data properties to mesh elements (vertices, edges, faces) at runtime without recompilation.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-puzzle-piece"></i> Zero Dependencies</h3>
+          <p>No mandatory external dependencies. Eigen and FreeGlut are optional for numerical computation and visualization.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Getting Started -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Getting Started</h2>
+        <div class="content has-text-justified">
+          <p>MeshFrame is header-only, so integration is straightforward:</p>
+          <pre><code># Clone the repository
+git clone https://github.com/MeshFrame/MeshFrame.git
+
+# Or for MeshFrame2 (latest version)
+git clone https://github.com/AnkaChan/MeshFrame2.git
+
+# Simply add the include directory to your project
+# No compilation needed!</code></pre>
+          <p><strong>Optional dependencies:</strong></p>
+          <ul>
+            <li><strong>Eigen</strong> - For numerical computation</li>
+            <li><strong>FreeGlut</strong> - For built-in mesh viewer</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Applications -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Applications</h2>
+        <div class="content has-text-justified">
+          <p>MeshFrame has been used in various research and production projects:</p>
+          <ul>
+            <li><strong><a href="/Projects/Gaia/">Gaia Engine</a></strong> - MeshFrame2 serves as the core mesh data structure for Gaia's physics simulation pipeline.</li>
+            <li><strong>Mesh Simplification</strong> - MeshFrame includes a very fast mesh simplification application built on its efficient data structures.</li>
+            <li><strong>Point Cloud Processing</strong> - Used in research on point cloud normal estimation and denoising.</li>
+            <li><strong>3D Scanning</strong> - Applied in depth data alignment, texture synthesis, and mesh reconstruction projects.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Versions -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Versions</h2>
+    <div class="columns">
+      <div class="column has-text-centered">
+        <div class="box">
+          <h4 class="title is-4"><a href="https://github.com/MeshFrame/MeshFrame" target="_blank">MeshFrame</a></h4>
+          <p class="subtitle is-6">Original Version</p>
+          <p>The original mesh processing library with full documentation, viewer, and algorithm library.</p>
+          <p><strong>57+ Stars</strong></p>
+        </div>
+      </div>
+      <div class="column has-text-centered">
+        <div class="box">
+          <h4 class="title is-4"><a href="https://github.com/AnkaChan/MeshFrame2" target="_blank">MeshFrame2</a></h4>
+          <p class="subtitle is-6">Latest Version</p>
+          <p>The successor, optimized for integration with Gaia Engine. Used as the core mesh library in production.</p>
+          <p><strong>39+ Stars</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            Page built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

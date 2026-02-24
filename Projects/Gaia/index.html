@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="Gaia Engine - A C++ Physics Simulation Engine">
+  <meta name="description" content="Gaia is a C++ physics simulation engine featuring VBD and XPBD solvers, powerful mesh data structures, collision detection, and an extensible physics framework.">
+  <meta name="keywords" content="physics simulation, VBD, XPBD, C++, GPU, computer graphics, physics engine">
+  <meta name="author" content="Anka He Chen">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Gaia Engine">
+  <meta property="og:description" content="A C++ physics simulation engine with VBD and XPBD solvers for robust, GPU-optimized multiphysics simulation.">
+  <meta property="og:url" content="https://ankachan.github.io/Projects/Gaia/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@AnkaHeChen">
+  <meta name="twitter:title" content="Gaia Engine">
+
+  <title>Gaia Engine - Physics Simulation Engine</title>
+
+  <link rel="icon" type="image/x-icon" href="static/images/ico.png">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  </noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+</head>
+<body>
+
+<main id="main-content">
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Gaia Engine</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://ankachan.github.io/" target="_blank">Anka He Chen</a>
+            </span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">A C++ Physics Simulation Engine</span>
+          </div>
+          <div class="is-size-6 publication-authors">
+            <span class="author-block" style="color: #888;">
+              <em>"There is no copy too small to be ignored, nor design too abstract to be embraced."</em> -- Anka He Chen
+            </span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://github.com/AnkaChan/Gaia" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-github"></i>
+                </span>
+                <span>GitHub (844+ Stars)</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://discord.gg/BRRaSmRpkm" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-discord"></i>
+                </span>
+                <span>Discord Community</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2403.06321" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fas fa-file-pdf"></i>
+                </span>
+                <span>VBD Paper</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body has-text-centered">
+      <img src="https://github.com/AnkaChan/Gaia/blob/main/teaser.gif?raw=true" alt="Gaia Engine Teaser" style="max-width: 100%; border-radius: 8px;">
+      <h2 class="subtitle has-text-centered">
+        Gaia Engine simulating thousands of objects with complex collisions using the VBD solver.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- Overview -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            <strong>Gaia</strong> is a C++ physics simulation engine designed for high-performance physics-based simulations. It can be compiled as a <strong>standalone simulator</strong> or integrated into other applications as a <strong>third-party CMake module</strong>.
+          </p>
+          <p>
+            Gaia provides powerful triangular/tetrahedral mesh data structures (via <a href="/Projects/MeshFrame/">MeshFrame2</a>), a convenient parameter I/O module, efficient collision detectors, and an abstract base physics framework that is extensible for various solvers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Key Features</h2>
+    <div class="columns is-multiline">
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-bolt"></i> VBD Solver</h3>
+          <p>Vertex Block Descent solver from SIGGRAPH 2024. A robust and parallel physics solver optimized for GPU architectures, capable of simulating coupled multiphysics systems.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-cubes"></i> XPBD Solver</h3>
+          <p>Extended Position Based Dynamics solver for real-time simulation of elastic bodies, cloth, and other deformable objects.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-project-diagram"></i> Mesh Data Structures</h3>
+          <p>Powered by MeshFrame2, providing blazing fast triangular and tetrahedral mesh processing with header-only design.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-crosshairs"></i> Collision Detection</h3>
+          <p>Efficient collision detection system using Intel Embree for robust and fast broadphase and narrowphase collision queries.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-cogs"></i> Extensible Framework</h3>
+          <p>Abstract base physics framework supporting various solvers. JSON-based configuration for models and physics parameters.</p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <div class="box">
+          <h3 class="title is-5"><i class="fas fa-code-branch"></i> CMake Integration</h3>
+          <p>Can be used standalone or integrated as a CMake module. Built on OneTBB, Eigen3, and Embree.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Papers -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Related Publications</h2>
+    <div class="content">
+      <div class="columns">
+        <div class="column">
+          <div class="box">
+            <h4 class="title is-5"><a href="/Projects/VertexBlockDescent/">Vertex Block Descent</a></h4>
+            <p><em>ACM Transactions on Graphics 43(4), SIGGRAPH 2024</em></p>
+            <p>Anka He Chen, Ziheng Liu, Yin Yang, Cem Yuksel</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="box">
+            <h4 class="title is-5"><a href="/Projects/OGC/">Offset Geometric Contact</a></h4>
+            <p><em>ACM Transactions on Graphics, SIGGRAPH Asia 2025</em></p>
+            <p>Anka He Chen, Jerry Hsu, Ziheng Liu, Miles Macklin, Yin Yang, Cem Yuksel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Getting Started -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Getting Started</h2>
+        <div class="content has-text-justified">
+          <p>Gaia uses CMake as its build system. To get started:</p>
+          <pre><code>git clone --recursive https://github.com/AnkaChan/Gaia.git
+cd Gaia
+mkdir build && cd build
+cmake ..
+cmake --build . --config Release</code></pre>
+          <p><strong>Dependencies:</strong> OneTBB (2021.12.0+), Eigen3 (3.4.0+), Embree (3.13.1)</p>
+          <p>For detailed setup instructions, check the <a href="https://github.com/AnkaChan/Gaia" target="_blank">GitHub repository</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Also Check Out -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Also Check Out</h2>
+    <div class="columns">
+      <div class="column has-text-centered">
+        <a href="https://github.com/AnkaChan/TinyVBD" target="_blank">
+          <h4 class="title is-5">TinyVBD</h4>
+        </a>
+        <p>A minimal demo of VBD for mass-spring strand simulation. Only requires Eigen3. 130+ stars.</p>
+      </div>
+      <div class="column has-text-centered">
+        <a href="/Projects/MeshFrame/">
+          <h4 class="title is-5">MeshFrame</h4>
+        </a>
+        <p>A header-only, blazing fast mesh processing library for triangular and tetrahedral meshes.</p>
+      </div>
+      <div class="column has-text-centered">
+        <a href="https://github.com/AnkaChan/CuMatrix" target="_blank">
+          <h4 class="title is-5">CuMatrix</h4>
+        </a>
+        <p>CUDA small matrix computation library for GPU-accelerated linear algebra.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            Page built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
