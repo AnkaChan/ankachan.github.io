@@ -43,15 +43,13 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 
 {% assign featured_pubs = site.publications | where: "featured", true | sort: "date" | reverse %}
 {% for post in featured_pubs %}
-<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
-  <div style="flex-shrink: 0; width: 250px;">
+<div style="margin-bottom: 2.5em;">
+  <div style="max-width: 500px; margin-bottom: 0.75em;">
     <img src="/images/{{ post.header.teaser }}" alt="{{ post.title }}" style="width: 100%; border-radius: 4px;">
   </div>
-  <div>
-    <h3 style="margin-top: 0;"><a href="{{ post.url }}">{{ post.title }}</a></h3>
-    <p style="margin: 0.5em 0; font-style: italic;">{{ post.venue }}, {{ post.date | date: "%Y" }}</p>
-    <p>{{ post.excerpt | markdownify }}</p>
-  </div>
+  <h3 style="margin-top: 0;"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+  <p style="margin: 0.5em 0; font-style: italic;">{{ post.venue }}, {{ post.date | date: "%Y" }}</p>
+  <p>{{ post.excerpt | markdownify }}</p>
 </div>
 {% endfor %}
 
