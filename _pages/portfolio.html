@@ -1,14 +1,66 @@
 ---
 layout: archive
-title: "Portfolio"
+title: "Projects"
 permalink: /portfolio/
 author_profile: true
 ---
 
 {% include base_path %}
 
+<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
+  <div style="flex-shrink: 0; width: 250px;">
+    <img src="/images/publications/VBD.jpg" alt="Gaia Engine" style="width: 100%; border-radius: 4px;">
+  </div>
+  <div>
+    <h3 style="margin-top: 0;"><a href="/Projects/Gaia/">Gaia Engine</a></h3>
+    <p>A C++ physics simulation engine featuring VBD and XPBD solvers, powerful mesh data structures, collision detection, and an extensible physics framework. <strong>844+ GitHub stars.</strong></p>
+    <p><a href="/Projects/Gaia/">Project Page</a> · <a href="https://github.com/AnkaChan/Gaia">GitHub</a></p>
+  </div>
+</div>
 
-{% for post in site.portfolio %}
-  {% include archive-single.html %}
-{% endfor %}
+<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
+  <div style="flex-shrink: 0; width: 250px;">
+    <img src="/images/publications/ogc-teaser.jpg" alt="OGC" style="width: 100%; border-radius: 4px;">
+  </div>
+  <div>
+    <h3 style="margin-top: 0;"><a href="/Projects/OGC/">Offset Geometric Contact (OGC)</a></h3>
+    <p><em>ACM Transactions on Graphics 44(4) [Proceedings of SIGGRAPH Asia], 2025</em></p>
+    <p>A novel contact model for guaranteed penetration-free simulation of codimensional objects with minimal computational overhead. Performance over two orders of magnitude faster than prior methods.</p>
+    <p><a href="/Projects/OGC/">Project Page</a> · <a href="https://www.dropbox.com/scl/fi/zozvqbqmw5tr4dl5e66by/Offset_Geometric_Contact_Final.pdf?rlkey=7awhktk03hlhb47g5jqmxak4f&e=1&st=ltqxxkpl&dl=0">Paper</a> · <a href="https://www.youtube.com/watch?v=xxyniqSLJik">Video</a></p>
+  </div>
+</div>
 
+<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
+  <div style="flex-shrink: 0; width: 250px;">
+    <img src="/images/publications/VBD.jpg" alt="VBD" style="width: 100%; border-radius: 4px;">
+  </div>
+  <div>
+    <h3 style="margin-top: 0;"><a href="/Projects/VertexBlockDescent/">Vertex Block Descent (VBD)</a></h3>
+    <p><em>ACM Transactions on Graphics 43(4) [Proceedings of SIGGRAPH], 2024</em></p>
+    <p>A robust and parallel physics solver optimized for GPU architectures, capable of simulating coupled multiphysics systems including robots, soft bodies, cloth, cables, and rigid bodies. Selected for SIGGRAPH Technical Paper Trailer.</p>
+    <p><a href="/Projects/VertexBlockDescent/">Project Page</a> · <a href="https://arxiv.org/pdf/2403.06321.pdf">Paper</a> · <a href="https://youtu.be/2HCgKfKy3W8">Video</a></p>
+  </div>
+</div>
+
+<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
+  <div style="flex-shrink: 0; width: 250px;">
+    <img src="/images/publications/mocap-teaser.jpg" alt="Mocap" style="width: 100%; border-radius: 4px;">
+  </div>
+  <div>
+    <h3 style="margin-top: 0;"><a href="/Projects/MocapCheckerboard/MocapCheckerboard.html">Motion Capture with Checkerboard Suit</a></h3>
+    <p><em>ACM Transactions on Graphics 40(4) [Proceedings of SIGGRAPH], 2021</em></p>
+    <p>A new method to capture detailed human motion, sampling over 1,000 unique points on the body using a special motion capture suit with checkerboard-like corners and two-letter codes.</p>
+    <p><a href="/Projects/MocapCheckerboard/MocapCheckerboard.html">Project Page</a> · <a href="https://arxiv.org/pdf/2102.07343.pdf">Paper</a></p>
+  </div>
+</div>
+
+<div style="display: flex; gap: 1.5em; margin-bottom: 2.5em; align-items: flex-start;">
+  <div style="flex-shrink: 0; width: 250px;">
+    <img src="/images/publications/meshSaliency.png" alt="MeshFrame" style="width: 100%; border-radius: 4px;">
+  </div>
+  <div>
+    <h3 style="margin-top: 0;"><a href="/Projects/MeshFrame/">MeshFrame</a></h3>
+    <p>A lightweight, header-only C++ mesh processing framework with blazing fast performance. Superior efficiency compared to OpenMesh, CGAL, and MeshLab. Supports triangular and tetrahedral meshes.</p>
+    <p><a href="/Projects/MeshFrame/">Project Page</a> · <a href="https://github.com/MeshFrame/MeshFrame">GitHub (Original)</a> · <a href="https://github.com/AnkaChan/MeshFrame2">GitHub (MeshFrame2)</a></p>
+  </div>
+</div>
