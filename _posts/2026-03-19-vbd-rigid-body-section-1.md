@@ -32,7 +32,7 @@ where $m$ is the total mass, $\mathbf{x}\_\text{com}$ is the world-space center-
 
 For the **rotational** DoF, the Newton-Euler equation in the **body frame** (where inertia is constant) is:
 
-$$\mathbf{I}\_\text{body}\,\dot{\boldsymbol{\omega}} + \boldsymbol{\omega} \times (\mathbf{I}\_\text{body}\,\boldsymbol{\omega}) = \boldsymbol{\tau}$$
+$$\mathbf{I}_\text{body}\,\dot{\boldsymbol{\omega}} + \boldsymbol{\omega} \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}) = \boldsymbol{\tau}$$
 
 where $\boldsymbol{\omega}$ is the angular velocity in the body frame, $\boldsymbol{\tau}$ is the torque mapped to the body frame, and $\mathbf{I}\_\text{body}$ is the constant body-frame inertia tensor. In the world frame this is equivalently $\mathbf{I}\_\text{world}\,\dot{\boldsymbol{\omega}}\_\text{world} = \boldsymbol{\tau}\_\text{world} - \boldsymbol{\omega}\_\text{world} \times \mathbf{I}\_\text{world}\,\boldsymbol{\omega}\_\text{world}$ with $\mathbf{I}\_\text{world} = \mathbf{R}\,\mathbf{I}\_\text{body}\,\mathbf{R}^T$.
 
@@ -68,13 +68,13 @@ $$m\,\frac{\Delta\mathbf{x}/h - \mathbf{v}^n}{h} = \mathbf{f}(\mathbf{x}^n + \De
 
 Rearranging to residual form:
 
-$$\mathbf{r}\_\text{lin}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \frac{m}{h^2}\!\left(\Delta\mathbf{x} - h\mathbf{v}^n\right) - \mathbf{f}(\mathbf{x}^n + \Delta\mathbf{x},\; \mathbf{R}^{n+1}) \;=\; \mathbf{0}$$
+$$\mathbf{r}_\text{lin}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \frac{m}{h^2}\!\left(\Delta\mathbf{x} - h\mathbf{v}^n\right) - \mathbf{f}(\mathbf{x}^n + \Delta\mathbf{x},\; \mathbf{R}^{n+1}) \;=\; \mathbf{0}$$
 
 ### Step 3: Rotational Residual (Body Frame)
 
 Work in the body frame where $\mathbf{I}\_\text{body}$ is constant. Backward Euler on the angular velocity gives:
 
-$$\mathbf{I}\_\text{body}\,\frac{\boldsymbol{\omega}^{n+1} - \boldsymbol{\omega}^n}{h} + \boldsymbol{\omega}^{n+1} \times (\mathbf{I}\_\text{body}\,\boldsymbol{\omega}^{n+1}) = \boldsymbol{\tau}^{n+1}$$
+$$\mathbf{I}_\text{body}\,\frac{\boldsymbol{\omega}^{n+1} - \boldsymbol{\omega}^n}{h} + \boldsymbol{\omega}^{n+1} \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}^{n+1}) = \boldsymbol{\tau}^{n+1}$$
 
 The rotation increment $\Delta\boldsymbol{\theta}$ integrates to $\mathbf{R}^{n+1}$, so we identify:
 
@@ -82,11 +82,11 @@ $$\boldsymbol{\omega}^{n+1} \approx \frac{\Delta\boldsymbol{\theta}}{h}$$
 
 (constant angular velocity over the step whose integrated angle equals $\Delta\boldsymbol{\theta}$). Substituting and multiplying through by $h$:
 
-$$\mathbf{I}\_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{1}{h^2}\,\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body}\,\Delta\boldsymbol{\theta}) = \boldsymbol{\tau}^{n+1}$$
+$$\mathbf{I}_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{1}{h^2}\,\Delta\boldsymbol{\theta} \times (\mathbf{I}_\text{body}\,\Delta\boldsymbol{\theta}) = \boldsymbol{\tau}^{n+1}$$
 
 Rearranging to residual form:
 
-$$\mathbf{r}\_\text{rot}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{I}\_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body}\,\Delta\boldsymbol{\theta})}{h^2} - \boldsymbol{\tau}^{n+1}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{0}$$
+$$\mathbf{r}_\text{rot}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{I}_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{\Delta\boldsymbol{\theta} \times (\mathbf{I}_\text{body}\,\Delta\boldsymbol{\theta})}{h^2} - \boldsymbol{\tau}^{n+1}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{0}$$
 
 The Coriolis-like term $\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body}\,\Delta\boldsymbol{\theta})/h^2$ is second-order in $\Delta\boldsymbol{\theta}$ and vanishes for small steps, recovering the linear form $\mathbf{I}\,\ddot{\boldsymbol{\theta}} = \boldsymbol{\tau}$.
 
@@ -94,7 +94,7 @@ The Coriolis-like term $\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body
 
 Stack both residuals into a single 6-equation system:
 
-$$F(\Delta\mathbf{x},\,\Delta\boldsymbol{\theta}) = \begin{bmatrix} \mathbf{r}\_\text{lin}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \\\\ \mathbf{r}\_\text{rot}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \end{bmatrix} = \mathbf{0}$$
+$$F(\Delta\mathbf{x},\,\Delta\boldsymbol{\theta}) = \begin{bmatrix} \mathbf{r}_\text{lin}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \\\\ \mathbf{r}_\text{rot}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \end{bmatrix} = \mathbf{0}$$
 
 This is solved with Newton's method. Initialize $\Delta\mathbf{x} = h\mathbf{v}^n$, $\Delta\boldsymbol{\theta} = h\boldsymbol{\omega}^n$ (explicit Euler guess), then iterate:
 
@@ -115,7 +115,7 @@ $$\mathbf{v}^{n+1} = \frac{\Delta\mathbf{x}}{h}, \qquad \boldsymbol{\omega}^{n+1
 
 The Jacobian $\mathbf{J} = \partial F / \partial (\Delta\mathbf{x},\, \Delta\boldsymbol{\theta})$ has a natural 2&times;2 block structure. Dropping the second-order Coriolis term and rotating to world frame, each Newton iteration solves:
 
-$$\begin{bmatrix} H_{ll} & H_{al}^T \\\\ H_{al} & H_{aa} \end{bmatrix} \begin{bmatrix} \Delta\mathbf{x} \\\\ \Delta\boldsymbol{\omega} \end{bmatrix} = \begin{bmatrix} \mathbf{f}\_{lin} \\\\ \mathbf{f}\_{ang} \end{bmatrix}$$
+$$\begin{bmatrix} H_{ll} & H_{al}^T \\\\ H_{al} & H_{aa} \end{bmatrix} \begin{bmatrix} \Delta\mathbf{x} \\\\ \Delta\boldsymbol{\omega} \end{bmatrix} = \begin{bmatrix} \mathbf{f}_{lin} \\\\ \mathbf{f}_{ang} \end{bmatrix}$$
 
 where $\Delta\mathbf{x}$ and $\Delta\boldsymbol{\omega}$ are the Newton step corrections and the right-hand side is $-F$ at the current iterate. In VBD we run this as a **single Newton step per body per VBD iteration**, giving us a fast inner solve with guaranteed descent.
 
@@ -123,11 +123,11 @@ where $\Delta\mathbf{x}$ and $\Delta\boldsymbol{\omega}$ are the Newton step cor
 
 The inertial part of the Jacobian comes from differentiating $\mathbf{r}\_\text{lin}$ and $\mathbf{r}\_\text{rot}$ with respect to the increments:
 
-$$H\_{ll}^\text{inertia} = \frac{m}{h^2}\mathbf{I}\_3, \qquad \mathbf{f}\_{lin}^\text{inertia} = \frac{m}{h^2}(\mathbf{x}^{\ast}\_\text{com} - \mathbf{x}\_\text{com})$$
+$$H_{ll}^\text{inertia} = \frac{m}{h^2}\mathbf{I}_3, \qquad \mathbf{f}_{lin}^\text{inertia} = \frac{m}{h^2}(\mathbf{x}^{\ast}_\text{com} - \mathbf{x}_\text{com})$$
 
-$$H\_{aa}^\text{inertia} = \frac{1}{h^2}\mathbf{I}\_\text{world}, \qquad \mathbf{f}\_{ang}^\text{inertia} = \frac{1}{h^2}\mathbf{I}\_\text{world}\,\boldsymbol{\theta}$$
+$$H_{aa}^\text{inertia} = \frac{1}{h^2}\mathbf{I}_\text{world}, \qquad \mathbf{f}_{ang}^\text{inertia} = \frac{1}{h^2}\mathbf{I}_\text{world}\,\boldsymbol{\theta}$$
 
-$$H\_{al}^\text{inertia} = \mathbf{0}$$
+$$H_{al}^\text{inertia} = \mathbf{0}$$
 
 Here $\mathbf{x}^{\ast}\_\text{com} = \mathbf{x}^n\_\text{com} + h\mathbf{v}^n + h^2 m^{-1}\mathbf{f}\_\text{ext}$ is the **inertial target** (where the body would go under external forces alone), and $\boldsymbol{\theta}$ is the rotation vector from the current orientation to the inertia-integrated target orientation $\mathbf{R}^{\ast}$. Absorbing external forces into this target decouples them from the constraint solve---the Newton system only needs to handle $\mathbf{f}\_\text{constraint}$ on the right-hand side.
 
@@ -147,7 +147,7 @@ body_q[tid]         = q_new   # initial guess for iterations
 
 Any force element (contact, joint) acting at contact point $\mathbf{p}$ with moment arm $\mathbf{r} = \mathbf{p} - \mathbf{x}\_\text{com}$ contributes:
 
-$$H\_{ll}^c = \mathbf{K}\_c, \qquad H\_{al}^c = -[\mathbf{r}]\_\times^T \mathbf{K}\_c, \qquad H\_{aa}^c = [\mathbf{r}]\_\times^T \mathbf{K}\_c\,[\mathbf{r}]\_\times$$
+$$H_{ll}^c = \mathbf{K}_c, \qquad H_{al}^c = -[\mathbf{r}]_\times^T \mathbf{K}_c, \qquad H_{aa}^c = [\mathbf{r}]_\times^T \mathbf{K}_c\,[\mathbf{r}]_\times$$
 
 where $\mathbf{K}\_c = \partial \mathbf{f}\_c / \partial \mathbf{x}$ is the contact stiffness and $[\mathbf{r}]\_\times$ is the skew-symmetric cross-product matrix. All blocks are summed over adjacent force elements before the solve.
 
@@ -284,11 +284,11 @@ The key design point: contacts write into a shared `body_forces/hessians` buffer
 
 We reduce the 6&times;6 system to two successive 3&times;3 solves. Eliminate $\Delta\mathbf{x}$ from the top block row:
 
-$$\Delta\mathbf{x} = H\_{ll}^{-1}(\mathbf{f}\_{lin} - H\_{al}^T \Delta\boldsymbol{\omega})$$
+$$\Delta\mathbf{x} = H_{ll}^{-1}(\mathbf{f}_{lin} - H_{al}^T \Delta\boldsymbol{\omega})$$
 
 Substitute into the bottom row:
 
-$$\underbrace{(H\_{aa} - H\_{al}\,H\_{ll}^{-1}\,H\_{al}^T)}\_{\mathbf{S}}\,\Delta\boldsymbol{\omega} = \mathbf{f}\_{ang} - H\_{al}\,H\_{ll}^{-1}\,\mathbf{f}\_{lin}$$
+$$\underbrace{(H_{aa} - H_{al}\,H_{ll}^{-1}\,H_{al}^T)}_{\mathbf{S}}\,\Delta\boldsymbol{\omega} = \mathbf{f}_{ang} - H_{al}\,H_{ll}^{-1}\,\mathbf{f}_{lin}$$
 
 Factorize and solve in order:
 
@@ -302,7 +302,7 @@ Factorize and solve in order:
 
 Both 3&times;3 solves use a packed Cholesky (6-float lower-triangular factor). $H\_{aa}$ is lightly regularized first:
 
-$$H\_{aa} \leftarrow H\_{aa} + \varepsilon\mathbf{I}, \qquad \varepsilon = 10^{-9}\!\left(\tfrac{\mathrm{tr}(H\_{aa})}{3} + 1\right)$$
+$$H_{aa} \leftarrow H_{aa} + \varepsilon\mathbf{I}, \qquad \varepsilon = 10^{-9}\!\left(\tfrac{\mathrm{tr}(H_{aa})}{3} + 1\right)$$
 
 ---
 
@@ -310,7 +310,7 @@ $$H\_{aa} \leftarrow H\_{aa} + \varepsilon\mathbf{I}, \qquad \varepsilon = 10^{-
 
 Apply the Newton increments to the current pose:
 
-$$\mathbf{x}\_\text{com}^\text{new} = \mathbf{x}\_\text{com} + \Delta\mathbf{x}$$
+$$\mathbf{x}_\text{com}^\text{new} = \mathbf{x}_\text{com} + \Delta\mathbf{x}$$
 
 $$\mathbf{r}^\text{new} = \delta\mathbf{r} \otimes \mathbf{r}, \qquad \delta\mathbf{r} = \text{quat\_from\_axis\_angle}\!\left(\tfrac{\Delta\boldsymbol{\omega}}{|\Delta\boldsymbol{\omega}|},\; |\Delta\boldsymbol{\omega}|\right)$$
 
@@ -318,7 +318,7 @@ For small $\Delta\boldsymbol{\omega}$ the first-order approximation $\delta\math
 
 After all VBD iterations finish, velocities are recovered by finite difference (BDF1):
 
-$$\mathbf{v}^{n+1} = \frac{\mathbf{x}\_\text{com}^{n+1} - \mathbf{x}\_\text{com}^n}{h}, \qquad \boldsymbol{\omega}^{n+1} = \frac{\log(\mathbf{r}^n{}^{-1} \otimes \mathbf{r}^{n+1})}{h}$$
+$$\mathbf{v}^{n+1} = \frac{\mathbf{x}_\text{com}^{n+1} - \mathbf{x}_\text{com}^n}{h}, \qquad \boldsymbol{\omega}^{n+1} = \frac{\log(\mathbf{r}^n{}^{-1} \otimes \mathbf{r}^{n+1})}{h}$$
 
 ---
 
