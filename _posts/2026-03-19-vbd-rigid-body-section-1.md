@@ -16,7 +16,7 @@ share: true
 related: true
 ---
 
-In the [VBD paper](https://doi.org/10.1145/3658179) (SIGGRAPH 2024), we briefly discuss extending Vertex Block Descent to rigid body simulation. The idea is natural: instead of updating a single vertex with 3 DoF, you update an entire rigid body with 6 DoF. But the details matter. This post walks through the full derivation---from the continuous Newton-Euler equations, to discrete backward Euler as a nonlinear system, to the Schur complement solve you actually run each iteration---with reference code from [Newton](https://github.com/nvidia/newton-sim), which implements this approach under the name AVBD (Augmented VBD).
+In the [VBD paper](https://doi.org/10.1145/3658179) (SIGGRAPH 2024), we briefly discuss extending Vertex Block Descent to rigid body simulation. The idea is natural: instead of updating a single vertex with 3 DoF, you update an entire rigid body with 6 DoF. But the details matter. This post walks through the full derivation---from the continuous Newton-Euler equations, to discrete backward Euler as a nonlinear system, to the Schur complement solve you actually run each iteration---with reference code from [Newton](https://github.com/newton-physics/newton), which implements this approach under the name AVBD (Augmented VBD).
 
 This is Section I: free (unconstrained) rigid bodies. Section II will cover articulated bodies with joints.
 
@@ -399,7 +399,7 @@ for each body b:
 
 ## Reference Code
 
-The implementation lives in [Newton's VBD solver](https://github.com/nvidia/newton-sim/blob/main/newton/_src/solvers/vbd/). Key files:
+The implementation lives in [Newton's VBD solver](https://github.com/newton-physics/newton/blob/main/newton/_src/solvers/vbd/). Key files:
 
 - `rigid_vbd_kernels.py` --- GPU kernels: `forward_step_rigid_bodies`, `solve_rigid_body`, `update_duals_body_body_contacts`, `update_duals_joint`, `update_body_velocity`
 - `solver_vbd.py` --- orchestration in `SolverVBD.step()` and `_solve_rigid_body_iteration()`
@@ -457,6 +457,6 @@ Section II will cover **articulated bodies**: joint constraints, the rotation-ve
 
 ---
 
-*Newton: [github.com/nvidia/newton-sim](https://github.com/nvidia/newton-sim)*
+*Newton: [github.com/newton-physics/newton](https://github.com/newton-physics/newton)*
 
 *VBD paper: Anka He Chen, Ziheng Liu, Yin Yang, Cem Yuksel. "Vertex Block Descent." ACM Trans. Graph. 43, 4, Article 116 (2024). [doi:10.1145/3658179](https://doi.org/10.1145/3658179)*
