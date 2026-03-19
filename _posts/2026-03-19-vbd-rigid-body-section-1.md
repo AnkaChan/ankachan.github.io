@@ -123,15 +123,15 @@ where $\Delta\mathbf{x}$ and $\Delta\boldsymbol{\omega}$ are the Newton step cor
 
 The inertial part of the Jacobian comes from differentiating $\mathbf{r}\_\text{lin}$ and $\mathbf{r}\_\text{rot}$ with respect to the increments:
 
-$$H\_{ll}^\text{inertia} = \frac{m}{h^2}\mathbf{I}\_3, \qquad \mathbf{f}\_{lin}^\text{inertia} = \frac{m}{h^2}(\mathbf{x}^\*\_\text{com} - \mathbf{x}\_\text{com})$$
+$$H\_{ll}^\text{inertia} = \frac{m}{h^2}\mathbf{I}\_3, \qquad \mathbf{f}\_{lin}^\text{inertia} = \frac{m}{h^2}(\mathbf{x}^{\ast}\_\text{com} - \mathbf{x}\_\text{com})$$
 
 $$H\_{aa}^\text{inertia} = \frac{1}{h^2}\mathbf{I}\_\text{world}, \qquad \mathbf{f}\_{ang}^\text{inertia} = \frac{1}{h^2}\mathbf{I}\_\text{world}\,\boldsymbol{\theta}$$
 
 $$H\_{al}^\text{inertia} = \mathbf{0}$$
 
-Here $\mathbf{x}^\*\_\text{com} = \mathbf{x}^n\_\text{com} + h\mathbf{v}^n + h^2 m^{-1}\mathbf{f}\_\text{ext}$ is the **inertial target** (where the body would go under external forces alone), and $\boldsymbol{\theta}$ is the rotation vector from the current orientation to the inertia-integrated target orientation $\mathbf{R}^\*$. Absorbing external forces into this target decouples them from the constraint solve---the Newton system only needs to handle $\mathbf{f}\_\text{constraint}$ on the right-hand side.
+Here $\mathbf{x}^{\ast}\_\text{com} = \mathbf{x}^n\_\text{com} + h\mathbf{v}^n + h^2 m^{-1}\mathbf{f}\_\text{ext}$ is the **inertial target** (where the body would go under external forces alone), and $\boldsymbol{\theta}$ is the rotation vector from the current orientation to the inertia-integrated target orientation $\mathbf{R}^{\ast}$. Absorbing external forces into this target decouples them from the constraint solve---the Newton system only needs to handle $\mathbf{f}\_\text{constraint}$ on the right-hand side.
 
-In Newton, `forward_step_rigid_bodies` computes $\mathbf{x}^\*$ and $\mathbf{R}^\*$ by semi-implicit integration, storing them as `body_inertia_q`:
+In Newton, `forward_step_rigid_bodies` computes $\mathbf{x}^{\ast}$ and $\mathbf{R}^{\ast}$ by semi-implicit integration, storing them as `body_inertia_q`:
 
 ```python
 # forward_step_rigid_bodies (simplified)
