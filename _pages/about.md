@@ -34,6 +34,13 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 
 **Bachelor of Electrical Engineering** — [Hunan University](https://en.wikipedia.org/wiki/Hunan_University) — 2012 - 2016
 
+## Dissertation
+
+**[Towards Realistic Real-Time Physics-Based Simulation](/dissertation/)**
+*PhD Dissertation, Kahlert School of Computing, The University of Utah, December 2024*
+- **Award:** ACM SIGGRAPH / Eurographics Symposium on Computer Animation (SCA) 2025 Best Doctoral Dissertation Award
+- <a href="https://www.dropbox.com/scl/fi/7bbhqccsuzoc4kf3ja1w5/Anka_Chen_Disseration_Final.pdf?rlkey=p1rkhcvoxd9rgyr0mlfvyg6io&st=xn3f59tn&dl=0" target="_blank">Download PDF</a>
+
 ## Work Experience
 
 **Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2024 - Present
