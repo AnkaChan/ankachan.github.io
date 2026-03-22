@@ -39,7 +39,7 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 **[Towards Realistic Real-Time Physics-Based Simulation](/dissertation/)**
 *PhD Dissertation, Kahlert School of Computing, The University of Utah, December 2024*
 - **Award:** ACM SIGGRAPH / Eurographics Symposium on Computer Animation (SCA) 2025 Best Doctoral Dissertation Award
-- <a href="https://www.dropbox.com/scl/fi/7bbhqccsuzoc4kf3ja1w5/Anka_Chen_Disseration_Final.pdf?rlkey=p1rkhcvoxd9rgyr0mlfvyg6io&st=xn3f59tn&dl=0" target="_blank">Download PDF</a>
+- <a href="/files/Anka_Chen_Disseration_Final_LowRes.pdf" target="_blank">PDF (Low-Res)</a> | <a href="https://www.dropbox.com/scl/fi/7bbhqccsuzoc4kf3ja1w5/Anka_Chen_Disseration_Final.pdf?rlkey=p1rkhcvoxd9rgyr0mlfvyg6io&st=xn3f59tn&dl=0" target="_blank">PDF (Full-Res)</a>
 
 ## Work Experience
 

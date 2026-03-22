@@ -27,7 +27,8 @@ This dissertation addresses the challenge of achieving realistic real-time physi
 
 ---
 
-<a href="https://www.dropbox.com/scl/fi/7bbhqccsuzoc4kf3ja1w5/Anka_Chen_Disseration_Final.pdf?rlkey=p1rkhcvoxd9rgyr0mlfvyg6io&st=xn3f59tn&dl=0" class="btn btn--primary" target="_blank">Download Dissertation (PDF)</a>
+<a href="/files/Anka_Chen_Disseration_Final_LowRes.pdf" class="btn btn--primary" target="_blank">Download PDF (Low-Res, 7.9 MB)</a>
+<a href="https://www.dropbox.com/scl/fi/7bbhqccsuzoc4kf3ja1w5/Anka_Chen_Disseration_Final.pdf?rlkey=p1rkhcvoxd9rgyr0mlfvyg6io&st=xn3f59tn&dl=0" class="btn btn--info" target="_blank">Download PDF (Full-Res, 64 MB)</a>
 
 ### Award
 
