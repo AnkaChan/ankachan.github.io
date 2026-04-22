@@ -2,6 +2,7 @@
 title: "Shortest Path to Boundary for Self-Intersecting Meshes"
 collection: publications
 permalink: /publication/2023-shortest-path
+authors: '<b>Anka He Chen</b>, Elie Diaz, Cem Yuksel'
 excerpt: 'A method for efficiently computing the exact shortest path to the boundary of a mesh from a given internal point in the presence of self-intersections. • [Project](https://graphics.cs.utah.edu/research/projects/shortest-path-to-boundary/) • [Video](https://www.youtube.com/watch?v=qRBHY9ntwbU)'
 date: 2023-08-01
 venue: 'ACM Transactions on Graphics 42(4) [Proceedings of SIGGRAPH]'

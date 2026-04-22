@@ -2,6 +2,7 @@
 title: "Multi-Normal Estimation via Pair Consistency Voting"
 collection: publications
 permalink: /publication/2018-multinormal
+authors: 'Jie Zhang*, Junjie Cao* (co-first authors), Xiuping Liu, <b>Anka He Chen</b>, Bo Li, Ligang Liu'
 excerpt: 'A unified definition for point cloud normal of feature and non-feature points, allowing feature points to possess multiple normals.'
 date: 2018-06-01
 venue: 'IEEE Transactions on Visualization and Computer Graphics (TVCG)'

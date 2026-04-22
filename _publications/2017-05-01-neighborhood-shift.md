@@ -2,6 +2,7 @@
 title: "Normal Estimation via Shifted Neighborhood for Point Cloud"
 collection: publications
 permalink: /publication/2017-neighborhood-shift
+authors: 'Junjie Cao, <b>Anka He Chen</b>, Jie Zhang, Yujiao Li, Xiuping Liu, Changqing Zou'
 excerpt: 'A fast and quality normal estimator based on neighborhood shift for point clouds.'
 date: 2017-05-01
 venue: 'Journal of Computational and Applied Mathematics'

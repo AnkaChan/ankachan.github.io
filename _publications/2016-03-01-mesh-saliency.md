@@ -2,6 +2,7 @@
 title: "Mesh Saliency Detection via Double Absorbing Markov Chain in Feature Space"
 collection: publications
 permalink: /publication/2016-mesh-saliency
+authors: 'Xiuping Liu, Pingping Tao, Junjie Cao, <b>He Chen</b>, Changqing Zou'
 excerpt: 'A mesh saliency detection approach using absorbing Markov chain that considers both background and foreground cues.'
 date: 2016-03-01
 venue: 'The Visual Computer'
