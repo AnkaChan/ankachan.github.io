@@ -47,7 +47,7 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
 **Research Scientist** | [NVIDIA](https://www.nvidia.com/) | July 2024 - Present
     - Focus: Physics-based simulation, Physical AI
 
-## Selected Publications
+## Selected Publications <span style="font-size: 0.6em; font-weight: normal;">(For the full list of my publications see [here]({{ site.baseurl }}/publications/))</span>
 
 {% assign featured_pubs = site.publications | where: "featured", true | sort: "date" | reverse %}
 {% for post in featured_pubs %}
