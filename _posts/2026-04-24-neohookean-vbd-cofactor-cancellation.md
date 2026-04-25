@@ -19,12 +19,18 @@ This post derives the per-vertex 3&times;3 Hessian block for the [stable Neo-Hoo
 
 ## Stable Neo-Hookean Energy and Its Hessian
 
-For a tet with deformation gradient $\mathbf{F} \in \mathbb{R}^{3\times3}$ and Lam&eacute; parameters $\mu, \lambda$, the stable Neo-Hookean energy density is
+For a tet with deformation gradient $\mathbf{F} \in \mathbb{R}^{3\times3}$ and energy parameters $\mu, \lambda$, the stable Neo-Hookean energy density is
 
 $$\psi(\mathbf{F}) \;=\; \tfrac{\mu}{2}(I_C - 3) \;+\; \tfrac{\lambda}{2}(J - \alpha)^2,
 \qquad I_C = \|\mathbf{F}\|_F^2,\quad J = \det \mathbf{F},\quad \alpha = 1 + \tfrac{\mu}{\lambda}.$$
 
 The shift $\alpha$ ensures $\partial\psi/\partial \mathbf{F} = \mathbf{0}$ at the rest configuration $\mathbf{F} = \mathbf{I}$; it does *not* prevent inversion.
+
+A subtlety worth flagging: the symbols $\mu, \lambda$ in this energy are *not* directly the Lam&eacute; parameters. Matching the small-strain limit of stable Neo-Hookean to linear elasticity ([Smith et al. &sect;3.4](https://graphics.pixar.com/library/StableElasticity/paper.pdf), eq. 13) gives the relation
+
+$$\mu_\text{NH} \;=\; \mu_\text{Lam\'e}, \qquad \lambda_\text{NH} \;=\; \lambda_\text{Lam\'e} \;+\; \mu_\text{Lam\'e}.$$
+
+So if you are exposing material constants to users in textbook Lam&eacute; convention, convert with $\lambda_\text{NH} = \lambda_\text{Lam\'e} + \mu_\text{Lam\'e}$ before plugging into the energy. Throughout the rest of this post, $\mu, \lambda$ refer to the Neo-Hookean parameters $\mu_\text{NH}, \lambda_\text{NH}$ as they appear in the energy expression above.
 
 The first Piola--Kirchhoff stress is
 
@@ -193,7 +199,50 @@ with $\mathbf{w} = \mathbf{f}\_1\,m\_0^a - \mathbf{f}\_0\,m\_1^a$ and $\boldsymb
 
 **Geometric reading.** The volumetric tet has no "extra" direction --- both legs of $\mathbf{F}$ span the same 3D space, and the Levi-Civita pattern absorbs all three coordinate axes uniformly. The membrane has a normal direction that is *not* in the column space of $\mathbf{F}$; the second-derivative term contributes precisely along that normal. Stripping it would weaken out-of-plane resistance and change the physics, not just save flops.
 
-A stable Neo-Hookean triangle evaluator therefore still needs the second-derivative contribution, and a clamp on the underlying scalar $s$ for PSD-ness. The simple result for the volumetric tet is genuinely a special property of square deformation gradients.
+## The Tight PSD Clamp for the Membrane
+
+Although the cofactor-derivative term has to stay, the per-vertex 3&times;3 block still has a clean PSD characterisation. Combining the three contractions for the membrane case,
+
+$$\mathbf{H}\_{aa} \;=\; \mu\,\|\mathbf{m}^a\|^2\,\mathbf{I}\_3 \;+\; (\lambda - r)\,\boldsymbol{\nabla}J\_s\,\boldsymbol{\nabla}J\_s^T \;+\; r\,\big(\|\mathbf{w}\|^2\,\mathbf{I}\_3 - \mathbf{w}\mathbf{w}^T\big), \qquad r \;\equiv\; \frac{s}{J_s}.$$
+
+(The $\lambda\,\boldsymbol{\nabla}J\_s\,\boldsymbol{\nabla}J\_s^T$ piece comes from $\mathbf{A}\_\lambda$ in the membrane case --- the rank-1 cofactor outer product specialises to $\boldsymbol{\nabla}J\_s\,\boldsymbol{\nabla}J\_s^T$ here. The $-r\,\boldsymbol{\nabla}J\_s\,\boldsymbol{\nabla}J\_s^T$ piece comes from the $\mathbf{A}\_\sigma$ contraction, which is why the two combine.)
+
+Two algebraic identities make this block diagonalisable.
+
+**Lemma 1.** $\mathbf{w} \cdot \boldsymbol{\nabla}J_s = 0$.
+
+*Proof.* Direct computation using $\mathbf{g}\_\alpha = \partial J_s/\partial \mathbf{f}\_\alpha$ and $J_s^2 = AB - C^2$ with $A = \|\mathbf{f}\_0\|^2,\ B = \|\mathbf{f}\_1\|^2,\ C = \mathbf{f}\_0\cdot \mathbf{f}\_1$ gives
+$\mathbf{f}\_1\cdot\mathbf{g}\_0 = \mathbf{f}\_0\cdot\mathbf{g}\_1 = 0$ and $\mathbf{f}\_0\cdot\mathbf{g}\_0 = \mathbf{f}\_1\cdot\mathbf{g}\_1 = J_s$. Expanding $\mathbf{w}\cdot\boldsymbol{\nabla}J\_s$ in $(m\_0^a, m\_1^a)$ and substituting collapses the four terms to $J\_s\,m\_0^a m\_1^a - J\_s\,m\_0^a m\_1^a = 0$. $\square$
+
+**Lemma 2.** $\|\mathbf{w}\| = \|\boldsymbol{\nabla}J_s\|$.
+
+*Proof.* Compute $\mathbf{w}\times\boldsymbol{\nabla}J_s$ using $\mathbf{f}\_i\times\mathbf{g}\_j$ which all reduce to scalar multiples of $\mathbf{n} = \mathbf{f}\_0\times\mathbf{f}\_1$. The four cross products give
+
+$$\mathbf{w}\times\boldsymbol{\nabla}J\_s \;=\; -\frac{\mathbf{n}}{J\_s}\,\big(A(m\_1^a)^2 - 2C\,m\_0^a m\_1^a + B(m\_0^a)^2\big) \;=\; -\|\mathbf{w}\|^2\,\hat{\mathbf{n}},$$
+
+where the last equality uses $\|\mathbf{w}\|^2 = A(m\_1^a)^2 - 2C\,m\_0^a m\_1^a + B(m\_0^a)^2$ and $\hat{\mathbf{n}} = \mathbf{n}/J\_s$. By Lemma 1, $\mathbf{w}\perp\boldsymbol{\nabla}J\_s$, so $\|\mathbf{w}\times\boldsymbol{\nabla}J\_s\| = \|\mathbf{w}\|\,\|\boldsymbol{\nabla}J\_s\|$. Equating with the right-hand side gives $\|\mathbf{w}\|\,\|\boldsymbol{\nabla}J\_s\| = \|\mathbf{w}\|^2$. $\square$
+
+**Diagonalisation.** Choose the orthonormal basis $\\{\hat{\mathbf{w}}, \widehat{\boldsymbol{\nabla}J\_s}, \hat{\mathbf{n}}\\}$ where $\hat{\mathbf{n}}$ is the unit triangle normal (orthogonal to both $\mathbf{w}$ and $\boldsymbol{\nabla}J\_s$ by Lemma 1 and the cross-product computation). Off-diagonal entries of $\mathbf{H}\_{aa}$ vanish in this basis (each of the three building blocks $\mathbf{I}\_3$, $\boldsymbol{\nabla}J\_s\,\boldsymbol{\nabla}J\_s^T$, $\|\mathbf{w}\|^2\mathbf{I}\_3 - \mathbf{w}\mathbf{w}^T$ is diagonal in it), and using $\|\mathbf{w}\| = \|\boldsymbol{\nabla}J\_s\|$ to combine the $r$-terms in the $\widehat{\boldsymbol{\nabla}J\_s}$ direction:
+
+| Direction | Eigenvalue |
+| --- | --- |
+| $\hat{\mathbf{w}}$ | $\mu\,\|\mathbf{m}^a\|^2$ |
+| $\widehat{\boldsymbol{\nabla}J\_s}$ | $\mu\,\|\mathbf{m}^a\|^2 + \lambda\,\|\boldsymbol{\nabla}J\_s\|^2$ |
+| $\hat{\mathbf{n}}$ | $\mu\,\|\mathbf{m}^a\|^2 + r\,\|\mathbf{w}\|^2$ |
+
+The first two eigenvalues are PSD for any $r$ --- the $r$-dependence in the $\widehat{\boldsymbol{\nabla}J\_s}$ direction cancels exactly because $\|\mathbf{w}\| = \|\boldsymbol{\nabla}J\_s\|$. Only the normal direction sees $r$, and the PSD condition there is
+
+$$r \;\geq\; -\frac{\mu\,\|\mathbf{m}^a\|^2}{\|\mathbf{w}\|^2}.$$
+
+The right-hand side is geometry-dependent. For a *uniform* clamp that works for every triangle and every vertex, the only safe choice is $r \geq 0$, i.e.
+
+$$\boxed{\;s\_\text{clamp} \;=\; \max(0, s).\;}$$
+
+This is tight in the uniform sense: any larger lower bound on $s$ would change the physics for at least some configurations where the unclamped block is already PSD; any smaller (more permissive) bound risks an indefinite block in some configuration.
+
+A geometry-aware solver could instead use the per-element lower bound $s \geq -\mu\,\|\mathbf{m}^a\|^2 J\_s/\|\mathbf{w}\|^2$ and recover a slightly looser projection, but the bookkeeping cost rarely justifies it. Force always uses the unclamped $s = \lambda(J\_s - \alpha)$, exactly as in the volumetric case.
+
+A stable Neo-Hookean triangle evaluator therefore keeps the second-derivative contribution and applies the simple uniform clamp $s\_\text{clamp} = \max(0, s)$. The simple result for the volumetric tet is genuinely a special property of square deformation gradients.
 
 ## Sanity Checks Before Shipping
 
