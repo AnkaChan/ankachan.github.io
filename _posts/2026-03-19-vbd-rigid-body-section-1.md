@@ -20,6 +20,8 @@ In the [VBD paper](https://doi.org/10.1145/3658179) (SIGGRAPH 2024), we briefly 
 
 This is Section I: free (unconstrained) rigid bodies. Section II will cover articulated bodies with joints.
 
+> **Prerequisite:** This post assumes familiarity with quaternion math for rigid body rotation---in particular the rotation-vector exponential map, quaternion multiplication, and how angular velocity integrates orientation. If you're rusty on any of this, I recommend reading [Quaternion Math for Rigid Body Simulation]({% post_url 2026-04-30-quaternion-primer %}) first.
+
 ---
 
 ## Continuous Rigid Body Dynamics
@@ -72,6 +74,15 @@ $$\mathbf{r}_\text{lin}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \frac
 
 ### Step 3: Rotational Residual (Body Frame)
 
+Recall Newton-Euler equation:
+
+$$\mathbf{I}_\text{body}\,\dot{\boldsymbol{\omega}} + \boldsymbol{\omega} \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}) = \boldsymbol{\tau}$$
+
+Convert to the stand ODE form of $\dot{\boldsymbol{\omega}}=f(\boldsymbol{\omega}, t)$, we have:
+$$
+\dot{\boldsymbol{\omega}}= I^{-1}_\text{body}(\boldsymbol{\tau} -  \boldsymbol{\omega} \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}))
+$$
+
 Work in the body frame where $\mathbf{I}\_\text{body}$ is constant. Backward Euler on the angular velocity gives:
 
 $$\mathbf{I}_\text{body}\,\frac{\boldsymbol{\omega}^{n+1} - \boldsymbol{\omega}^n}{h} + \boldsymbol{\omega}^{n+1} \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}^{n+1}) = \boldsymbol{\tau}^{n+1}$$
@@ -88,7 +99,7 @@ Rearranging to residual form:
 
 $$\mathbf{r}_\text{rot}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{I}_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{\Delta\boldsymbol{\theta} \times (\mathbf{I}_\text{body}\,\Delta\boldsymbol{\theta})}{h^2} - \boldsymbol{\tau}^{n+1}(\Delta\mathbf{x}, \Delta\boldsymbol{\theta}) \;=\; \mathbf{0}$$
 
-The Coriolis-like term $\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body}\,\Delta\boldsymbol{\theta})/h^2$ is second-order in $\Delta\boldsymbol{\theta}$ and vanishes for small steps, recovering the linear form $\mathbf{I}\,\ddot{\boldsymbol{\theta}} = \boldsymbol{\tau}$.
+$\Delta\boldsymbol{\theta} \times (\mathbf{I}\_\text{body}\,\Delta\boldsymbol{\theta})/h^2$ is called the gyroscopic term. It is a quadratic force term. 
 
 ### Step 4: Combined Nonlinear System
 
@@ -113,15 +124,30 @@ $$\mathbf{v}^{n+1} = \frac{\Delta\mathbf{x}}{h}, \qquad \boldsymbol{\omega}^{n+1
 
 ## From Residual to the 6&times;6 Newton System
 
-The Jacobian $\mathbf{J} = \partial F / \partial (\Delta\mathbf{x},\, \Delta\boldsymbol{\theta})$ has a natural 2&times;2 block structure. Dropping the second-order Coriolis term and rotating to world frame, each Newton iteration solves:
+Rather than solving the full implicit-Euler residual---which includes the nonlinear gyroscopic term $\boldsymbol{\omega}\times\mathbf{I}\_\text{body}\boldsymbol{\omega}$ and requires the Newton-Euler equation to stay in the body frame---we split the problem into explicit and implicit parts:
+
+- **Explicit:** free-body dynamics (inertia, gravity, gyroscopic torque) are forward-integrated once into inertial targets $\mathbf{x}^{\ast}$ and $\mathbf{R}^{\ast}$, then frozen for the rest of the step.
+- **Implicit:** contact and constraint forces are resolved iteratively through VBD's Gauss-Seidel sweeps.
+
+This is a compromise from fully-implicit backward Euler for the rigid-body dynamics. In exchange, it buys three things: the gyroscopic nonlinearity is absorbed into $\mathbf{R}^{\ast}$ rather than carried in the residual, the angular Hessian stays symmetric positive-definite, and the entire Newton system can be assembled and solved in world frame (since the body-frame gyroscopic term---the reason Newton-Euler is traditionally formulated in the body frame---is no longer present in the iterative solve).
+
+With this split, the rotational residual reduces from
+
+$$\mathbf{r}_\text{rot} = \mathbf{I}_\text{body}\!\left(\frac{\Delta\boldsymbol{\theta}}{h^2} - \frac{\boldsymbol{\omega}^n}{h}\right) + \frac{\Delta\boldsymbol{\theta} \times (\mathbf{I}_\text{body}\,\Delta\boldsymbol{\theta})}{h^2} - \boldsymbol{\tau}^{n+1}$$
+
+to a simple **spring pulling toward the explicit target**:
+
+$$\mathbf{r}_\text{rot} = \frac{1}{h^2}\,\mathbf{I}_\text{world}\,(\Delta\boldsymbol{\theta} - h\boldsymbol{\omega}^{\ast}) - \boldsymbol{\tau}_\text{constraint}$$
+
+where $\boldsymbol{\omega}^{\ast}$ is the gyro-corrected angular velocity from the forward step and $\Delta\boldsymbol{\theta} - h\boldsymbol{\omega}^{\ast}$ is just $-\boldsymbol{\theta}$, the rotation vector from $\mathbf{R}\_\text{cur}$ to $\mathbf{R}^{\ast}$. This has the same structure as the translational residual $\tfrac{m}{h^2}(\mathbf{x}\_\text{com} - \mathbf{x}^{\ast}\_\text{com}) - \mathbf{f}\_\text{constraint}$: a quadratic spring to an explicit inertial target, plus implicit constraint forces. The 6&times;6 system then has a natural 2&times;2 block structure, all in world frame:
 
 $$\begin{bmatrix} H_{ll} & H_{al}^T \\\\ H_{al} & H_{aa} \end{bmatrix} \begin{bmatrix} \Delta\mathbf{x} \\\\ \Delta\boldsymbol{\omega} \end{bmatrix} = \begin{bmatrix} \mathbf{f}_{lin} \\\\ \mathbf{f}_{ang} \end{bmatrix}$$
 
-where $\Delta\mathbf{x}$ and $\Delta\boldsymbol{\omega}$ are the Newton step corrections and the right-hand side is $-F$ at the current iterate. In VBD we run this as a **single Newton step per body per VBD iteration**, giving us a fast inner solve with guaranteed descent.
+where $\Delta\mathbf{x}$ and $\Delta\boldsymbol{\omega}$ are the Newton step corrections and the right-hand side is $-\mathbf{r}$ at the current iterate. In VBD we run this as a **single Newton step per body per VBD iteration**, giving us a fast inner solve with guaranteed descent.
 
 ### Inertial Blocks
 
-The inertial part of the Jacobian comes from differentiating $\mathbf{r}\_\text{lin}$ and $\mathbf{r}\_\text{rot}$ with respect to the increments:
+The inertial blocks are simple springs to the forward-integrated targets:
 
 $$H_{ll}^\text{inertia} = \frac{m}{h^2}\mathbf{I}_3, \qquad \mathbf{f}_{lin}^\text{inertia} = \frac{m}{h^2}(\mathbf{x}^{\ast}_\text{com} - \mathbf{x}_\text{com})$$
 
@@ -129,7 +155,49 @@ $$H_{aa}^\text{inertia} = \frac{1}{h^2}\mathbf{I}_\text{world}, \qquad \mathbf{f
 
 $$H_{al}^\text{inertia} = \mathbf{0}$$
 
-Here $\mathbf{x}^{\ast}\_\text{com} = \mathbf{x}^n\_\text{com} + h\mathbf{v}^n + h^2 m^{-1}\mathbf{f}\_\text{ext}$ is the **inertial target** (where the body would go under external forces alone), and $\boldsymbol{\theta}$ is the rotation vector from the current orientation to the inertia-integrated target orientation $\mathbf{R}^{\ast}$. Absorbing external forces into this target decouples them from the constraint solve---the Newton system only needs to handle $\mathbf{f}\_\text{constraint}$ on the right-hand side.
+Here $\mathbf{x}^{\ast}\_\text{com} = \mathbf{x}^n\_\text{com} + h\mathbf{v}^n + h^2 m^{-1}\mathbf{f}\_\text{ext}$ is the **translational inertial target**, $\boldsymbol{\theta}$ is the rotation vector from the current orientation to $\mathbf{R}^{\ast}$, and $\mathbf{I}\_\text{world} = \mathbf{R}\,\mathbf{I}\_\text{body}\,\mathbf{R}^T$. The linear and angular inertial blocks have identical structure: a mass-weighted pull toward an explicit prediction, with the constraint solve handling everything else.
+
+At convergence the angular residual gives $\mathbf{I}\_\text{world}(\boldsymbol{\omega}^{n+1} - \boldsymbol{\omega}^{\ast})/h = \boldsymbol{\tau}\_\text{constraint}$, i.e. the only thing that changes $\boldsymbol{\omega}$ from the gyro-corrected prediction is the implicit constraint response.
+
+#### Computing $\mathbf{R}^{\ast}$: baking the gyroscopic term into the target
+
+The angular target $\mathbf{R}^{\ast}$ is produced by one semi-implicit Newton-Euler step that includes the gyroscopic torque. Inside `integrate_rigid_body` the body-frame torque used to step angular velocity is
+
+```python
+# body-frame angular velocity and torque, with gyroscopic correction
+wb = wp.quat_rotate_inv(r0, w0)
+tb = wp.quat_rotate_inv(r0, t0) - wp.cross(wb, inertia * wb)   # subtract ω × Iω
+w1 = wp.quat_rotate(r0, wb + inv_inertia * tb * dt)            # semi-implicit ω*
+r1 = wp.normalize(r0 + wp.quat(w1, 0.0) * r0 * 0.5 * dt)        # → R*
+```
+
+Line by line, with $\mathbf{R}^n$ the current orientation, $\boldsymbol{\omega}^n$ the world-frame angular velocity, and $\boldsymbol{\tau}^n$ the world-frame torque:
+
+**Rotate $\boldsymbol{\omega}^n$ into the body frame:**
+
+$$\boldsymbol{\omega}_b \;=\; (\mathbf{R}^n)^{T}\,\boldsymbol{\omega}^n$$
+
+**Rotate the torque into the body frame and subtract the gyroscopic term** (Newton-Euler RHS, $\mathbf{I}\_\text{body}\dot{\boldsymbol{\omega}}\_b = \boldsymbol{\tau}\_b - \boldsymbol{\omega}\_b\times\mathbf{I}\_\text{body}\boldsymbol{\omega}\_b$):
+
+$$\boldsymbol{\tau}_b^\text{eff} \;=\; (\mathbf{R}^n)^{T}\,\boldsymbol{\tau}^n \;-\; \boldsymbol{\omega}_b \times (\mathbf{I}_\text{body}\,\boldsymbol{\omega}_b)$$
+
+**Semi-implicit Euler step on body-frame $\boldsymbol{\omega}$, then rotate back to world:**
+
+$$\boldsymbol{\omega}^{\ast} \;=\; \mathbf{R}^n\!\left(\boldsymbol{\omega}_b + h\,\mathbf{I}_\text{body}^{-1}\,\boldsymbol{\tau}_b^\text{eff}\right)$$
+
+Compactly:
+
+$$\boxed{\;\boldsymbol{\omega}^{\ast} = \mathbf{R}^n\!\left[\boldsymbol{\omega}_b + h\,\mathbf{I}_\text{body}^{-1}\!\big((\mathbf{R}^n)^{T}\boldsymbol{\tau}^n - \boldsymbol{\omega}_b\times\mathbf{I}_\text{body}\boldsymbol{\omega}_b\big)\right], \qquad \mathbf{R}^{\ast} = \exp\!\big(h\,[\boldsymbol{\omega}^{\ast}]_\times\big)\,\mathbf{R}^n\;}$$
+
+Because $\boldsymbol{\omega}^{\ast}$ includes the gyroscopic correction $-\mathbf{I}\_\text{body}^{-1}(\boldsymbol{\omega}^n \times \mathbf{I}\_\text{body}\boldsymbol{\omega}^n)\,h$, the free-body residual vanishes to leading order at $\mathbf{R}^{\ast}$. The simple inertial spring $\mathbf{f}\_\text{ang}^\text{inertia} = h^{-2}\mathbf{I}\_\text{world}\,\boldsymbol{\theta}$ therefore agrees with the full nonlinear residual at the initial iterate $\mathbf{R}\_\text{cur} = \mathbf{R}^{\ast}$, with the gyroscopic torque's value rerouted through $\mathbf{R}^{\ast}$ rather than evaluated directly each iteration.
+
+#### What this approximation drops
+
+The full rotational residual re-centered at $\mathbf{R}^{\ast}$ (writing $\boldsymbol{\delta}$ for the rotation vector from $\mathbf{R}^{\ast}$ to $\mathbf{R}\_\text{cur}$, i.e. how far constraints have pushed the iterate off the target) is
+
+$$\mathbf{r}_\text{rot} = \underbrace{\frac{1}{h^2}\,\mathbf{I}_\text{body}\,\boldsymbol{\delta}}_{\text{kept: inertial spring}} \;+\; \underbrace{\frac{\boldsymbol{\omega}\times\mathbf{I}_\text{body}\boldsymbol{\delta} + \boldsymbol{\delta}\times\mathbf{I}_\text{body}\boldsymbol{\omega}}{h}}_{\text{dropped: gyro coupling}} \;+\; \underbrace{\frac{\boldsymbol{\delta}\times\mathbf{I}_\text{body}\boldsymbol{\delta}}{h^2}}_{\text{dropped: quadratic gyro}} \;-\; \boldsymbol{\tau}_\text{constraint}$$
+
+The kept spring scales like $1/h^2$ in $\boldsymbol{\delta}$, the gyro coupling like $\|\boldsymbol{\omega}\|/h$, and the quadratic gyro like $\|\boldsymbol{\delta}\|/h^2$. The ratio of the gyro coupling to the inertial spring is $O(\|\boldsymbol{\omega}\|h)$---small for typical simulation timesteps. Three practical reasons AVBD drops these terms: the gyro coupling's Jacobian $[\boldsymbol{\omega}]\_\times\mathbf{I} - [\mathbf{I}\boldsymbol{\omega}]\_\times$ is **not symmetric**, which would break the Cholesky factorization used in the Schur complement solve; keeping the gyroscopic term in the residual would require working in the body frame (where $\mathbf{I}\_\text{body}$ is constant), giving up the world-frame formulation that contacts and joints naturally live in; and the gyroscopic term evaluated at $\boldsymbol{\omega}^n$ vs. $\boldsymbol{\omega}^{n+1}$ differs by $O(h)$ in torque units, the same order as backward Euler's intrinsic discretization error, so refining it further would not improve the integrator's accuracy.
 
 In Newton, `forward_step_rigid_bodies` computes $\mathbf{x}^{\ast}$ and $\mathbf{R}^{\ast}$ by semi-implicit integration, storing them as `body_inertia_q`:
 
