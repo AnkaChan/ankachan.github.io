@@ -1,5 +1,6 @@
 ---
 permalink: /avbd-franka-rigid-robot-tuning-guide/
+sitemap: false
 title: 'AVBD Franka Simulation Notes'
 tags:
   - physics-simulation
