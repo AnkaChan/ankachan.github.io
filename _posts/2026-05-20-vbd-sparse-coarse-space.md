@@ -1,7 +1,7 @@
 ---
 title: 'A Sparse Coarse Space for VBD from Element Eigenmodes'
 date: 2026-05-20
-permalink: /vbd-sparse-coarse-space/
+permalink: /posts/2026/05/vbd-sparse-coarse-space/
 tags:
   - physics-simulation
   - VBD
@@ -27,7 +27,7 @@ $$\kappa(A) = \lVert A\rVert_2 \cdot \lVert A^{-1}\rVert_2 = \frac{\lambda_\text
 
 The quadratic energy $E(\mathbf{x}) = \tfrac{1}{2}\mathbf{x}^T A \mathbf{x}$ has level sets that are ellipsoids whose principal axes are the eigenvectors of $A$ and whose squared semi-axis lengths are $1/\lambda_i$. So $\kappa$ is literally the **squared aspect ratio** of the level-set ellipse. Big $\kappa$ means very elongated; $\kappa = 1$ means a sphere.
 
-![Condition number controls eccentricity of the energy ellipse](../images/posts/vbd-sparse-coarse-space/condition-eccentricity.png)
+![Condition number controls eccentricity of the energy ellipse](/images/posts/vbd-sparse-coarse-space/condition-eccentricity.png)
 
 That ratio is exactly what governs CG's convergence:
 
@@ -50,7 +50,7 @@ This is a distinct quantity from $\kappa$. Geometrically:
 
 You can have a well-conditioned, nearly circular system whose principal axes are tilted 45° from the coordinate basis: BCD still zig-zags because each coordinate step cuts diagonally across the level sets. And you can have a horribly elongated system whose long axis is *aligned* with a coordinate axis: BCD walks straight down it in a sweep.
 
-![Same kappa, different rotation; BCD zig-zag depends on alignment, not eccentricity](../images/posts/vbd-sparse-coarse-space/diagonal-dominance.png)
+![Same kappa, different rotation; BCD zig-zag depends on alignment, not eccentricity](/images/posts/vbd-sparse-coarse-space/diagonal-dominance.png)
 
 Same $\kappa = 25$ in both panels, completely different BCD experience. That distinction is why VBD does fine on uniformly stiff materials but stalls at *interfaces*: a soft vertex coupled to a stiff neighbor has small $D_i$ but a large off-diagonal entry on the stiff side. Local diagonal dominance breaks at the interface, regardless of the global condition number.
 
@@ -72,7 +72,7 @@ Each new direction is $A$-conjugate to the previous ones, so progress in one dir
 
 **Sparse local-eigen basis.** What I am after: directions that are sparse like VBD's (so the local solve and parallelism survive) but *spectrally informed* like CG's (so each direction actually points along a principal axis of $A$). The element stiffness matrices give them to us for free, as we will see in a moment.
 
-![Four descent strategies on the same energy ellipse: eigenbasis, CG, VBD coordinate basis, BCD with a sparse coarse correction](../images/posts/vbd-sparse-coarse-space/descent-comparison.png)
+![Four descent strategies on the same energy ellipse: eigenbasis, CG, VBD coordinate basis, BCD with a sparse coarse correction](/images/posts/vbd-sparse-coarse-space/descent-comparison.png)
 
 The visual story stacks all four against the same tilted, ill-conditioned ellipse. Eigenbasis walks straight in; CG takes two clean A-conjugate steps; VBD's coordinate basis zig-zags down the long axis; and a single 1D descent along the stiff eigenmode collapses the residual onto the soft direction, leaving only a trivial bit of cleanup. The last picture is the target.
 
