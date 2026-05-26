@@ -58,7 +58,7 @@ Same $\kappa = 25$ in both panels, completely different BCD experience. That dis
 
 ## Every iterative method is a choice of descent basis
 
-Once the picture is "an energy ellipse and a sequence of line searches," every iterative method just becomes a strategy for **picking the directions to search along**. Four strategies are worth lining up next to each other:
+Once the picture is "an energy ellipse and a sequence of line searches," every iterative method just becomes a strategy for **picking the directions to search along**. Three are well-established, plus a fourth that this post is building toward:
 
 **Eigenbasis.** Diagonalize $A = Q \Lambda Q^T$ and change variables $\mathbf{z} = Q^T\mathbf{x}$. In the new coordinates, the energy decouples into independent parabolas $\sum_i \tfrac{1}{2}\lambda_i z_i^2 - \tilde b_i z_i$, and each one is solved in a single division. One sweep, done. The catch is finding $Q$ in the first place: an eigendecomposition costs $O(n^3)$, which is more expensive than the direct solve you were trying to avoid.
 
@@ -72,9 +72,9 @@ Each new direction is $A$-conjugate to the previous ones, so progress in one dir
 
 **Sparse local-eigen basis.** What I am after: directions that are sparse like VBD's (so the local solve and parallelism survive) but *spectrally informed* like CG's (so each direction actually points along a principal axis of $A$). The element stiffness matrices give them to us for free, as we will see in a moment.
 
-![Four descent strategies on the same energy ellipse: eigenbasis, CG, VBD coordinate basis, BCD with a sparse coarse correction](/images/posts/vbd-sparse-coarse-space/descent-comparison.png)
+![Three descent strategies on the same energy ellipse: eigenbasis, CG, VBD coordinate basis](/images/posts/vbd-sparse-coarse-space/descent-comparison.png)
 
-The visual story stacks all four against the same tilted, ill-conditioned ellipse. Eigenbasis walks straight in; CG takes two clean A-conjugate steps; VBD's coordinate basis zig-zags down the long axis; and a single 1D descent along the stiff eigenmode collapses the residual onto the soft direction, leaving only a trivial bit of cleanup. The last picture is the target.
+The three established strategies, stacked against the same tilted, ill-conditioned ellipse: eigenbasis walks straight in, CG takes two clean $A$-conjugate steps, VBD's coordinate basis zig-zags down the long axis. The fourth strategy --- sparse and spectrally informed --- has no off-the-shelf solver to plot here yet; the rest of the post is what it would look like for VBD.
 
 ---
 
