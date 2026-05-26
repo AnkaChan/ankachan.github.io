@@ -78,6 +78,18 @@ The visual story stacks all four against the same tilted, ill-conditioned ellips
 
 ---
 
+## What an eigenbasis rebase buys
+
+Zoom into the eigenbasis option for a moment. The reason it converges in one sweep is just that the change of variables $\mathbf{z} = Q^T \mathbf{x}$ rotates the ellipse so its principal axes line up with the new coordinate axes:
+
+![Same energy viewed in original basis vs eigenbasis; BCD zig-zags on the left, lands in one sweep on the right](/images/posts/vbd-sparse-coarse-space/eigenbasis-rebase.png)
+
+Same quadratic, same starting point, two coordinate systems. On the left the principal axes (dashed) sit at 30° from the coordinates and BCD ricochets between them. On the right, after applying $Q^T$ the contours line up with the new axes and one update of each coordinate lands at the minimum --- the "sum of independent parabolas" decoupling $E(\mathbf{z}) = \frac{1}{2}\sum_i \lambda_i z_i^2$, each component solved by a single division $z_i^\star = \tilde b_i / \lambda_i$.
+
+This is the upper bound on what any rebasing can buy. Every other strategy --- CG's adaptive Krylov directions, multigrid's hierarchical bases, the usual preconditioners --- is an approximation of the same trick at lower cost. For VBD we cannot afford the global $Q$, but the element stiffness matrices already hand us *local* $Q_e$'s for free; the rest of the post builds a cheap, sparse coarse correction on that observation.
+
+---
+
 ## VBD's actual bottleneck
 
 With graph coloring, every vertex of a given color is decoupled from every other vertex of that color. One color sweep is thousands of perfectly parallel 3&times;3 direct solves, each inverting its local Hessian exactly. There is no further leverage from rotating an individual block into its own eigenbasis --- the direct $3\times 3$ inverse is already optimal in any basis.
