@@ -1,0 +1,15 @@
+{
+  "final_hand_z_maximal": 0.6201246976852417,
+  "final_hand_z_reduced": 0.6202499270439148,
+  "finger_error_max_m": 0.00023682207392994314,
+  "hand_error_max_m": 0.00040923088090494275,
+  "joint_distance_maximal_max_m": 3.413334337176948e-05,
+  "joint_distance_maximal_rms_m": 1.47442431961796e-05,
+  "joint_distance_reduced_post_max_m": 1.9570724237652195e-07,
+  "joint_distance_reduced_post_rms_m": 2.9162367525039763e-08,
+  "joint_distance_reduced_pre_max_m": 7.783659735707877e-06,
+  "joint_distance_reduced_pre_rms_m": 1.2242734719617056e-06,
+  "pose_error_max_m": 0.0004397619341034442,
+  "pose_error_rms_m": 0.00022132131562102586,
+  "reduced_pre_first_nonfinite_projection_step": null
+}
