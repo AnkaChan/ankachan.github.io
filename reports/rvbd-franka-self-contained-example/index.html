@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-Contained VBD/RVBD Franka Example</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; color: #171717; background: #f6f7f8; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 18px 44px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    h2 { margin: 30px 0 12px; font-size: 20px; }
+    h3 { margin: 0 0 10px; font-size: 16px; }
+    p { line-height: 1.45; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .panel { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; }
+    video, img { width: 100%; border-radius: 6px; background: #111; }
+    code { background: #eef0f2; border-radius: 4px; padding: 1px 4px; }
+    table { border-collapse: collapse; width: 100%; background: #fff; margin-top: 16px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #eef0f2; }
+    a { color: #075985; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Self-Contained VBD/RVBD Franka Example</h1>
+  <p>
+    These recordings come from <code>newton.examples.vbd.example_vbd_franka_rvbd</code>,
+    a robot-only Franka example that builds the scene directly and does not import
+    the rigid-soft-contact branch script or replay recorded poses.
+  </p>
+
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Compared frames</td><td>240</td></tr>
+    <tr><td>Max hand position error, RVBD vs maximal</td><td>0.409 mm</td></tr>
+    <tr><td>RMS hand position error, RVBD vs maximal</td><td>0.311 mm</td></tr>
+    <tr><td>Max left finger position error</td><td>0.214 mm</td></tr>
+    <tr><td>Max right finger position error</td><td>0.237 mm</td></tr>
+    <tr><td>Final hand z, maximal</td><td>0.620125 m</td></tr>
+    <tr><td>Final hand z, RVBD</td><td>0.620250 m</td></tr>
+    <tr><td>Video mean pixel MAE</td><td>0.085</td></tr>
+  </table>
+
+  <h2>Videos</h2>
+  <div class="grid">
+    <div class="panel">
+      <h3>Maximal VBD</h3>
+      <video controls src="maximal_self_contained.mp4"></video>
+    </div>
+    <div class="panel">
+      <h3>RVBD Reduced, GN=2</h3>
+      <video controls src="rvbd_self_contained_gn2.mp4"></video>
+    </div>
+  </div>
+
+  <h2>Side-by-side</h2>
+  <div class="panel">
+    <video controls src="comparison/side_by_side_rigid_vs_rvbd.mp4"></video>
+  </div>
+
+  <h2>Files</h2>
+  <p>
+    <a href="comparison/comparison_metrics.json">comparison_metrics.json</a>,
+    <a href="comparison/worst_frame_pixel_diff_x8.png">worst-frame pixel diff</a>,
+    <a href="maximal_self_contained_trajectory.npz">maximal trajectory</a>,
+    <a href="rvbd_self_contained_gn2_trajectory.npz">RVBD trajectory</a>
+  </p>
+</main>
+</body>
+</html>
