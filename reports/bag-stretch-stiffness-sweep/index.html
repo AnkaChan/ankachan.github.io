@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pinned Bag Rigidity Sweep</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f6f7f9; color: #1f2328; }
+    main { max-width: 1680px; margin: 0 auto; padding: 28px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    p { line-height: 1.45; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 22px; }
+    .pill { background: #ffffff; border: 1px solid #d8dee4; border-radius: 6px; padding: 8px 10px; }
+    .grid { display: grid; gap: 20px; }
+    .plots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .panel { background: #ffffff; border: 1px solid #d8dee4; border-radius: 8px; padding: 14px; }
+    .panel h2 { margin: 0 0 10px; font-size: 18px; }
+    .video-panel { display: grid; gap: 10px; }
+    img, video { width: 100%; display: block; border-radius: 4px; background: #242933; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    th, td { text-align: right; padding: 8px; border-bottom: 1px solid #d8dee4; }
+    th:first-child, td:first-child { text-align: left; }
+    code { background: #eef1f4; padding: 2px 5px; border-radius: 4px; }
+    @media (max-width: 980px) { .plots { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pinned Bag Rigidity Sweep</h1>
+  <section class="panel" style="margin-top: 20px;">
+    <h2>Score Definitions</h2>
+    <table>
+      <thead><tr><th>score</th><th>definition</th><th>implementation detail</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>stretch_score</code></td>
+          <td>RMS relative edge length change.</td>
+          <td>For every unique triangle edge, compute <code>(current_length - rest_length) / rest_length</code>, then take RMS over all bag edges.</td>
+        </tr>
+        <tr>
+          <td><code>shear_score</code></td>
+          <td>RMS in-plane triangle distortion.</td>
+          <td>For each triangle, compute its three internal angle changes from the rest mesh, then take RMS over all triangle angles. Units are radians.</td>
+        </tr>
+        <tr>
+          <td><code>bend_score</code></td>
+          <td>RMS dihedral angle change.</td>
+          <td>For every pair of adjacent triangles sharing an edge, compute the change in angle between their face normals from rest, then take RMS. Units are radians.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <p>Five runs vary <code>cloth_tri_ke</code> and <code>cloth_tri_ka</code> over the listed absolute values while keeping <code>cloth_tri_kd</code> fixed at 0.1. The combined video shows the five recordings in one time-synced row.</p>
+  <div class="meta">
+    <div class="pill"><code>cloth_tri_ke / cloth_tri_ka</code>: <strong>1000 / 200, 10000 / 2000, 100000 / 20000, 1000000 / 200000, 10000000 / 2000000</strong></div>
+    <div class="pill"><code>cloth_tri_kd</code>: <strong>0.1</strong></div>
+    <div class="pill"><code>edge_ke</code>: <strong>200</strong></div>
+    <div class="pill">substep <code>dt</code>: <strong>0.00166667 s</strong></div>
+    <div class="pill">iterations: <strong>10</strong></div>
+    <div class="pill">frames: <strong>360</strong> @ 60 fps</div>
+  </div>
+  <div class="grid">
+    <section class="panel video-panel">
+      <h2>Combined Video</h2>
+      <video src="rigidity_videos_combined.mp4" controls muted loop playsinline></video>
+    </section>
+    <div class="plots">
+      <section class="panel plot-panel"><h2>Stretch Score</h2><img src="rigidity_scores_stretch.png" alt="Stretch Score plot"></section>
+<section class="panel plot-panel"><h2>Shear Score</h2><img src="rigidity_scores_shear.png" alt="Shear Score plot"></section>
+<section class="panel plot-panel"><h2>Bend Score</h2><img src="rigidity_scores_bend.png" alt="Bend Score plot"></section>
+    </div>
+  </div>
+  <section class="panel" style="margin-top: 20px;">
+    <h2>Score Summary</h2>
+    <table>
+      <thead><tr><th>cloth_tri_ke</th><th>cloth_tri_ka</th><th>score</th><th>final</th><th>peak</th><th>mean</th></tr></thead>
+      <tbody><tr><td>1000</td><td>200</td><td>stretch_score</td><td>0.110073</td><td>0.222441</td><td>0.106909</td></tr>
+<tr><td>1000</td><td>200</td><td>shear_score</td><td>0.0728475</td><td>0.128237</td><td>0.0646225</td></tr>
+<tr><td>1000</td><td>200</td><td>bend_score</td><td>0.0115948</td><td>0.0211959</td><td>0.0109638</td></tr>
+<tr><td>10000</td><td>2000</td><td>stretch_score</td><td>0.0151857</td><td>0.0235364</td><td>0.0145503</td></tr>
+<tr><td>10000</td><td>2000</td><td>shear_score</td><td>0.0123304</td><td>0.0168088</td><td>0.0111086</td></tr>
+<tr><td>10000</td><td>2000</td><td>bend_score</td><td>0.0074385</td><td>0.0137271</td><td>0.00812223</td></tr>
+<tr><td>100000</td><td>20000</td><td>stretch_score</td><td>0.00572417</td><td>0.00732748</td><td>0.00561428</td></tr>
+<tr><td>100000</td><td>20000</td><td>shear_score</td><td>0.00511766</td><td>0.0104347</td><td>0.00572102</td></tr>
+<tr><td>100000</td><td>20000</td><td>bend_score</td><td>0.0141702</td><td>0.0241625</td><td>0.0148596</td></tr>
+<tr><td>1000000</td><td>200000</td><td>stretch_score</td><td>0.00541181</td><td>0.0078541</td><td>0.00545732</td></tr>
+<tr><td>1000000</td><td>200000</td><td>shear_score</td><td>0.00491667</td><td>0.00834685</td><td>0.0060085</td></tr>
+<tr><td>1000000</td><td>200000</td><td>bend_score</td><td>0.0453945</td><td>0.0741309</td><td>0.0448994</td></tr>
+<tr><td>10000000</td><td>2000000</td><td>stretch_score</td><td>0.00535968</td><td>0.00825275</td><td>0.00559437</td></tr>
+<tr><td>10000000</td><td>2000000</td><td>shear_score</td><td>0.00484987</td><td>0.00900776</td><td>0.00587751</td></tr>
+<tr><td>10000000</td><td>2000000</td><td>bend_score</td><td>0.177943</td><td>0.222024</td><td>0.178704</td></tr></tbody>
+    </table>
+  </section>
+  <section class="panel" style="margin-top: 20px;">
+    <h2>Artifacts</h2>
+    <p>Combined raw data: <a href="rigidity_scores_sweep.csv">rigidity_scores_sweep.csv</a> and <a href="rigidity_scores_sweep.json">rigidity_scores_sweep.json</a>.</p>
+    <table>
+      <thead><tr><th>cloth_tri_ke</th><th>cloth_tri_ka</th><th>video</th><th>csv</th><th>json</th></tr></thead>
+      <tbody><tr><td>1000</td><td>200</td><td><a href="video_m0p01.mp4">video</a></td><td><a href="scores_m0p01.csv">csv</a></td><td><a href="scores_m0p01.json">json</a></td></tr>
+<tr><td>10000</td><td>2000</td><td><a href="video_m0p1.mp4">video</a></td><td><a href="scores_m0p1.csv">csv</a></td><td><a href="scores_m0p1.json">json</a></td></tr>
+<tr><td>100000</td><td>20000</td><td><a href="video_m1.mp4">video</a></td><td><a href="scores_m1.csv">csv</a></td><td><a href="scores_m1.json">json</a></td></tr>
+<tr><td>1000000</td><td>200000</td><td><a href="video_m10.mp4">video</a></td><td><a href="scores_m10.csv">csv</a></td><td><a href="scores_m10.json">json</a></td></tr>
+<tr><td>10000000</td><td>2000000</td><td><a href="video_m100.mp4">video</a></td><td><a href="scores_m100.csv">csv</a></td><td><a href="scores_m100.json">json</a></td></tr></tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
