@@ -15,6 +15,9 @@ p{margin:8px 0} video{width:100%;border:1px solid var(--bd);border-radius:8px;ma
 .off{color:var(--off);font-weight:600} .on{color:var(--on);font-weight:600}
 .note{background:var(--bg);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
 ul{margin:8px 0 8px 2px;padding-left:20px} li{margin:5px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:right} th{background:var(--bg)}
+td:first-child,th:first-child{text-align:left}
 </style></head><body>
 
 <h1>Water-tight rigid–soft contact</h1>
@@ -83,5 +86,55 @@ above; toggle <code>enable_water_tight</code> to reproduce the OFF / main case).
 <div class="note">Gotcha worth noting: an analytic <b>box</b> face gives an ambiguous SDF normal when a soft triangle
 straddles it (the closest feature flips between the bottom and a side face), so the two-way grip tests use convex
 shapes (cube / sphere) where the normal is unique and stable.</div>
+
+<h2>SDF memory footprint</h2>
+<p>How much memory each shape's SDF actually uses, measured through the real <code>finalize()</code> path at the
+default settings (64³ max resolution, UINT16-quantised narrow band, 8³ subgrids). Analytic primitives store nothing;
+only meshes allocate a volume SDF.</p>
+<table>
+<thead><tr><th>Shape</th><th>SDF representation</th><th>Stored memory</th></tr></thead>
+<tbody>
+<tr><td>Box, Sphere, Capsule, Cylinder, Cone, Ellipsoid, Plane</td><td>closed-form analytic (evaluated, not stored)</td><td><b>0</b></td></tr>
+<tr><td>Mesh — bunny (12,200 tris)</td><td>texture volume SDF</td><td><b>≈ 0.48 MB</b></td></tr>
+<tr><td>Mesh — bear (3,968 tris)</td><td>texture volume SDF</td><td><b>≈ 0.30 MB</b></td></tr>
+</tbody></table>
+<p>All analytic shapes report <code>shape_sdf_index = -1</code> under water-tight — nothing is allocated; the contact
+path evaluates their closed-form SDF.</p>
+
+<h3>Mesh breakdown — the narrow-band subgrid dominates</h3>
+<table>
+<thead><tr><th>Component</th><th>bunny</th><th>bear</th></tr></thead>
+<tbody>
+<tr><td>coarse texture (far field, float32)</td><td>2.5 KB (9×9×8)</td><td>1.3 KB (9×6×6)</td></tr>
+<tr><td>subgrid texture (narrow band, uint16)</td><td>488 KB (63³)</td><td>307 KB (54³)</td></tr>
+<tr><td>indirection slots (uint32)</td><td>1.8 KB</td><td>0.8 KB</td></tr>
+<tr><td><b>total</b></td><td><b>493 KB</b></td><td><b>310 KB</b></td></tr>
+</tbody></table>
+<ul>
+<li>Sparse narrow-band storage: cost scales with <b>surface extent, not triangle count</b> — the 4k-tri bear is
+smaller than the 12k-tri bunny.</li>
+<li>Allocated <b>once per unique source mesh</b> (deduplicated) and shared across instances — N bunnies still cost ~0.48 MB.</li>
+<li>Knobs: <code>UINT16 → float32</code> roughly doubles the subgrid; <code>max_resolution</code> scales the narrow
+band by ~the square of the ratio.</li>
+</ul>
+
+<h2>SDF accuracy</h2>
+<p>Texture-SDF value vs. the exact mesh signed distance (winding-number query) at 300k points sampled within ±6
+voxels of the surface (the contact-relevant band). The error is resolution-limited, so it is reported both
+absolutely and as a fraction of one voxel (≈ object extent / 64); the meshes are at their native USD scale.</p>
+<table>
+<thead><tr><th>Mesh</th><th>voxel</th><th>MAE</th><th>RMSE</th><th>p99</th><th>max</th></tr></thead>
+<tbody>
+<tr><td>bunny</td><td>26.7 mm</td><td>1.02 mm <small>(3.8% vox)</small></td><td>1.86 mm <small>(6.9%)</small></td><td>7.8 mm <small>(29%)</small></td><td>22 mm <small>(83%)</small></td></tr>
+<tr><td>bear</td><td>152.7 mm</td><td>7.30 mm <small>(4.8% vox)</small></td><td>14.6 mm <small>(9.6%)</small></td><td>51 mm <small>(33%)</small></td><td>206 mm <small>(135%)</small></td></tr>
+</tbody></table>
+<ul>
+<li>Mean error is <b>~4–5% of a voxel</b> (≈ 0.04–0.06% of the bounding-box diagonal) — both meshes land in the same
+relative band, confirming the accuracy is set by resolution, not the model.</li>
+<li>Error is dominated by the finite 64³ resolution (trilinear interpolation), not the UINT16 quantisation (whose
+step over the narrow band is sub-micron at this scale).</li>
+<li>Worst case is ≈ one voxel, at thin / high-curvature features a trilinear grid can't resolve below voxel size.</li>
+<li>Accuracy trades against memory: doubling <code>max_resolution</code> roughly halves the error and ~8×'s the subgrid.</li>
+</ul>
 
 </body></html>
