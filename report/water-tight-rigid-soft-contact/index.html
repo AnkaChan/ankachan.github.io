@@ -1,0 +1,87 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Water-tight rigid–soft contact — results</title><style>
+:root{--fg:#1a1a1a;--mut:#666;--bd:#e3e3e3;--acc:#ff7043;--bg:#fafafa;--off:#c0392b;--on:#2e7d32}
+*{box-sizing:border-box} body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+color:var(--fg);max-width:980px;margin:0 auto;padding:32px 24px;background:#fff}
+h1{font-size:28px;margin:0 0 4px} h2{font-size:20px;margin:34px 0 8px;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h3{font-size:16px;margin:22px 0 4px;color:#333} .sub{color:var(--mut);margin:0 0 18px}
+p{margin:8px 0} video{width:100%;border:1px solid var(--bd);border-radius:8px;margin:8px 0;background:#11151c}
+.cap{color:var(--mut);font-size:13px;margin:2px 0 20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.card{border:1px solid var(--bd);border-radius:10px;padding:14px} .card .n{font-size:22px;font-weight:700;color:var(--acc)}
+.card .l{font-size:12.5px;color:var(--mut)} code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
+.off{color:var(--off);font-weight:600} .on{color:var(--on);font-weight:600}
+.note{background:var(--bg);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
+ul{margin:8px 0 8px 2px;padding-left:20px} li{margin:5px 0}
+</style></head><body>
+
+<h1>Water-tight rigid–soft contact</h1>
+<p class="sub">An SDF-based contact path so a deforming body cannot tunnel through a rigid shape <em>between</em> its
+vertices, with full integration into the VBD solver. Newton · <code>SolverVBD</code> · NVIDIA L40 · 2026-06.</p>
+
+<div class="cards">
+<div class="card"><div class="n">3 passes</div><div class="l">particle + soft-edge + soft-face contact generation</div></div>
+<div class="card"><div class="n">FACE + EDGE</div><div class="l">contacts with no vertex required at the contact</div></div>
+<div class="card"><div class="n">flag&nbsp;off ⇒ identical</div><div class="l">byte-for-byte legacy behaviour when disabled</div></div>
+<div class="card"><div class="n">two-way</div><div class="l">soft side <em>and</em> rigid-body reaction in VBD</div></div>
+</div>
+
+<h2>Results — gripping a soft mesh by a vertex-free feature</h2>
+<p>A parallel-jaw gripper (cube pads) closes on a soft mesh positioned so that <b>no mesh vertex lies between the
+jaws</b> — only the interior of a face or an edge does — then lifts and holds.
+<span class="off">Left = water-tight OFF</span> reproduces <code>main</code>: the legacy per-particle path only tests
+vertices, finds none in the jaws, so the mesh slips through and drops.
+<span class="on">Right = water-tight ON</span>: the mesh is caught by its face / edge and held in the air.</p>
+
+<h3>Soft triangle — gripped by its FACE</h3>
+<video src="COMPARE_triangle.mp4" controls loop muted autoplay playsinline></video>
+<p class="cap">The triangle's three vertices are outside the jaws; only the face crosses the pinch. OFF: it falls.
+ON: a water-tight <b>face</b> contact holds it.</p>
+
+<h3>Soft 1×1 grid — gripped by its interior DIAGONAL EDGE</h3>
+<video src="COMPARE_grid.mp4" controls loop muted autoplay playsinline></video>
+<p class="cap">The grid's four corners are outside the jaws; the diagonal edge crosses the pinch. OFF: it falls.
+ON: a water-tight <b>edge</b> contact holds it (the sheet drapes over the grip).</p>
+
+<h2>What changed</h2>
+<p>The feature is purely additive and gated by <code>enable_water_tight_rigid_soft_contact</code>; with the flag off
+the contact set and solver results are byte-for-byte identical to before.</p>
+
+<h3>1 · Contact generation (SDF back-end)</h3>
+<ul>
+<li>Three additive passes per collision: the legacy particle pass, a soft-<b>edge</b> pass (1-D golden-section
+search along each unique edge), and a soft-<b>face</b> pass (Frank–Wolfe over the triangle's barycentric simplex),
+each minimising the rigid shape's signed-distance field — following Macklin et al. 2020.</li>
+<li>Analytic primitives use their closed-form SDF; meshes use a volume (texture) SDF, provisioned at
+<code>finalize()</code> for participating meshes that lack one.</li>
+<li>Records pack into a standalone soft counter laid out as <code>[particle, edge, face]</code>. The internal
+<code>soft_contact_particle</code> is renamed <code>soft_contact_primitive</code> (now a particle <em>or</em>
+soft-triangle id, by range), with new <code>soft_contact_kind</code> / <code>soft_contact_barycentric</code> fields.</li>
+</ul>
+
+<h3>2 · VBD integration</h3>
+<ul>
+<li><b>Soft side.</b> The particle-contact kernel gains a second section over the edge/face range. The contact point
+is the barycentric combination <code>x = Σ bᵢ·vᵢ</code> of the soft triangle's corners, so the penalty force and
+Hessian distribute as <code>bᵢ·F</code> and <code>bᵢ²·H</code> to each vertex (an edge leaves one weight at zero).</li>
+<li><b>Rigid side (two-way).</b> A per-slot kernel applies the equal-and-opposite reaction at the rigid contact point
+to dynamic bodies, so the gripper feels the grasp. Both sides reuse the existing penalty law and
+<code>penetration&nbsp;&gt;&nbsp;0</code> gate.</li>
+</ul>
+
+<h3>3 · Tests &amp; examples</h3>
+<ul>
+<li>Detection tests (SDF optimisers vs. a brute-force grid, edge/face passes, end-to-end no false-positive/negative,
+flag-off backward-compat) and VBD tests (per-vertex barycentric force/Hessian distribution, the two grips above as
+held-in-the-air regressions). Green on CPU and CUDA.</li>
+<li>Two runnable examples: <code>vbd_gripper_soft_triangle</code> and <code>vbd_gripper_soft_grid</code> (the videos
+above; toggle <code>enable_water_tight</code> to reproduce the OFF / main case).</li>
+</ul>
+
+<div class="note">Gotcha worth noting: an analytic <b>box</b> face gives an ambiguous SDF normal when a soft triangle
+straddles it (the closest feature flips between the bottom and a side face), so the two-way grip tests use convex
+shapes (cube / sphere) where the normal is unique and stable.</div>
+
+</body></html>
