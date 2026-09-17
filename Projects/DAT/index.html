@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <meta name="description" content="simulation; contact; collision handling; penetration-free; inversion-free; multi-physics; rigid body; cloth; rods">
+  <meta property="og:title" content="Divide and Truncate"/>
+  <meta property="og:description" content="A penetration-free and inversion-free contact framework for coupled multi-physics systems."/>
+  <meta property="og:url" content="https://ankachan.github.io/Projects/DAT/"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/images/teaser.png" />
+  <meta property="og:image:width" content="1920"/>
+  <meta property="og:image:height" content="1080"/>
+
+
+  <meta name="twitter:title" content="Divide and Truncate">
+  <meta name="twitter:description" content="A penetration-free and inversion-free contact framework for coupled multi-physics systems.">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/teaser.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords" content="simulation; contact; collision handling; penetration-free; inversion-free; multi-physics; rigid body; cloth; rods">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>Divide and Truncate</title>
+  <link rel="icon" type="image/x-icon" href="static/images/ico.png">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Divide and Truncate</h1>
+            <h2 class="subtitle is-4 publication-title">A Penetration and Inversion Free Framework for Coupled Multi-physics Systems</h2>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+              <a href="https://ankachan.github.io/" target="_blank">Anka He Chen</a>,</span>
+              <span class="author-block">
+                <a href="https://jerryhsu.io/" target="_blank">Jerry Hsu</a>,</span>
+              <span class="author-block">
+              Youssef Ayman,</span>
+              <span class="author-block">
+                <a href="https://blog.mmacklin.com/" target="_blank">Miles Macklin</a></span>
+            </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block">NVIDIA<br>ACM SIGGRAPH 2026 Conference Papers, Article No. 153, July 2026</span>
+                    <!-- <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span> -->
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- Arxiv PDF link -->
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/2604.15513" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+                    <!-- ACM Digital Library / DOI link -->
+                    <span class="link-block">
+                      <a href="https://doi.org/10.1145/3799902.3811143" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="ai ai-acm"></i>
+                      </span>
+                      <span>ACM DL</span>
+                    </a>
+                  </span>
+
+                    <!-- Supplementary PDF link -->
+                    <!-- <span class="link-block">
+                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+                      <span>Supplementary</span>
+                    </a>
+                  </span> -->
+
+                  <!-- Github link: DAT ships inside Newton's VBD solver -->
+                  <span class="link-block">
+                    <a href="https://github.com/newton-physics/newton/tree/main/newton/_src/solvers/vbd" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code (Newton)</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2604.15513" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://discord.gg/BRRaSmRpkm" target="_blank"
+                class="external-link button is-normal is-rounded is-dark">
+                <span>Discord</span>
+              </a>
+            </span>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser image -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="static/images/teaser-composite.jpg" alt="Divide and Truncate teaser: stacked cloth on a cylinder, a twisted yarn-level structure, and projectiles inside a tube and a braided cable" style="width: 100%; border-radius: 10px;">
+      <h2 class="subtitle has-text-centered">
+        DAT resolves contact without penetration or element inversion across coupled multi-physics systems: cloth, yarn-level structures, rods, rigid bodies, and soft volumetric objects, all in one framework.
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser image -->
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            We introduce Divide and Truncate (DAT), a unified framework for penetration-free and inversion-free contact resolution in coupled multi-physics simulations. Our method accommodates a wide range of object types &mdash; including rigid bodies, soft volumetric objects, thin shells, rods, and animated elements &mdash; by dividing space into distinct zones and limiting movement within those boundaries to ensure penetration-free contact resolution.
+          </p>
+          <p>
+            We further present Planar-DAT, a refined variant that restricts only motion directed toward contact surfaces while allowing unrestricted tangential movement, addressing previous limitations involving artificial damping and system deadlock. DAT operates independently of material properties and can be applied as a post-processing step with any iterative optimizer, enabling efficient and robust simulation of complex multi-body interactions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+
+<!-- Newton integration -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Available in Newton</h2>
+        <div class="content has-text-justified">
+          <p>
+            DAT is integrated into the <a href="https://github.com/newton-physics/newton/tree/main/newton/_src/solvers/vbd" target="_blank">VBD solver</a> of <a href="https://github.com/newton-physics/newton" target="_blank">Newton</a>, the open-source GPU physics engine for robotics and physical AI that NVIDIA is developing together with the community. The VBD solver is a descendant of our <a href="/Projects/VertexBlockDescent/">Vertex Block Descent</a> and <a href="/Projects/OGC/">Offset Geometric Contact</a> work; DAT adds penetration-free and inversion-free contact handling on top of it, so you can use it in production simulations today.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Newton integration -->
+
+
+<!-- Youtube video (TODO: add the official paper video ID once uploaded) -->
+<!--
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+      <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+-->
+<!-- End youtube video -->
+
+
+<!-- Image carousel -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+        <h2 class="title is-3">Results</h2>
+
+            <div id="results-carousel" class="carousel results-carousel">
+            <div class="item">
+              <img src="static/images/teaser.png" alt="Many layers of cloth dropped onto a cylinder"/>
+              <h2 class="subtitle has-text-centered">
+                Many layers of cloth dropped onto a cylinder and resolved without a single penetration.
+              </h2>
+            </div>
+            <div class="item">
+              <img src="static/images/teaser-composite.jpg" alt="Representative scenes from the paper"/>
+              <h2 class="subtitle has-text-centered">
+                Representative scenes: multi-layer cloth on a cylinder, a twisted yarn-level structure, and high-speed projectiles inside a tube and a braided cable.
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End image carousel -->
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>
+        @inproceedings{ankachen_2026_DAT,
+          author = {Chen, Anka He and Hsu, Jerry and Ayman, Youssef and Macklin, Miles},
+          title = {Divide and Truncate: A Penetration and Inversion Free Framework for Coupled Multi-physics System},
+          year = {2026},
+          publisher = {Association for Computing Machinery},
+          address = {New York, NY, USA},
+          url = {https://doi.org/10.1145/3799902.3811143},
+          doi = {10.1145/3799902.3811143},
+          booktitle = {Proceedings of the Special Interest Group on Computer Graphics and Interactive Techniques Conference Conference Papers},
+          articleno = {153},
+          numpages = {10},
+          series = {SIGGRAPH Conference Papers '26}
+        }
+      </code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <!-- <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer> -->
+
+  </body>
+  </html>
