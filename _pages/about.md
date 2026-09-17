@@ -55,7 +55,7 @@ Please don't be confused by my first name, "He." Although it looks like a pronou
   <div style="max-width: 500px; margin-bottom: 0.75em;">
     <img src="/images/{{ post.header.teaser }}" alt="{{ post.title }}" style="max-width: 100%; max-height: 250px; border-radius: 4px; object-fit: contain;">
   </div>
-  <h3 style="margin-top: 0;"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+  <h3 style="margin-top: 0;"><a href="{{ post.projecturl | default: post.url }}">{{ post.title }}</a></h3>
   {% if post.authors %}<p style="margin: 0.3em 0;">{{ post.authors }}</p>{% endif %}
   <p style="margin: 0.5em 0; font-style: italic;">{{ post.venue }}, {{ post.date | date: "%Y" }}</p>
   <p>{{ post.excerpt | markdownify }}</p>
