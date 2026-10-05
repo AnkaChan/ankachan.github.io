@@ -84,6 +84,31 @@ point, and it keeps a few cm/s of elastic ringing: the cube has no material damp
 friction and damping were added the ALM cube rested at 0.115 cm with five times the jitter and was still drifting down at 3 s.</p>
 
 
+<h2>4. Impact: five sheets 2.5 mm apart hitting the table at 1 m/s</h2>
+<video controls loop muted playsinline poster="impact_comparison_poster.jpg"><source src="impact_comparison.mp4" type="video/mp4"></video>
+<img src="impact_sweep.svg" alt="lowest height, kinetic energy and stack height over time for the four runs">
+<p>5 sheets start 0.25 cm apart (the lowest 0.25 cm above
+the pinned table) with a downward velocity of 100 cm/s, which is
+3.3 mm per step at dt = 1/300 s, more than
+the spacing. Contact margin 0.2 cm, detection gap 0.1 cm, friction 0.5, contact damping 100, 5 iterations. Vanilla VBD contact against
+alm_dat with 1, 2 and 5 final truncation rounds (<code>--dat-truncation-iterations</code>). Both paths cap the committed motion per step at the DAT
+budget, 0.5 x 0.85 x 0.3 cm = 1.275 mm, so the 3.3 mm/step approach is clipped on every path before contact forces act; what differs is how much of the
+remaining motion the truncation rounds admit and how quickly the stack comes to rest.</p>
+<p>Findings. After the first frame the vanilla path has 0.2 percent of the initial
+kinetic energy left and alm_dat 3.5 percent: the per-color penalty truncation damps the
+impact about 19 times harder, and the
+alm_dat top sheet rebounds to 1.54 cm before settling while the vanilla top sheet does not bounce. By 0.25 s both are at the
+resting jitter level of a few erg. Nothing penetrates on any run (lowest vertex 0.035 cm vanilla,
+0.042 cm alm_dat); the vanilla stack compresses its barrier
+further (bottom sheet at 0.167 cm versus 0.188 cm)
+and jitters more. The number of final truncation rounds (1, 2, 5) makes no measurable difference here: rest heights agree to 0.001 cm and the lowest
+clearance within 0.03 mm, because the motion budget, not the truncation, limits the approach.</p>
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr>
+<tr><td>kinetic energy of the sheets at t = 0 [erg]</td><td>114</td><td>2129</td><td>2137</td><td>2122</td></tr><tr><td>kinetic energy at 0.25 s [erg]</td><td>11.1</td><td>6.1</td><td>5.3</td><td>8.2</td></tr><tr><td>kinetic energy at 0.5 s [erg]</td><td>6.19</td><td>5.33</td><td>7.36</td><td>5.58</td></tr><tr><td>kinetic energy at 1 s [erg]</td><td>5.854</td><td>5.319</td><td>8.129</td><td>6.388</td></tr><tr><td>lowest sheet vertex over the run [cm] (0 is the table)</td><td>+0.0352</td><td>+0.0417</td><td>+0.0448</td><td>+0.0448</td></tr><tr><td>quiet (every sheet vertex below 2 cm/s from then on)</td><td>never</td><td>never</td><td>never</td><td>never</td></tr><tr><td>largest sheet speed over the last second [cm/s]</td><td>13.49</td><td>12.34</td><td>12.57</td><td>10.70</td></tr><tr><td>detector coverage flag at the end</td><td>never</td><td>True</td><td>True</td><td>True</td></tr>
+<tr><td>sheet 0 rest height, last second [cm]</td><td>0.167</td><td>0.188</td><td>0.188</td><td>0.188</td></tr><tr><td>sheet 1 rest height, last second [cm]</td><td>0.343</td><td>0.380</td><td>0.380</td><td>0.379</td></tr><tr><td>sheet 2 rest height, last second [cm]</td><td>0.497</td><td>0.540</td><td>0.541</td><td>0.539</td></tr><tr><td>sheet 3 rest height, last second [cm]</td><td>0.699</td><td>0.747</td><td>0.747</td><td>0.746</td></tr><tr><td>sheet 4 rest height, last second [cm]</td><td>0.902</td><td>0.946</td><td>0.948</td><td>0.946</td></tr>
+</table>
+
+
 <h2>Scene</h2>
 <p>Four 10x10 cm cloth sheets (1 cm cells, 0.02 g/cm<sup>2</sup>, tri_ke = tri_ka = 1e4, edge_ke = 5, absolute damping tri_kd 0.015 and
 edge_kd 0.05, contact ke 1e4 and kd 100) start 0.5 cm apart above a pinned 30x30 cm cloth sheet that acts as the table, each shifted by up
