@@ -17,7 +17,7 @@ pre{background:var(--bg);padding:10px 14px;border-radius:8px;overflow-x:auto;fon
 <h1>Resting contact on a pinned cloth table: elastic cube, stacked sheets, fast impact</h1>
 <p class="sub">Vanilla VBD contact (<code>penalty_dat</code>) against the ALM-DAT contact row (<code>alm_dat</code>, with Coulomb friction and
 gap-rate damping) on three scenes: a dropped elastic cube, four stacked sheets (<code>python -m newton.examples vbd_rest_on_contact</code>), and five
-sheets slammed onto the table at 1 m/s. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>986b7c92</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
+sheets falling freely at 1 m/s with no table. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>986b7c92</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
 
 
 <h2>1. Simplest test: an elastic cube dropped on the pinned cloth plane</h2>
@@ -86,29 +86,37 @@ sheet falls at exactly 76.5 cm/s, the per-substep DAT motion budget. Nothing int
 </table>
 
 
-<h2>4. Impact: five sheets 2.5 mm apart hitting the table at 1 m/s</h2>
-<video controls loop muted playsinline poster="impact_comparison_poster.jpg"><source src="impact_comparison.mp4" type="video/mp4"></video>
-<img src="impact_sweep.svg" alt="lowest height, kinetic energy and stack height over time for the four runs">
-<p>5 sheets start 0.25 cm apart (the lowest 0.25 cm above
-the pinned table) with a downward velocity of 100 cm/s, which is
-3.3 mm per step at dt = 1/300 s, more than
-the spacing. Contact margin 0.2 cm, detection gap 0.1 cm, friction 0.5, contact damping 100, 5 iterations. Vanilla VBD contact against
-alm_dat with 1, 2 and 5 final truncation rounds (<code>--dat-truncation-iterations</code>). Both paths cap the committed motion per step at the DAT
-budget, 0.5 x 0.85 x 0.3 cm = 1.275 mm, so the 3.3 mm/step approach is clipped on every path before contact forces act; what differs is how much of the
-remaining motion the truncation rounds admit and how quickly the stack comes to rest.</p>
-<p>Findings. After the first frame the vanilla path has 0.2 percent of the initial
-kinetic energy left and alm_dat 3.5 percent: the per-color penalty truncation damps the
-impact about 19 times harder, and the
-alm_dat top sheet rebounds to 1.54 cm before settling while the vanilla top sheet does not bounce. By 0.25 s both are at the
-resting jitter level of a few erg. Nothing penetrates on any run (lowest vertex 0.035 cm vanilla,
-0.042 cm alm_dat); the vanilla stack compresses its barrier
-further (bottom sheet at 0.167 cm versus 0.188 cm)
-and jitters more. The number of final truncation rounds (1, 2, 5) makes no measurable difference here: rest heights agree to 0.001 cm and the lowest
-clearance within 0.03 mm, because the motion budget, not the truncation, limits the approach.</p>
-<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr>
-<tr><td>kinetic energy of the sheets at t = 0 [erg]</td><td>114</td><td>2129</td><td>2137</td><td>2122</td></tr><tr><td>kinetic energy at 0.25 s [erg]</td><td>11.1</td><td>6.1</td><td>5.3</td><td>8.2</td></tr><tr><td>kinetic energy at 0.5 s [erg]</td><td>6.19</td><td>5.33</td><td>7.36</td><td>5.58</td></tr><tr><td>kinetic energy at 1 s [erg]</td><td>5.854</td><td>5.319</td><td>8.129</td><td>6.388</td></tr><tr><td>lowest sheet vertex over the run [cm] (0 is the table)</td><td>+0.0352</td><td>+0.0417</td><td>+0.0448</td><td>+0.0448</td></tr><tr><td>quiet (every sheet vertex below 2 cm/s from then on)</td><td>never</td><td>never</td><td>never</td><td>never</td></tr><tr><td>largest sheet speed over the last second [cm/s]</td><td>13.49</td><td>12.34</td><td>12.57</td><td>10.70</td></tr><tr><td>detector coverage flag at the end</td><td>never</td><td>True</td><td>True</td><td>True</td></tr>
-<tr><td>sheet 0 rest height, last second [cm]</td><td>0.167</td><td>0.188</td><td>0.188</td><td>0.188</td></tr><tr><td>sheet 1 rest height, last second [cm]</td><td>0.343</td><td>0.380</td><td>0.380</td><td>0.379</td></tr><tr><td>sheet 2 rest height, last second [cm]</td><td>0.497</td><td>0.540</td><td>0.541</td><td>0.539</td></tr><tr><td>sheet 3 rest height, last second [cm]</td><td>0.699</td><td>0.747</td><td>0.747</td><td>0.746</td></tr><tr><td>sheet 4 rest height, last second [cm]</td><td>0.902</td><td>0.946</td><td>0.948</td><td>0.946</td></tr>
-</table>
+<h2>4. Free fall: five sheets 2.5 mm apart, all at 100 cm/s, no table</h2>
+<video controls loop muted playsinline poster="free_fall_comparison_poster.jpg"><source src="free_fall_comparison.mp4" type="video/mp4"></video>
+<img src="free_fall.svg" alt="stack velocity against exact free fall, kept fraction, and sheet spacing for the four runs">
+<p>Five sheets start 0.25 cm apart with the same downward velocity of 100 cm/s
+(3.3 mm per step at dt = 1/300 s, more than their spacing) and fall under gravity with nothing below them. Every sheet
+should accelerate at g and the spacing should stay 2.5 mm; there is no physical reason for any contact
+force, so whatever slows the stack is artificial damping of the contact method. The division planes between neighbouring sheets sit at the
+midpoints (nobody approaches), 1.25 mm below each sheet, while every sheet wants to move 3.3 mm per step: a single truncation round can admit at
+most 0.85 x 1.25 mm, a second round re-slides the planes with the committed motion and admits the same fraction of the remainder, and so on.
+Video at 5x slow motion (one simulation step per frame), camera following the stack; margin 0.2 cm, detection gap 3 cm,
+friction 0.5, damping 100, 5 iterations.</p>
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr><tr><td>stack velocity at 0.1 s [cm/s] (free fall -198.1); kept fraction</td><td>-36.8 (19%)</td><td>-198.1 (100%)</td><td>-198.1 (100%)</td><td>-198.1 (100%)</td></tr><tr><td>stack velocity at 0.2 s [cm/s] (free fall -296.2); kept fraction</td><td>-66.2 (22%)</td><td>-296.2 (100%)</td><td>-296.2 (100%)</td><td>-296.2 (100%)</td></tr><tr><td>stack velocity at 0.3 s [cm/s] (free fall -394.3); kept fraction</td><td>-82.3 (21%)</td><td>-394.3 (100%)</td><td>-394.3 (100%)</td><td>-394.3 (100%)</td></tr><tr><td>distance fallen by the lowest sheet [cm] (free fall 74.1)</td><td>74.3</td><td>74.3</td><td>74.3</td><td>74.3</td></tr><tr><td>adjacent spacing over the run, min / max [mm] (start 2.5)</td><td>-4.58 / 679.47</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td></tr></table>
+
+<h3>The final truncation count on its own</h3>
+<video controls loop muted playsinline poster="free_fall_rounds_comparison_poster.jpg"><source src="free_fall_rounds_comparison.mp4" type="video/mp4"></video>
+<img src="free_fall_rounds.svg" alt="the same free fall with the in-iteration plane refresh switched off: 1, 2 and 5 final rounds">
+<p>Same scene, but the alm_dat runs skip the in-iteration plane refresh (<code>--dat-plane-update-interval 0</code>), so the only truncations are
+the initial one and the 1, 2 or 5 final rounds (<code>--dat-truncation-iterations</code>). With the default refresh (one round after each of the
+5 iterations, the row above) every alm_dat run already resolves the whole stack within the step, which is why the three counts were
+indistinguishable there.</p>
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr><tr><td>stack velocity at 0.1 s [cm/s] (free fall -198.1); kept fraction</td><td>-36.8 (19%)</td><td>-196.8 (99%)</td><td>-198.1 (100%)</td><td>-198.1 (100%)</td></tr><tr><td>stack velocity at 0.2 s [cm/s] (free fall -296.2); kept fraction</td><td>-66.2 (22%)</td><td>-291.3 (98%)</td><td>-296.2 (100%)</td><td>-296.2 (100%)</td></tr><tr><td>stack velocity at 0.3 s [cm/s] (free fall -394.3); kept fraction</td><td>-82.3 (21%)</td><td>-349.5 (89%)</td><td>-394.2 (100%)</td><td>-394.3 (100%)</td></tr><tr><td>distance fallen by the lowest sheet [cm] (free fall 74.1)</td><td>74.3</td><td>74.3</td><td>74.3</td><td>74.3</td></tr><tr><td>adjacent spacing over the run, min / max [mm] (start 2.5)</td><td>-4.58 / 679.47</td><td>-10.45 / 36.41</td><td>2.28 / 2.72</td><td>2.50 / 2.50</td></tr></table>
+
+
+<h3>Why the detection gap had to be widened</h3>
+<p>With the example's default detection gap of 0.1 cm the per-step motion budget 0.5 x 0.85 x (0.2 + 0.1) cm = 1.275 mm caps the
+committed speed at 38.2 cm/s on both paths, so every run fell at that speed and the truncation rounds could not matter
+(alm_dat kept the spacing at exactly 2.50 mm; vanilla spread it to 2.47 to 3.97 mm). The variant above widens the gap to 3 cm so the budget
+(408 cm/s) does not bind during the 0.3 s shown and only the plane truncation acts.</p>
+<img src="free_fall_budget.svg" alt="the same free fall with the default 0.1 cm detection gap: every run capped at the motion budget">
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr><tr><td>stack velocity at 0.25 s [cm/s] (free fall -328.9); kept fraction</td><td>-39.2 (12%)</td><td>-38.2 (12%)</td><td>-38.2 (12%)</td><td>-38.2 (12%)</td></tr><tr><td>stack velocity at 0.5 s [cm/s] (free fall -574.1); kept fraction</td><td>-39.1 (7%)</td><td>-38.3 (7%)</td><td>-38.3 (7%)</td><td>-38.3 (7%)</td></tr><tr><td>stack velocity at 1 s [cm/s] (free fall -1064.7); kept fraction</td><td>-39.1 (4%)</td><td>-38.2 (4%)</td><td>-38.2 (4%)</td><td>-38.2 (4%)</td></tr><tr><td>distance fallen by the lowest sheet [cm] (free fall 1227.6)</td><td>58.3</td><td>56.7</td><td>56.7</td><td>56.7</td></tr><tr><td>adjacent spacing over the run, min / max [mm] (start 2.5)</td><td>2.47 / 3.97</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td></tr></table>
+
 
 
 <h2>Scene</h2>
