@@ -14,11 +14,30 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 .note{background:var(--bg);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
 pre{background:var(--bg);padding:10px 14px;border-radius:8px;overflow-x:auto;font-size:13px}
 </style></head><body>
-<h1>Resting contact: stacked cloth sheets on a pinned cloth table</h1>
-<p class="sub"><code>python -m newton.examples vbd_rest_on_contact</code> on the default <code>penalty_dat</code> path and on the
-<code>alm_dat</code> path with the new Coulomb friction and gap-rate damping. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>986b7c92</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
+<h1>Resting contact on a pinned cloth table: elastic cube, stacked sheets, fast impact</h1>
+<p class="sub">Vanilla VBD contact (<code>penalty_dat</code>) against the ALM-DAT contact row (<code>alm_dat</code>, with Coulomb friction and
+gap-rate damping) on three scenes: a dropped elastic cube, four stacked sheets (<code>python -m newton.examples vbd_rest_on_contact</code>), and five
+sheets slammed onto the table at 1 m/s. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>986b7c92</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
 
-<h2>1. The requested comparison: default path versus alm_dat, both with friction 0.5</h2>
+
+<h2>1. Simplest test: an elastic cube dropped on the pinned cloth plane</h2>
+<video controls loop muted playsinline poster="cube_comparison_poster.jpg"><source src="cube_comparison.mp4" type="video/mp4"></video>
+<img src="cube_drop.svg" alt="z trajectory of the cube on both contact methods">
+<p>A 4x4x4 cm tetrahedral cube (density 1 g/cm<sup>3</sup>, 125 g lumped,
+k_mu = k_lambda = 1e+05 dyn/cm<sup>2</sup>, no material damping) starts with its bottom face 1 cm above the pinned
+16x16 cm cloth table and falls under gravity. Contact settings shared by every scene on this page (margin 0.2 cm, gap 0.1 cm,
+ke 1e+04, kd 1e+02, mu 0.5), 5 iterations, 10 substeps, 60 fps.
+Curves are the lowest cube vertex above the table and the largest vertex speed; the dashed line is the margin.</p>
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat</th></tr>
+<tr><td>first contact (lowest vertex reaches the margin)</td><td>0.05 s</td><td>0.05 s</td></tr><tr><td>highest rebound of the lowest vertex after contact [cm]</td><td>0.277</td><td>0.274</td></tr><tr><td>settled (every vertex below 1 cm/s from then on)</td><td>0.27 s</td><td>never</td></tr><tr><td>rest height of the lowest vertex, mean over the last second [cm]</td><td>0.1860</td><td>0.1318</td></tr><tr><td>rest jitter of the lowest vertex, std / range over the last second [cm]</td><td>7.2e-05 / 4.1e-04</td><td>1.3e-03 / 6.2e-03</td></tr><tr><td>largest vertex speed over the last second [cm/s]</td><td>0.240</td><td>3.277</td></tr><tr><td>lowest vertex height over the whole run [cm] (0 is the table)</td><td>0.1662</td><td>0.1300</td></tr><tr><td>detector coverage flag true on every frame</td><td>True</td><td>True</td></tr>
+</table>
+<p>Both paths land and rebound alike. The vanilla path settles within a quarter second and rests one cushion deflection below the margin with
+sub-micron jitter. The ALM path rests lower because its linear cushion (K = 1e4 dyn/cm per row) is softer than the penalty barrier near the rest
+point, and it keeps a few cm/s of elastic ringing: the cube has no material damping and the contact damping only acts on closing motion. Before
+friction and damping were added the ALM cube rested at 0.115 cm with five times the jitter and was still drifting down at 3 s.</p>
+
+
+<h2>2. Stacked sheets: default path versus alm_dat, both with friction 0.5</h2>
 <video controls autoplay loop muted playsinline poster="comparison_poster.jpg"><source src="comparison.mp4" type="video/mp4"></video>
 <p>Left: the shipped behavior, penalty contact with Coulomb friction mu = 0.5, gap-rate damping kd = 100 and per-color Divide-and-Truncate.
 Right: the ALM contact row with stored division planes, now with Coulomb friction (a tangential multiplier capped at mu times the row's normal
@@ -28,7 +47,7 @@ same size on both (0.010 to 0.015 versus 0.004 to 0.016 cm), and the largest she
 5.4 cm/s on the default path and 8.7 cm/s on alm_dat.
 No vertex touches the table on either path and the detector's coverage flag stayed true on alm_dat for the whole run.</p>
 
-<h2>2. Why friction and damping were needed: the first alm_dat version</h2>
+<h2>3. Why friction and damping were needed: the first alm_dat version</h2>
 <video controls loop muted playsinline poster="comparison_alm_before_after_poster.jpg"><source src="comparison_alm_before_after.mp4" type="video/mp4"></video>
 <p>Left: the alm_dat row as first rendered, without friction or damping. The slightly rotated sheets slide apart at 20 to 25 cm/s, the first one reaches
 the 30 cm table edge at 0.85 s and tips over it, and the others follow; once off the table a
@@ -39,7 +58,7 @@ sheet falls at exactly 76.5 cm/s, the per-substep DAT motion budget. Nothing int
 0.85 s; peak sliding speed before leaving the table 24.2 versus
 27.0 cm/s), so the dispersal was frictionless physics, not a contact-method defect.</p>
 
-<h2>Timeline (max sheet speed [cm/s] / lowest sheet vertex above the table [cm])</h2>
+<h2>Stacked sheets, timeline (max sheet speed [cm/s] / lowest sheet vertex above the table [cm])</h2>
 <table><tr><th>time</th><th>penalty_dat, mu = 0.5</th><th>penalty_dat, mu = 0</th><th>alm_dat, first version (no friction, no damping)</th><th>alm_dat, mu = 0.5 (friction + damping)</th></tr>
 <tr><td>0.25 s</td><td>3.08 / +0.161</td><td>10.92 / +0.178</td><td>16.17 / +0.194</td><td>4.97 / +0.180</td></tr>
 <tr><td>0.50 s</td><td>3.15 / +0.168</td><td>15.68 / +0.195</td><td>23.30 / +0.194</td><td>3.45 / +0.187</td></tr>
@@ -57,7 +76,7 @@ sheet falls at exactly 76.5 cm/s, the per-substep DAT motion budget. Nothing int
 <tr><td>render wall time (CPU, 300 frames)</td><td>365 s</td><td>353 s</td><td>273 s</td><td>375 s</td></tr>
 </table>
 
-<h2>Rest metrics over the last 2 s (mean height [cm] / max vertical std [cm])</h2>
+<h2>Stacked sheets, rest metrics over the last 2 s (mean height [cm] / max vertical std [cm])</h2>
 <p>Only meaningful for runs whose sheets are still on the table; falling sheets show large negative heights.</p>
 <table><tr><th>sheet</th><th>penalty_dat, mu = 0.5</th><th>penalty_dat, mu = 0</th><th>alm_dat, first version (no friction, no damping)</th><th>alm_dat, mu = 0.5 (friction + damping)</th></tr>
 <tr><td>sheet 0</td><td>0.1948 / 0.01001</td><td>0.1997 / 0.00006</td><td>-171.0260 / 44.16661</td><td>0.1958 / 0.00362</td></tr>
@@ -65,23 +84,6 @@ sheet falls at exactly 76.5 cm/s, the per-substep DAT motion budget. Nothing int
 <tr><td>sheet 2</td><td>0.5631 / 0.01474</td><td>-210.6022 / 46.40108</td><td>-220.8856 / 44.16661</td><td>0.5649 / 0.01438</td></tr>
 <tr><td>sheet 3</td><td>0.7710 / 0.01446</td><td>-207.4097 / 45.60289</td><td>-119.5769 / 44.16661</td><td>0.7731 / 0.01581</td></tr>
 </table>
-
-
-<h2>3. Simplest test: an elastic cube dropped on the same pinned plane</h2>
-<video controls loop muted playsinline poster="cube_comparison_poster.jpg"><source src="cube_comparison.mp4" type="video/mp4"></video>
-<img src="cube_drop.svg" alt="z trajectory of the cube on both contact methods">
-<p>A 4x4x4 cm tetrahedral cube (density 1 g/cm<sup>3</sup>, 125 g lumped,
-k_mu = k_lambda = 1e+05 dyn/cm<sup>2</sup>, no material damping) starts with its bottom face 1 cm above the pinned
-16x16 cm cloth table and falls under gravity. Same contact settings as above (margin 0.2 cm, gap 0.1 cm,
-ke 1e+04, kd 1e+02, mu 0.5), 5 iterations, 10 substeps, 60 fps.
-Curves are the lowest cube vertex above the table and the largest vertex speed; the dashed line is the margin.</p>
-<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat</th></tr>
-<tr><td>first contact (lowest vertex reaches the margin)</td><td>0.05 s</td><td>0.05 s</td></tr><tr><td>highest rebound of the lowest vertex after contact [cm]</td><td>0.277</td><td>0.274</td></tr><tr><td>settled (every vertex below 1 cm/s from then on)</td><td>0.27 s</td><td>never</td></tr><tr><td>rest height of the lowest vertex, mean over the last second [cm]</td><td>0.1860</td><td>0.1318</td></tr><tr><td>rest jitter of the lowest vertex, std / range over the last second [cm]</td><td>7.2e-05 / 4.1e-04</td><td>1.3e-03 / 6.2e-03</td></tr><tr><td>largest vertex speed over the last second [cm/s]</td><td>0.240</td><td>3.277</td></tr><tr><td>lowest vertex height over the whole run [cm] (0 is the table)</td><td>0.1662</td><td>0.1300</td></tr><tr><td>detector coverage flag true on every frame</td><td>True</td><td>True</td></tr>
-</table>
-<p>Both paths land and rebound alike. The vanilla path settles within a quarter second and rests one cushion deflection below the margin with
-sub-micron jitter. The ALM path rests lower because its linear cushion (K = 1e4 dyn/cm per row) is softer than the penalty barrier near the rest
-point, and it keeps a few cm/s of elastic ringing: the cube has no material damping and the contact damping only acts on closing motion. Before
-friction and damping were added the ALM cube rested at 0.115 cm with five times the jitter and was still drifting down at 3 s.</p>
 
 
 <h2>4. Impact: five sheets 2.5 mm apart hitting the table at 1 m/s</h2>
