@@ -65,6 +65,23 @@ vertical std 5.6e-05 cm over the last 2 s) while the upper three leave; on alm_d
 <tr><td>sheet 3</td><td>0.7710 / 0.01446</td><td>-207.4097 / 45.60289</td><td>-119.5769 / 44.16661</td></tr>
 </table>
 
+
+<h2>3. Simplest test: an elastic cube dropped on the same pinned plane</h2>
+<img src="cube_drop.svg" alt="z trajectory of the cube on both contact methods">
+<p>A 4x4x4 cm tetrahedral cube (density 1 g/cm<sup>3</sup>, 125 g lumped,
+k_mu = k_lambda = 1e+05 dyn/cm<sup>2</sup>, no material damping) starts with its bottom face 1 cm above the pinned
+16x16 cm cloth table and falls under gravity. Same contact settings as above (margin 0.2 cm, gap 0.1 cm,
+ke 1e+04, kd 1e+02, mu 0.5), 5 iterations, 10 substeps, 60 fps.
+Curves are the lowest cube vertex above the table and the largest vertex speed; the dashed line is the margin.</p>
+<table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat</th></tr>
+<tr><td>first contact (lowest vertex reaches the margin)</td><td>0.05 s</td><td>0.05 s</td></tr><tr><td>highest rebound of the lowest vertex after contact [cm]</td><td>0.277</td><td>0.285</td></tr><tr><td>settled (every vertex below 1 cm/s from then on)</td><td>0.27 s</td><td>2.97 s</td></tr><tr><td>rest height of the lowest vertex, mean over the last second [cm]</td><td>0.1860</td><td>0.1152</td></tr><tr><td>rest jitter of the lowest vertex, std / range over the last second [cm]</td><td>7.2e-05 / 4.1e-04</td><td>6.3e-03 / 3.0e-02</td></tr><tr><td>largest vertex speed over the last second [cm/s]</td><td>0.240</td><td>6.126</td></tr><tr><td>lowest vertex height over the whole run [cm] (0 is the table)</td><td>0.1662</td><td>0.0713</td></tr><tr><td>detector coverage flag true on every frame</td><td>True</td><td>True</td></tr>
+</table>
+<p>Both paths land and rebound alike. The vanilla path then settles within a quarter second and rests one cushion deflection below the margin
+with sub-micron jitter. The ALM path keeps oscillating for the whole run, rests lower, and its rest height still drifts downward at 3 s:
+the row has no contact damping yet (the penalty path damps the gap rate with kd = 1e+02), and the contact multipliers keep
+adjusting toward the load across steps. No vertex ever reaches the table surface on either path.</p>
+
+
 <h2>Scene</h2>
 <p>Four 10x10 cm cloth sheets (1 cm cells, 0.02 g/cm<sup>2</sup>, tri_ke = tri_ka = 1e4, edge_ke = 5, absolute damping tri_kd 0.015 and
 edge_kd 0.05, contact ke 1e4 and kd 100) start 0.5 cm apart above a pinned 30x30 cm cloth sheet that acts as the table, each shifted by up
