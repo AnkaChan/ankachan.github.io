@@ -95,7 +95,7 @@ should accelerate at g and the spacing should stay 2.5 mm; there is no physical 
 force, so whatever slows the stack is artificial damping of the contact method. The division planes between neighbouring sheets sit at the
 midpoints (nobody approaches), 1.25 mm below each sheet, while every sheet wants to move 3.3 mm per step: a single truncation round can admit at
 most 0.85 x 1.25 mm, a second round re-slides the planes with the committed motion and admits the same fraction of the remainder, and so on.
-Video at 5x slow motion (one simulation step per frame), camera following the stack; margin 0.2 cm, detection gap 3 cm,
+Video at 5x slow motion (one simulation step per frame), static camera; margin 0.2 cm, detection gap 3 cm,
 friction 0.5, damping 100, 5 iterations.</p>
 <table><tr><th></th><th>penalty_dat (vanilla)</th><th>alm_dat, 1 round</th><th>alm_dat, 2 rounds</th><th>alm_dat, 5 rounds</th></tr><tr><td>stack velocity at 0.1 s [cm/s] (free fall -198.1); kept fraction</td><td>-36.8 (19%)</td><td>-198.1 (100%)</td><td>-198.1 (100%)</td><td>-198.1 (100%)</td></tr><tr><td>stack velocity at 0.2 s [cm/s] (free fall -296.2); kept fraction</td><td>-66.2 (22%)</td><td>-296.2 (100%)</td><td>-296.2 (100%)</td><td>-296.2 (100%)</td></tr><tr><td>stack velocity at 0.3 s [cm/s] (free fall -394.3); kept fraction</td><td>-82.3 (21%)</td><td>-394.3 (100%)</td><td>-394.3 (100%)</td><td>-394.3 (100%)</td></tr><tr><td>distance fallen by the lowest sheet [cm] (free fall 74.1)</td><td>74.3</td><td>74.3</td><td>74.3</td><td>74.3</td></tr><tr><td>adjacent spacing over the run, min / max [mm] (start 2.5)</td><td>-4.58 / 679.47</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td><td>2.50 / 2.50</td></tr></table>
 
