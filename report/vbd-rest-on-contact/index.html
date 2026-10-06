@@ -17,7 +17,7 @@ pre{background:var(--bg);padding:10px 14px;border-radius:8px;overflow-x:auto;fon
 <h1>Resting contact on a pinned cloth table: elastic cube, stacked sheets, fast impact</h1>
 <p class="sub">Vanilla VBD contact (<code>penalty_dat</code>) against the ALM-DAT contact row (<code>alm_dat</code>, with Coulomb friction and
 gap-rate damping) on three scenes: a dropped elastic cube, four stacked sheets (<code>python -m newton.examples vbd_rest_on_contact</code>), and five
-sheets falling freely at 1 m/s with no table. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>986b7c92</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
+sheets falling freely at 1 m/s with no table. Branch <code>ankac/alm-dat-fable-review</code>, snapshot <code>see git</code> plus the example commit, CPU run, Warp 1.17.0, 2026-10-05.</p>
 
 
 <h2>1. Simplest test: an elastic cube dropped on the pinned cloth plane</h2>
@@ -119,6 +119,47 @@ committed speed at 38.2 cm/s on both paths, so every run fell at that speed and 
 
 
 
+<h2>5. Folded sheets: four sheets folded in half, stacked on the table</h2>
+<p><b>Result.</b> With the fold construction of the original grid_on_table script, the vanilla path rests and the ALM-DAT path does not:
+its two middle sheets are squeezed out of the stack sideways within 0.1 s, crumple, and are flung off the table edge at the motion-budget
+speed. The first sheet vertex below the table surface (0.41 s, sheet 2) is 15.8 cm from the centre, past the 15 cm table edge, so the sheets left the table rather than crossing it. The detector never overflowed. Whether the middle sheets crossed a neighbouring sheet while being squeezed out was
+not checked. With a clean fold along a mesh column (5b) both paths rest, within 0.15 cm of each other.</p>
+<h3>5a. Fold of the original script</h3>
+<video controls loop muted playsinline poster="fold_comparison_poster.jpg"><source src="fold_comparison.mp4" type="video/mp4"></video>
+<p>Each sheet is folded by reflecting every vertex right of the sheet's world-x mid-line over it and lifting it by a
+0.3 cm fold gap (the construction of the original script). Because every sheet is rotated by up to 0.1 rad,
+the crease cuts across mesh columns: a vertex just right of the line lands just left of it, 0.3 cm up, so the triangles the crease
+passes through start crushed to a fraction of their rest size. 4 folded sheets start
+0.8 cm apart above the pinned table; same contact settings as section 2, 5 s.</p>
+<table><tr><th></th><th>penalty_dat (vanilla), mu 0.5</th><th>alm_dat, mu 0.5 (friction + damping)</th></tr>
+<tr><td>sheet 0: mean height over the last 2 s [cm]</td><td>0.270</td><td>0.294</td></tr><tr><td>sheet 1: mean height over the last 2 s [cm]</td><td>0.626</td><td>-209.617</td></tr><tr><td>sheet 2: mean height over the last 2 s [cm]</td><td>0.908</td><td>-222.306</td></tr><tr><td>sheet 3: mean height over the last 2 s [cm]</td><td>1.328</td><td>0.632</td></tr><tr><td>largest sheet speed over the last 2 s [cm/s]</td><td>25.11</td><td>76.51</td></tr><tr><td>lowest sheet vertex over the run [cm] (0 is the table surface)</td><td>+0.094</td><td>-304.004</td></tr><tr><td>detector coverage flag at the end</td><td>n/a</td><td>True</td></tr>
+</table>
+
+<h3>5b. The same stack with a clean fold (crease along a mesh column)</h3>
+<video controls loop muted playsinline poster="fold_clean_comparison_poster.jpg"><source src="fold_clean_comparison.mp4" type="video/mp4"></video>
+<p>Same sheets, same perturbations, same contact settings; the only change is that each sheet is reflected in its own frame, so the
+crease follows the middle mesh column and no triangle is crushed. Both methods rest.</p>
+<table><tr><th></th><th>penalty_dat (vanilla), mu 0.5</th><th>alm_dat, mu 0.5 (friction + damping)</th></tr>
+<tr><td>sheet 0: mean height over the last 2 s [cm]</td><td>0.266</td><td>0.279</td></tr><tr><td>sheet 1: mean height over the last 2 s [cm]</td><td>0.625</td><td>0.656</td></tr><tr><td>sheet 2: mean height over the last 2 s [cm]</td><td>0.933</td><td>0.977</td></tr><tr><td>sheet 3: mean height over the last 2 s [cm]</td><td>1.281</td><td>1.428</td></tr><tr><td>largest sheet speed over the last 2 s [cm/s]</td><td>21.40</td><td>26.79</td></tr><tr><td>lowest sheet vertex over the run [cm] (0 is the table surface)</td><td>+0.076</td><td>+0.148</td></tr><tr><td>detector coverage flag at the end</td><td>n/a</td><td>True</td></tr>
+</table>
+
+<h3>What goes wrong, from a per-substep probe</h3>
+<img src="fold_speed.png" alt="largest sheet speed per frame, folded stacks">
+<p>The crushed crease triangles release their elastic energy in the first substeps on both paths: about 70 vertices, all within 1.5 cm of
+the crease, exceed 40 cm/s at the first substep. The vanilla path lets that snap-back run its course (129 cm/s peak at the second substep)
+and is quiet after 0.1 s. The ALM-DAT path caps every vertex at its motion budget of 0.1275 cm per substep (0.5 x 0.85 x the 0.3 cm
+detection radius), that is 76.5 cm/s, and never gets below it: the largest sheet speed sits exactly on the cap for all 300 frames. The
+probe shows the fast set growing from the crease across the whole sheet within 0.03 s. My reading (inference, not verified in the
+kernels): the elastic snap-back drives the untruncated iterate far past the stored planes every iteration, the multipliers learn from
+that iterate, overshoot, and launch the vertices back at the cap in the next step, so the stack never settles; the vanilla penalty force
+has no memory and relaxes once the triangles do. Without the crushed triangles (clean fold, or no fold) the ALM-DAT stack behaves like
+the vanilla one.</p>
+<table><tr><th>probe, 0.5 s, CPU</th><th>largest speed at substep 1 [cm/s]</th><th>vertices above 40 cm/s at substep 1</th>
+<th>substeps on the 76.5 cm/s cap after 0.1 s</th><th>largest speed at 0.5 s [cm/s]</th><th>sheets swap order</th></tr>
+<tr><td>fold of the original script, penalty_dat</td><td>78.1</td><td>69 (69 within 1.5 cm of the crease)</td><td>0 of 240</td><td>6.4</td><td>none</td></tr><tr><td>fold of the original script, alm_dat</td><td>76.5</td><td>68 (68 within 1.5 cm of the crease)</td><td>210 of 210</td><td>76.5</td><td>0.13 s</td></tr><tr><td>clean fold along the mesh column, alm_dat</td><td>16.2</td><td>0 (0 within 1.5 cm of the crease)</td><td>0 of 240</td><td>17.6</td><td>none</td></tr><tr><td>no fold (section 2 geometry), alm_dat</td><td>1.6</td><td>0 (0 within 1.5 cm of the crease)</td><td>0 of 240</td><td>6.9</td><td>none</td></tr>
+</table>
+
+
 <h2>Scene</h2>
 <p>Four 10x10 cm cloth sheets (1 cm cells, 0.02 g/cm<sup>2</sup>, tri_ke = tri_ka = 1e4, edge_ke = 5, absolute damping tri_kd 0.015 and
 edge_kd 0.05, contact ke 1e4 and kd 100) start 0.5 cm apart above a pinned 30x30 cm cloth sheet that acts as the table, each shifted by up
@@ -128,7 +169,7 @@ table itself has no thickness. 60 fps, 10 substeps, 5 VBD iterations, 300 frames
 <div class="note">Old path (<code>penalty_dat</code>): penalty force along the closest-point direction with friction and damping; the accumulated
 displacement is clipped against freshly built division planes after every color. New path (<code>alm_dat</code>): one compliant ALM contact
 row per detected pair with its multiplier carried across steps, division planes stored and rebuilt only at certified anchors, and the committed
-state is the truncated anchor. The ALM row has no friction or damping yet.</div>
+state is the truncated anchor. The ALM row carries gap-rate damping and Coulomb friction as a capped tangential multiplier.</div>
 
 <h2>How it was produced</h2>
 <pre>python -m newton.examples vbd_rest_on_contact
@@ -136,5 +177,9 @@ python -m newton.examples vbd_rest_on_contact --contact-method alm_dat
 python -m newton.examples vbd_rest_on_contact --contact-mu 0.0
 notes/vbd-rest-on-contact/render_comparison.py render --method ... --frames 300   (headless ViewerGL under Xvfb, CPU)
 notes/vbd-rest-on-contact/render_comparison.py compose --left penalty_dat --right alm_dat --name comparison
-notes/vbd-rest-on-contact/render_comparison.py compose --left penalty_dat_mu0 --right alm_dat --name comparison_frictionless</pre>
+notes/vbd-rest-on-contact/render_comparison.py compose --left penalty_dat_mu0 --right alm_dat --name comparison_frictionless
+notes/vbd-rest-on-contact/render_comparison.py render --fold --fold-gap 0.3 --layer-spacing 0.8 --first-layer-height 0.3 --contact-buffer-scale 2 --method ... --tag fold_...
+notes/vbd-rest-on-contact/render_comparison.py render --fold --fold-clean ... --tag foldc_...
+notes/vbd-rest-on-contact/fold_probe.py --method alm_dat --fold-gap 0.3 --layer-spacing 0.8 --frames 30 [--fold-clean | --no-fold]
+notes/vbd-rest-on-contact/plot_fold_speed.py</pre>
 </body></html>
