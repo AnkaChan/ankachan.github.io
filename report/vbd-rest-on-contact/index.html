@@ -154,8 +154,15 @@ step-start truncation spends the whole budget on it, and the commit rule <code>u
 later correction in that substep: elastic force, contact row, damping and gravity cannot change its path. Only a stored plane can
 shorten the step. The vertex therefore stays at the cap until it hits a plane; after the plane releases it, the still-crushed crease
 asks for more than one budget again and it locks again in the new direction. In the default run 50 to 77 vertices are clamped in every
-one of the 180 probed substeps, and the largest sheet speed reads 76.50 cm/s in all 300 rendered frames. The vanilla path has no budget;
-it relaxes the same crease at up to 129 cm/s and is quiet after 0.1 s.</p>
+one of the 180 probed substeps, and the largest sheet speed reads 76.50 cm/s in all 300 rendered frames.</p>
+<p><b>The vanilla path uses the same 0.1275 cm constant, but twice per substep and as a plain magnitude clamp.</b> Its self-contact
+schedule is PRE_POST_INIT: it detects at the substep start, clamps the inertial step to 0.1275 cm from there, detects again at the
+inertial pose and resets the reference, then clamps the VBD corrections to 0.1275 cm from that second pose. So a vanilla vertex may
+move up to 0.255 cm per substep (153 cm/s), and because the clamp rescales the whole correction vector, a correction that points
+back against the inertial motion is always admitted: forces can stop a fast vertex inside the substep. ALM-DAT detects once per
+substep (PRE_INIT, required by the implementation and by the algorithm's single <code>InitialSphericalQuery(x_start)</code>), so one
+0.1275 cm budget covers inertia and corrections together, and its path-length rule rejects backward corrections once the budget is
+spent. The vanilla path relaxes the same crease at up to 129 cm/s, under its 153 cm/s limit, and is quiet after 0.1 s.</p>
 <p><b>Tests.</b> Raising the cap above the crease's natural relaxation speed removes the failure: with a 0.4 cm detection gap (budget
 0.255 cm, cap 153 cm/s) 15 vertices are clamped in the first substep and none afterwards; with 40 substeps (cap 306 cm/s) 7 vertex-substeps
 are clamped in the first three substeps and none afterwards; both stacks settle. Setting every multiplier to zero after each substep
