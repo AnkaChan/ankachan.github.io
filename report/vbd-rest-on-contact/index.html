@@ -123,7 +123,7 @@ committed speed at 38.2 cm/s on both paths, so every run fell at that speed and 
 <p><b>Result.</b> With the fold construction of the original grid_on_table script, the vanilla path rests and the ALM-DAT path does not:
 its two middle sheets are squeezed out of the stack sideways within 0.1 s, crumple, and are flung off the table edge at the motion-budget
 speed. The first sheet vertex below the table surface (0.41 s, sheet 2) is 15.8 cm from the centre, past the 15 cm table edge, so the sheets left the table rather than crossing it. The detector never overflowed. Whether the middle sheets crossed a neighbouring sheet while being squeezed out was
-not checked. With a clean fold along a mesh column (5b) both paths rest, within 0.15 cm of each other.</p>
+not checked. With a clean fold along a mesh column (5b) both paths settle, sheet means within 0.15 cm of each other.</p>
 <h3>5a. Fold of the original script</h3>
 <video controls loop muted playsinline poster="fold_comparison_poster.jpg"><source src="fold_comparison.mp4" type="video/mp4"></video>
 <p>Each sheet is folded by reflecting every vertex right of the sheet's world-x mid-line over it and lifting it by a
@@ -138,7 +138,8 @@ passes through start crushed to a fraction of their rest size. 4 folded sheets s
 <h3>5b. The same stack with a clean fold (crease along a mesh column)</h3>
 <video controls loop muted playsinline poster="fold_clean_comparison_poster.jpg"><source src="fold_clean_comparison.mp4" type="video/mp4"></video>
 <p>Same sheets, same perturbations, same contact settings; the only change is that each sheet is reflected in its own frame, so the
-crease follows the middle mesh column and no triangle is crushed. Both methods rest.</p>
+crease follows the middle mesh column and no triangle is crushed. Both paths settle to stable heights; on both, a few vertices keep
+jittering (largest sheet-vertex speed 21 to 27 cm/s over the last 2 s), as on the vanilla run of 5a.</p>
 <table><tr><th></th><th>penalty_dat (vanilla), mu 0.5</th><th>alm_dat, mu 0.5 (friction + damping)</th></tr>
 <tr><td>sheet 0: mean height over the last 2 s [cm]</td><td>0.266</td><td>0.279</td></tr><tr><td>sheet 1: mean height over the last 2 s [cm]</td><td>0.625</td><td>0.656</td></tr><tr><td>sheet 2: mean height over the last 2 s [cm]</td><td>0.933</td><td>0.977</td></tr><tr><td>sheet 3: mean height over the last 2 s [cm]</td><td>1.281</td><td>1.428</td></tr><tr><td>largest sheet speed over the last 2 s [cm/s]</td><td>21.40</td><td>26.79</td></tr><tr><td>lowest sheet vertex over the run [cm] (0 is the table surface)</td><td>+0.076</td><td>+0.148</td></tr><tr><td>detector coverage flag at the end</td><td>n/a</td><td>True</td></tr>
 </table>
