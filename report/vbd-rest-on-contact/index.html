@@ -146,18 +146,26 @@ jittering (largest sheet-vertex speed 21 to 27 cm/s over the last 2 s), as on th
 
 <h3>What goes wrong, from a per-substep probe</h3>
 <img src="fold_speed.png" alt="largest sheet speed per frame, folded stacks">
-<p>The crushed crease triangles release their elastic energy in the first substeps on both paths: about 70 vertices, all within 1.5 cm of
-the crease, exceed 40 cm/s at the first substep. The vanilla path lets that snap-back run its course (129 cm/s peak at the second substep)
-and is quiet after 0.1 s. The ALM-DAT path caps every vertex at its motion budget of 0.1275 cm per substep (0.5 x 0.85 x the 0.3 cm
-detection radius), that is 76.5 cm/s, and never gets below it: the largest sheet speed sits exactly on the cap for all 300 frames. The
-probe shows the fast set growing from the crease across the whole sheet within 0.03 s. My reading (inference, not verified in the
-kernels): the elastic snap-back drives the untruncated iterate far past the stored planes every iteration, the multipliers learn from
-that iterate, overshoot, and launch the vertices back at the cap in the next step, so the stack never settles; the vanilla penalty force
-has no memory and relaxes once the triangles do. Without the crushed triangles (clean fold, or no fold) the ALM-DAT stack behaves like
-the vanilla one.</p>
-<table><tr><th>probe, 0.5 s, CPU</th><th>largest speed at substep 1 [cm/s]</th><th>vertices above 40 cm/s at substep 1</th>
-<th>substeps on the 76.5 cm/s cap after 0.1 s</th><th>largest speed at 0.5 s [cm/s]</th><th>sheets swap order</th></tr>
-<tr><td>fold of the original script, penalty_dat</td><td>78.1</td><td>69 (69 within 1.5 cm of the crease)</td><td>0 of 240</td><td>6.4</td><td>none</td></tr><tr><td>fold of the original script, alm_dat</td><td>76.5</td><td>68 (68 within 1.5 cm of the crease)</td><td>210 of 210</td><td>76.5</td><td>0.13 s</td></tr><tr><td>clean fold along the mesh column, alm_dat</td><td>16.2</td><td>0 (0 within 1.5 cm of the crease)</td><td>0 of 240</td><td>17.6</td><td>none</td></tr><tr><td>no fold (section 2 geometry), alm_dat</td><td>1.6</td><td>0 (0 within 1.5 cm of the crease)</td><td>0 of 240</td><td>6.9</td><td>none</td></tr>
+<p><b>Verified cause: the motion budget locks fast vertices at the cap speed.</b> ALM-DAT commits at most one budget of displacement per
+substep: 0.5 x 0.85 x the 0.3 cm detection radius = 0.1275 cm, which at 600 substeps per second is 76.5 cm/s. The crushed crease
+triangles push 52 vertices further than that in the very first substep. The commit kernel clips each of them to the budget, so their
+velocity becomes exactly 76.5 cm/s. In the next substep the inertial target of such a vertex is again exactly one budget away. The
+step-start truncation spends the whole budget on it, and the commit rule <code>used + |step| &lt;= budget</code> then rejects every
+later correction in that substep: elastic force, contact row, damping and gravity cannot change its path. Only a stored plane can
+shorten the step. The vertex therefore stays at the cap until it hits a plane; after the plane releases it, the still-crushed crease
+asks for more than one budget again and it locks again in the new direction. In the default run 50 to 77 vertices are clamped in every
+one of the 180 probed substeps, and the largest sheet speed reads 76.50 cm/s in all 300 rendered frames. The vanilla path has no budget;
+it relaxes the same crease at up to 129 cm/s and is quiet after 0.1 s.</p>
+<p><b>Tests.</b> Raising the cap above the crease's natural relaxation speed removes the failure: with a 0.4 cm detection gap (budget
+0.255 cm, cap 153 cm/s) 15 vertices are clamped in the first substep and none afterwards; with 40 substeps (cap 306 cm/s) 7 vertex-substeps
+are clamped in the first three substeps and none afterwards; both stacks settle. Setting every multiplier to zero after each substep
+changes nothing, so the multiplier memory across substeps is not the cause. A 100x softer ALM metric still fails but calms down later
+(no clamped vertices by 0.3 s), so the within-substep multiplier overshoot amplifies the loop but does not start it. The clean fold never
+clamps a vertex. The re-lock loop between plane releases is my reading of the probe; the per-substep lock itself is in the kernel.</p>
+<table><tr><th>probe (CPU, 0.2 to 0.5 s)</th><th>speed cap [cm/s]</th><th>largest speed at substep 1 [cm/s]</th>
+<th>vertices clamped at the budget, substep 1</th><th>clamped vertex-substeps after 0.1 s</th><th>largest speed at the end [cm/s]</th>
+<th>sheets swap order</th></tr>
+<tr><td>fold of the original script, penalty_dat</td><td>none</td><td>78.1</td><td>n/a</td><td>n/a</td><td>6.4 at 0.50 s</td><td>none</td></tr><tr><td>fold of the original script, alm_dat (default settings)</td><td>76.5</td><td>76.5</td><td>52</td><td>9627 in 120 substeps</td><td>76.5 at 0.30 s</td><td>0.13 s</td></tr><tr><td>same, every multiplier set to zero after each substep</td><td>76.5</td><td>76.5</td><td>52</td><td>6701 in 120 substeps</td><td>76.5 at 0.30 s</td><td>0.12 s</td></tr><tr><td>same, ALM metric 100x softer and no stiffness floor</td><td>76.5</td><td>76.5</td><td>52</td><td>78 in 120 substeps</td><td>52.9 at 0.30 s</td><td>0.18 s</td></tr><tr><td>same, detection gap 0.4 cm (budget 0.255 cm)</td><td>153.0</td><td>153.0</td><td>15</td><td>0 in 120 substeps</td><td>16.4 at 0.30 s</td><td>none</td></tr><tr><td>same, 40 substeps instead of 10 (same budget, 4x shorter substep)</td><td>306.0</td><td>250.6</td><td>0</td><td>0 in 240 substeps</td><td>5.2 at 0.20 s</td><td>none</td></tr><tr><td>clean fold along the mesh column, alm_dat</td><td>76.5</td><td>16.2</td><td>0</td><td>0 in 120 substeps</td><td>14.3 at 0.30 s</td><td>none</td></tr><tr><td>no fold (section 2 geometry), alm_dat</td><td>76.5</td><td>1.6</td><td>n/a</td><td>n/a</td><td>6.9 at 0.50 s</td><td>none</td></tr>
 </table>
 
 
