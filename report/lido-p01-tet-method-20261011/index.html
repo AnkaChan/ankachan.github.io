@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LIDO Tet Energy Plan</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #1d2330;
+  --muted: #5c6578;
+  --line: #d5d9e1;
+  --code-bg: #eef1f5;
+  --tet: #1f6f8b;
+  --tet-soft: #d7e8ef;
+  --grid: #7a8396;
+  --corner: #2b3140;
+  --plane: #c2410c;
+  --plane-soft: #fde7d9;
+  --anchor: #2f855a;
+  --trial: #6b46c1;
+  --warn: #b42318;
+  --warn-soft: #fbe9e7;
+  --ok-soft: #e3f3ea;
+  --font-text: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #13161c; --surface: #1b1f27; --ink: #e6e9ef; --muted: #9aa3b2; --line: #2c323d; --code-bg: #20252f;
+    --tet: #5fb0cc; --tet-soft: #163744; --grid: #8b94a6; --corner: #d6dbe6;
+    --plane: #f0875a; --plane-soft: #3b2317; --anchor: #5bbf8a; --trial: #a78bfa;
+    --warn: #f0837a; --warn-soft: #3a1f1d; --ok-soft: #173126;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #13161c; --surface: #1b1f27; --ink: #e6e9ef; --muted: #9aa3b2; --line: #2c323d; --code-bg: #20252f;
+  --tet: #5fb0cc; --tet-soft: #163744; --grid: #8b94a6; --corner: #d6dbe6;
+  --plane: #f0875a; --plane-soft: #3b2317; --anchor: #5bbf8a; --trial: #a78bfa;
+  --warn: #f0837a; --warn-soft: #3a1f1d; --ok-soft: #173126;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-inline: 20px;
+  padding-block: 32px 64px;
+}
+main { max-width: 920px; margin: 0 auto; }
+header.top { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-size: 30px; line-height: 1.2; margin: 6px 0 10px; font-weight: 600; text-wrap: balance; }
+h2 { font-size: 22px; line-height: 1.25; margin: 44px 0 12px; font-weight: 600; text-wrap: balance; }
+h3 { font-size: 17px; margin: 24px 0 8px; font-weight: 600; }
+p { margin: 0 0 12px; max-width: 72ch; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; max-width: 76ch; }
+li { margin-bottom: 4px; }
+.meta { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.meta code { font-size: 13px; }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.badge.plan { border-color: var(--tet); color: var(--tet); }
+code, pre { font-family: var(--font-mono); }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+pre { background: var(--code-bg); padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; margin: 10px 0 16px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+figure { margin: 18px 0 22px; }
+figure svg { display: block; max-width: 100%; height: auto; }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 76ch; }
+.figwrap { overflow-x: auto; }
+svg text { fill: currentColor; font-family: var(--font-text); font-size: 12px; }
+svg text.mono { font-family: var(--font-mono); }
+svg text.small { font-size: 11px; }
+svg text.lab { font-size: 12.5px; font-weight: 600; }
+svg .bx { fill: var(--surface); stroke: currentColor; stroke-width: 1.3; }
+svg .bx-tet { fill: var(--tet-soft); stroke: var(--tet); stroke-width: 1.5; }
+svg .bx-dash { fill: var(--surface); stroke: var(--grid); stroke-width: 1.2; stroke-dasharray: 5 4; }
+svg .ln { stroke: currentColor; stroke-width: 1.3; fill: none; }
+svg .ln-dash { stroke: currentColor; stroke-width: 1.1; fill: none; stroke-dasharray: 5 4; }
+svg .ln-grid { stroke: var(--grid); stroke-width: 1.2; fill: none; }
+svg .ln-grid-dash { stroke: var(--grid); stroke-width: 1; fill: none; stroke-dasharray: 4 4; }
+svg .ln-tet { stroke: var(--tet); stroke-width: 3; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+svg .ln-tet-thin { stroke: var(--tet); stroke-width: 1.4; fill: none; }
+svg .ln-tet-dash { stroke: var(--tet); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+svg .ln-plane { stroke: var(--plane); stroke-width: 2.5; fill: none; }
+svg .ln-plane-dash { stroke: var(--plane); stroke-width: 1.2; fill: none; stroke-dasharray: 5 4; }
+svg .ln-anchor { stroke: var(--anchor); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+svg .ln-trial { stroke: var(--trial); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+svg .ln-warn-dash { stroke: var(--grid); stroke-width: 1.6; fill: none; stroke-dasharray: 6 4; }
+svg .dot { fill: var(--corner); stroke: none; }
+svg .dot-tet { fill: var(--tet); stroke: none; }
+svg .dot-grid { fill: var(--grid); stroke: none; }
+svg .fill-tet { fill: var(--tet-soft); stroke: var(--tet); stroke-width: 1.5; }
+svg .fill-plane { fill: var(--plane-soft); stroke: none; }
+svg .t-tet { fill: var(--tet); }
+svg .t-plane { fill: var(--plane); }
+svg .t-anchor { fill: var(--anchor); }
+svg .t-trial { fill: var(--trial); }
+svg .t-muted { fill: var(--muted); }
+svg .t-warn { fill: var(--warn); }
+svg .arr { stroke: currentColor; stroke-width: 1.4; fill: none; }
+svg .arr-tet { stroke: var(--tet); stroke-width: 1.6; fill: none; }
+svg .arr-plane { stroke: var(--plane); stroke-width: 1.6; fill: none; }
+svg .arr-trial { stroke: var(--trial); stroke-width: 2.2; fill: none; }
+svg .arr-anchor { stroke: var(--anchor); stroke-width: 2.2; fill: none; }
+svg .arr-grid { stroke: var(--grid); stroke-width: 1.4; fill: none; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 14px 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.card h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+.card p { font-size: 14.5px; margin-bottom: 6px; }
+.card .rec { font-size: 13px; color: var(--tet); font-weight: 600; }
+.callout { border-left: 4px solid var(--plane); background: var(--plane-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 14px 0 18px; }
+.callout.ok { border-left-color: var(--anchor); background: var(--ok-soft); }
+.callout p:last-child { margin-bottom: 0; }
+.tablewrap { overflow-x: auto; margin: 12px 0 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.pill.on { background: var(--ok-soft); color: var(--anchor); }
+.pill.off { background: var(--code-bg); color: var(--muted); }
+.pill.tet { background: var(--tet-soft); color: var(--tet); }
+.pill.plane { background: var(--plane-soft); color: var(--plane); }
+.defect { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 18px; }
+.defect .row { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.defect .row .as { color: var(--warn); font-size: 14px; }
+.defect .row .fix { color: var(--anchor); font-size: 14px; }
+.defect .row b { display: block; color: var(--ink); margin-bottom: 2px; font-size: 13px; letter-spacing: 0.03em; text-transform: uppercase; }
+@media (max-width: 560px) { .defect .row { grid-template-columns: 1fr; } }
+footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 13px; }
+a { color: var(--tet); }
+</style>
+</head>
+<body>
+<main>
+<header class="top">
+  <div class="eyebrow">LIDO Stage 2, proposal P01, planning only</div>
+  <h1>Tet-mesh energy, surface encoder and two contact paths for LIDO</h1>
+  <div class="meta">
+    <span><span class="badge plan">plan, nothing implemented</span></span>
+    <span>Source: worktree <code>learned-instrinic-solver</code>, HEAD <code>2c7c474cc</code>, 2026-10-10</span>
+    <span>Written 2026-10-10 by the Fable agent; decisions of the review session folded in 2026-10-11</span>
+  </div>
+</header>
+
+<p>This page shows the mechanisms the plan turns on. Teal marks the tet mesh and the new energy. Orange marks contact planes and constraints. Green is the certified anchor state, purple the trial state. Formulas are in LIDO's normalised units: cell size 1, time step 1, the scene's reference shear modulus 1.</p>
+
+<h2>1. What changes and what stays</h2>
+<p>Today the energy is the trilinear hex energy of the voxel body. P01 keeps the cell grid, the corner degrees of freedom, the network and the fusion, and swaps the energy for the energy of a tet mesh whose vertices ride on the corners. The hex energy stays behind a switch.</p>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 320" role="img" aria-label="Flow of one query with the tet energy: the tet mesh is embedded into the cell grid, corners feed the unchanged network and fusion, and the tet energy of the embedded vertex positions returns its gradient to the corners through the transpose of the embedding; the hex energy remains as a switchable alternative.">
+<defs>
+<marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+<marker id="ar1t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--tet)"/></marker>
+<marker id="ar1g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--grid)"/></marker>
+</defs>
+<rect x="30" y="50" width="180" height="70" rx="6" class="bx-tet"/>
+<text x="120" y="80" text-anchor="middle" class="lab t-tet">Tet mesh, rest</text>
+<text x="120" y="100" text-anchor="middle" class="small">vertices, tets, surface triangles</text>
+<rect x="330" y="50" width="240" height="70" rx="6" class="bx"/>
+<text x="450" y="80" text-anchor="middle" class="lab">Embedding grid</text>
+<text x="450" y="100" text-anchor="middle" class="small">corners x, cell modes m, flags</text>
+<rect x="680" y="50" width="190" height="70" rx="6" class="bx"/>
+<text x="775" y="80" text-anchor="middle" class="lab">Network + fusion</text>
+<text x="775" y="100" text-anchor="middle" class="small">unchanged</text>
+<line x1="210" y1="85" x2="330" y2="85" class="arr-tet" marker-end="url(#ar1t)"/>
+<text x="270" y="74" text-anchor="middle" class="small t-tet">overlap, embed</text>
+<text x="270" y="104" text-anchor="middle" class="small mono t-tet">x_v = J x</text>
+<line x1="570" y1="68" x2="680" y2="68" class="arr" marker-end="url(#ar1)"/>
+<text x="625" y="58" text-anchor="middle" class="small">features</text>
+<line x1="680" y1="102" x2="570" y2="102" class="arr" marker-end="url(#ar1)"/>
+<text x="625" y="120" text-anchor="middle" class="small">fused step d</text>
+<rect x="330" y="220" width="240" height="70" rx="6" class="bx-tet"/>
+<text x="450" y="250" text-anchor="middle" class="lab t-tet">Tet energy</text>
+<text x="450" y="270" text-anchor="middle" class="small mono">E_tet(J x) + damping + inertia</text>
+<line x1="400" y1="120" x2="400" y2="220" class="arr-tet" marker-end="url(#ar1t)"/>
+<text x="390" y="174" text-anchor="end" class="small mono t-tet">J x</text>
+<line x1="500" y1="220" x2="500" y2="120" class="arr-tet" marker-end="url(#ar1t)"/>
+<text x="510" y="174" text-anchor="start" class="small mono t-tet">J^T g</text>
+<rect x="680" y="220" width="190" height="70" rx="6" class="bx-dash"/>
+<text x="775" y="250" text-anchor="middle" class="lab t-muted">Hex energy, today</text>
+<text x="775" y="270" text-anchor="middle" class="small t-muted">kept behind a switch</text>
+<path d="M560,120 L560,180 L775,180 L775,220" class="arr-grid" stroke-dasharray="5 4" marker-end="url(#ar1g)"/>
+<text x="668" y="172" text-anchor="middle" class="small t-muted">x</text>
+</svg>
+</div>
+<figcaption>Figure 1. One query with the tet energy. Only the energy box changes. The corner gradient the network and the fusion read comes from the tet energy through the transpose of the embedding map J.</figcaption>
+</figure>
+
+<h2>2. Energy transfer: tets ride on corners</h2>
+<p>Each tet vertex sits at fixed trilinear coordinates inside one cell. Its position is a convex combination of that cell's eight corners. The tet deformation gradient uses these embedded positions. The gradient goes back to the corners by the same weights.</p>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 340" role="img" aria-label="Left: a cell with four corners in cross section and one tet vertex inside, joined to the corners by dashed lines labelled with trilinear weights. Right: a tet cross section spanning two cells; its mass is lumped to its vertices and each vertex passes its mass to the corners of its own cell.">
+<rect x="60" y="50" width="240" height="240" class="ln-grid"/>
+<circle cx="60" cy="50" r="6" class="dot"/><text x="46" y="42" class="small mono">x_1</text>
+<circle cx="300" cy="50" r="6" class="dot"/><text x="306" y="42" class="small mono">x_2</text>
+<circle cx="60" cy="290" r="6" class="dot"/><text x="46" y="310" class="small mono">x_3</text>
+<circle cx="300" cy="290" r="6" class="dot"/><text x="306" y="310" class="small mono">x_4</text>
+<line x1="160" y1="200" x2="60" y2="50" class="ln-tet-dash"/>
+<line x1="160" y1="200" x2="300" y2="50" class="ln-tet-dash"/>
+<line x1="160" y1="200" x2="60" y2="290" class="ln-tet-dash"/>
+<line x1="160" y1="200" x2="300" y2="290" class="ln-tet-dash"/>
+<circle cx="160" cy="200" r="7" class="dot-tet"/>
+<text x="172" y="196" class="small mono t-tet">x_v</text>
+<text x="100" y="118" class="small mono t-tet">N_1</text>
+<text x="238" y="118" class="small mono t-tet">N_2</text>
+<text x="96" y="256" class="small mono t-tet">N_3</text>
+<text x="240" y="256" class="small mono t-tet">N_4</text>
+<text x="180" y="325" text-anchor="middle" class="small mono">x_v = sum_k N_k(xi_v) x_k,   g_k += N_k g_v</text>
+<rect x="420" y="50" width="200" height="200" class="ln-grid"/>
+<rect x="620" y="50" width="200" height="200" class="ln-grid"/>
+<polygon points="470,230 760,220 600,80" class="fill-tet"/>
+<circle cx="470" cy="230" r="6" class="dot-tet"/>
+<circle cx="760" cy="220" r="6" class="dot-tet"/>
+<circle cx="600" cy="80" r="6" class="dot-tet"/>
+<text x="458" y="252" class="small mono t-tet">m_v</text>
+<text x="768" y="242" class="small mono t-tet">m_v</text>
+<text x="610" y="76" class="small mono t-tet">m_v</text>
+<text x="520" y="40" text-anchor="middle" class="small">cell c1</text>
+<text x="720" y="40" text-anchor="middle" class="small">cell c2</text>
+<text x="620" y="280" text-anchor="middle" class="small">each vertex gets rho V_t / 4 per tet, then passes it to its cell's 8 corners by J^T</text>
+<text x="620" y="300" text-anchor="middle" class="small mono">sum of corner masses = rho sum_t V_t, exactly</text>
+</svg>
+</div>
+<figcaption>Figure 2. Left: the embedding of one vertex. Right: linear-FEM mass lumping, decided 2026-10-10: tet masses to the vertices, then to the corners through the embedding transpose. The library rule of corner coverage, every corner weighted by at least one vertex, guarantees that every corner has mass and a term in the objective.</figcaption>
+</figure>
+
+<pre><code>F_t      = Ds_t(x_v) Dm_t^-1,             x_v = J x,   Dm_t from the rest vertices
+E_el     = sum_t mu_scale_o V_t psi(F_t; lam_o)         psi as physics.stable_neo_hookean, same inversion rule
+E_damp   = sum_t mu_scale_o V_t 0.5 eta_o |F_t^T F_t - C_prev_t|^2    C_prev_t at step start, [T,3,3]
+g_corner = J^T g_vertex                                 mode gradient paths unchanged (step.py:214, fusion.py:672)
+m_corner = J^T m_vertex,  m_vertex = sum over incident tets of rho V_t / 4     every corner weighted (coverage rule)
+floor    = volume sum_t V_t h^3, samples = surface vertices
+occupancy: the cells that contain a tet vertex; the body is scaled to a drawn cell count</code></pre>
+
+<div class="cards">
+  <div class="card"><h4>Invariants to test</h4><p>Zero energy and gradient at rest. Exact equality with the hex energy for any affine deformation of a five-tet lattice body, because the tet volumes of a cell sum to one. Translation invariance. Float64 finite differences. Warp against torch at the existing tolerances. Stress against Newton's formula.</p></div>
+  <div class="card"><h4>Decision 1, energy transfer: Option A, accepted 2026-10-10</h4><p>Per-tet F from embedded vertices, the proposal. Option B, the hex F at tet quadrature points, stays the fallback. Verified against the Newton kernels: on lattice tets the forces equal VBD's exactly, damping included, when the inversion stiffening factor is 0 and the masses are tet-lumped. Recorded as ADR 0003.</p></div>
+</div>
+
+<h2>3. Surface encoder: the rest surface as a per-cell input</h2>
+<p>Today a cell knows its rest surface through six exposed-face bits. With a tet mesh the surface is a set of triangles that cross the cell. The tokens are built once per mesh. The encoder is small and trained with the network.</p>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 300" role="img" aria-label="A cell crossed by a surface polyline with outward normals produces three tokens of centroid, normal and area; the tokens pass through an attention block within the cell and a pooling step to a 17-channel vector that joins the node features.">
+<defs>
+<marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+<marker id="ar3t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--tet)"/></marker>
+</defs>
+<rect x="40" y="40" width="240" height="240" class="ln-grid"/>
+<polyline points="40,200 150,120 280,160" class="ln-tet"/>
+<line x1="95" y1="160" x2="113" y2="185" class="arr-tet" marker-end="url(#ar3t)"/>
+<line x1="215" y1="140" x2="207" y2="166" class="arr-tet" marker-end="url(#ar3t)"/>
+<text x="60" y="262" class="small t-tet">rest surface in the cell</text>
+<text x="118" y="196" class="small mono t-tet">n</text>
+<rect x="330" y="62" width="170" height="34" rx="5" class="bx-tet"/>
+<text x="415" y="84" text-anchor="middle" class="small mono">centroid, n, area</text>
+<rect x="330" y="112" width="170" height="34" rx="5" class="bx-tet"/>
+<text x="415" y="134" text-anchor="middle" class="small mono">centroid, n, area</text>
+<rect x="330" y="162" width="170" height="34" rx="5" class="bx-tet"/>
+<text x="415" y="184" text-anchor="middle" class="small mono">centroid, n, area</text>
+<text x="415" y="226" text-anchor="middle" class="small t-muted">tokens: built once, offline</text>
+<line x1="280" y1="130" x2="330" y2="130" class="arr" marker-end="url(#ar3)"/>
+<line x1="500" y1="130" x2="560" y2="130" class="arr" marker-end="url(#ar3)"/>
+<rect x="560" y="90" width="130" height="80" rx="6" class="bx"/>
+<text x="625" y="124" text-anchor="middle" class="small">attention</text>
+<text x="625" y="142" text-anchor="middle" class="small">within the cell</text>
+<text x="625" y="226" text-anchor="middle" class="small t-muted">runs every update</text>
+<text x="625" y="242" text-anchor="middle" class="small t-muted">while training</text>
+<line x1="690" y1="130" x2="740" y2="130" class="arr" marker-end="url(#ar3)"/>
+<rect x="740" y="90" width="130" height="80" rx="6" class="bx"/>
+<text x="805" y="118" text-anchor="middle" class="small">mean + max pool</text>
+<text x="805" y="136" text-anchor="middle" class="small mono">16 + count</text>
+<text x="805" y="154" text-anchor="middle" class="small">zero-init</text>
+<line x1="805" y1="170" x2="805" y2="250" class="arr" marker-end="url(#ar3)"/>
+<text x="805" y="272" text-anchor="middle" class="small mono">node features 142 + 17</text>
+</svg>
+</div>
+<figcaption>Figure 3. The surface encoder, built like the contact encoder, accepted 2026-10-10 as option (a): one token per triangle, at most 16 per cell, the cell's material volume fraction as an extra channel. Tokens are in lattice coordinates, which are rotation invariant like the rest edge offsets. Off by default, so every checkpoint loads; warm starts pad the node encoder with zero columns.</figcaption>
+</figure>
+
+<h3>Proof-of-concept restriction: cells that join two sheets</h3>
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 250" role="img" aria-label="Two cells side by side. Left: one thick sheet crosses the cell, one connected component, accepted. Right: two thin sheets cross the same cell with facing normals and no material between them, two components, flagged.">
+<defs>
+<marker id="ar4t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--tet)"/></marker>
+</defs>
+<rect x="60" y="30" width="230" height="200" class="ln-grid"/>
+<polygon points="60,150 290,90 290,125 60,185" class="fill-tet"/>
+<line x1="175" y1="120" x2="167" y2="92" class="arr-tet" marker-end="url(#ar4t)"/>
+<line x1="175" y1="155" x2="183" y2="183" class="arr-tet" marker-end="url(#ar4t)"/>
+<text x="175" y="248" text-anchor="middle" class="small">one sheet, one component: accepted</text>
+<rect x="520" y="30" width="230" height="200" class="ln-grid"/>
+<polygon points="520,80 750,60 750,90 520,110" class="fill-tet"/>
+<polygon points="520,160 750,140 750,170 520,190" class="fill-tet"/>
+<line x1="635" y1="100" x2="637" y2="124" class="arr-tet" marker-end="url(#ar4t)"/>
+<line x1="635" y1="150" x2="633" y2="126" class="arr-tet" marker-end="url(#ar4t)"/>
+<text x="635" y="248" text-anchor="middle" class="small t-warn">two sheets, two components: flagged</text>
+<text x="400" y="135" text-anchor="middle" class="small t-muted">check per cell: tets overlapping</text>
+<text x="400" y="151" text-anchor="middle" class="small t-muted">the cell, adjacency by shared</text>
+<text x="400" y="167" text-anchor="middle" class="small t-muted">faces, components</text>
+</svg>
+</div>
+<figcaption>Figure 4. A cell that holds two disconnected pieces of material would couple them through its eight corners. The proof of concept rejects any mesh with such a cell. Lattice-derived meshes never trigger it. Duplicating cells per component is the long-term fix and out of scope.</figcaption>
+</figure>
+
+<h2>4. Contact path A: decoupled DAT planes</h2>
+<p>Pairs are detected once per step at the step start by Newton's trimesh detector over one model that holds every body's tet surface: vertex-triangle and edge-edge pairs, self-contact on behind a switch, the plane and static quads analytic against surface vertices. The reach is one scalar per step, the radius plus the margin plus twice a budget that exceeds the largest inertial corner displacement. Each pair gets one division plane, placed at a certified, penetration-free anchor. The energy of every vertex is a cubic of its penetration over the plane offset by the radius r, plus gap-rate damping and IPC friction against the plane with the held cubic load, decision F1. The plane is fixed during a query, so the two sides do not exchange momentum within a query. Sliding the plane between truncation rounds is the only exchange.</p>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 360" role="img" aria-label="Left: two surfaces with a division plane between them, a margin band around the plane, the normal pointing to side A, and one vertex of side A within the radius offset, so its energy is active. Right: energy against penetration depth for the quadratic law used today and the cubic law of the proposal, matching force at depth r.">
+<defs>
+<marker id="ar5p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--plane)"/></marker>
+<marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+</defs>
+<rect x="30" y="170" width="420" height="30" class="fill-plane"/>
+<line x1="30" y1="185" x2="450" y2="185" class="ln-plane"/>
+<text x="300" y="214" class="small t-plane">plane (p, n), margin band</text>
+<line x1="30" y1="105" x2="450" y2="105" class="ln-plane-dash"/>
+<text x="300" y="100" class="small t-plane mono">plane + r</text>
+<polyline points="40,90 140,120 240,85 340,70 440,95" class="ln-tet"/>
+<circle cx="40" cy="90" r="5" class="dot-tet"/><circle cx="140" cy="120" r="5" class="dot-tet"/><circle cx="240" cy="85" r="5" class="dot-tet"/><circle cx="340" cy="70" r="5" class="dot-tet"/><circle cx="440" cy="95" r="5" class="dot-tet"/>
+<text x="46" y="60" class="lab t-tet">side A, embedded vertices</text>
+<polyline points="40,280 140,300 240,285 340,300 440,280" class="ln-grid"/>
+<circle cx="40" cy="280" r="5" class="dot-grid"/><circle cx="140" cy="300" r="5" class="dot-grid"/><circle cx="240" cy="285" r="5" class="dot-grid"/><circle cx="340" cy="300" r="5" class="dot-grid"/><circle cx="440" cy="280" r="5" class="dot-grid"/>
+<text x="46" y="334" class="lab t-muted">side B, same plane with -n</text>
+<line x1="420" y1="185" x2="420" y2="135" class="arr-plane" marker-end="url(#ar5p)"/>
+<text x="428" y="150" class="small mono t-plane">n</text>
+<line x1="140" y1="120" x2="140" y2="185" class="ln-dash"/>
+<text x="148" y="160" class="small mono">s_v</text>
+<text x="150" y="138" class="small t-plane">d = r - s_v &gt; 0: energy on</text>
+<line x1="540" y1="300" x2="868" y2="300" class="arr" marker-end="url(#ar5)"/>
+<line x1="540" y1="300" x2="540" y2="60" class="arr" marker-end="url(#ar5)"/>
+<text x="860" y="320" text-anchor="end" class="small">penetration d / r</text>
+<text x="528" y="70" text-anchor="end" class="small">E / (ke r^2)</text>
+<line x1="700" y1="300" x2="700" y2="130" class="ln-grid-dash"/>
+<text x="700" y="318" text-anchor="middle" class="small mono">d = r</text>
+<text x="700" y="122" text-anchor="middle" class="small t-muted">same force at d = r</text>
+<polyline points="540,300 580,295 620,280 660,255 700,220 740,175 780,120" class="ln-warn-dash"/>
+<polyline points="540,300 580,299 620,293 660,278 700,247 740,196 780,120" class="ln-plane"/>
+<line x1="470" y1="300" x2="540" y2="300" class="ln-plane"/>
+<text x="470" y="290" class="small t-plane">0 for d &lt; 0</text>
+<line x1="560" y1="40" x2="590" y2="40" class="ln-warn-dash"/>
+<text x="598" y="44" class="small mono t-muted">today: ke/2 relu(d)^2</text>
+<line x1="560" y1="62" x2="590" y2="62" class="ln-plane"/>
+<text x="598" y="66" class="small mono t-plane">P01: ke/(3r) relu(d)^3</text>
+</svg>
+</div>
+<figcaption>Figure 5. Left: the plane energy. Side B uses the same plane with the opposite normal. Right: the cubic law is softer than the quadratic below depth r, has zero stiffness at first touch, and grows faster beyond r. Its tangent stiffness 2 ke d / r replaces ke in the centroid step.</figcaption>
+</figure>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 330" role="img" aria-label="Timeline of one physical step for one vertex height above its plane. The trial state, purple, drops below the plane at the inertial target and during the queries, then rises. The anchor state, green, is truncated at the margin and never crosses. In the final rounds the plane slides down and the anchor follows. The committed position is the anchor.">
+<defs>
+<marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+</defs>
+<line x1="40" y1="250" x2="880" y2="250" class="arr" marker-end="url(#ar6)"/>
+<text x="60" y="272" text-anchor="middle" class="small mono">x_start</text>
+<text x="170" y="272" text-anchor="middle" class="small mono">Y</text>
+<text x="380" y="272" text-anchor="middle" class="small">queries 1..K, loss at the trial</text>
+<text x="680" y="272" text-anchor="middle" class="small">T final rounds</text>
+<text x="830" y="272" text-anchor="middle" class="small">commit</text>
+<line x1="60" y1="244" x2="60" y2="256" class="ln"/><line x1="170" y1="244" x2="170" y2="256" class="ln"/><line x1="220" y1="244" x2="220" y2="256" class="ln"/><line x1="540" y1="244" x2="540" y2="256" class="ln"/><line x1="600" y1="244" x2="600" y2="256" class="ln"/><line x1="760" y1="244" x2="760" y2="256" class="ln"/><line x1="830" y1="244" x2="830" y2="256" class="ln"/>
+<line x1="40" y1="150" x2="600" y2="150" class="ln-plane"/>
+<line x1="40" y1="135" x2="600" y2="135" class="ln-plane-dash"/>
+<polyline points="600,150 620,165 880,165" class="ln-plane"/>
+<line x1="620" y1="150" x2="880" y2="150" class="ln-plane-dash"/>
+<text x="46" y="128" class="small t-plane">margin</text>
+<text x="46" y="170" class="small t-plane">plane</text>
+<text x="640" y="186" class="small t-plane">plane slides, room for the side that still moves</text>
+<polyline points="60,60 170,175 220,160 300,150 380,140 460,135 540,135 760,135" class="ln-trial"/>
+<polyline points="60,60 170,135 220,135 300,135 380,135 460,135 540,135 600,135 620,150 760,150 830,150" class="ln-anchor"/>
+<circle cx="830" cy="150" r="6" class="dot" style="fill: var(--anchor)"/>
+<text x="150" y="196" text-anchor="middle" class="small t-trial">trial crosses</text>
+<text x="170" y="118" text-anchor="middle" class="small t-anchor">truncate toward Y</text>
+<line x1="300" y1="156" x2="300" y2="172" class="ln-plane"/><line x1="460" y1="156" x2="460" y2="172" class="ln-plane"/>
+<text x="380" y="190" text-anchor="middle" class="small t-plane">every N queries: truncate, rebuild planes</text>
+<text x="680" y="118" text-anchor="middle" class="small t-anchor">truncate, slide, refresh normals every M</text>
+<text x="830" y="294" text-anchor="middle" class="small mono t-anchor">x = anchor</text>
+<text x="830" y="312" text-anchor="middle" class="small mono t-anchor">v = (anchor - x_start)/dt</text>
+<line x1="60" y1="30" x2="90" y2="30" class="ln-trial"/><text x="96" y="34" class="small t-trial">trial x, may cross</text>
+<line x1="260" y1="30" x2="290" y2="30" class="ln-anchor"/><text x="296" y="34" class="small t-anchor">anchor, never crosses</text>
+<line x1="470" y1="30" x2="500" y2="30" class="ln-plane"/><text x="506" y="34" class="small t-plane">plane, fixed within a query</text>
+</svg>
+</div>
+<figcaption>Figure 6. The schedule of the pseudo-code mapped onto LIDO's step: detection and planes at the step start, truncation toward the inertial target, K queries on the trial, truncation and plane rebuild after every query (N = 1), three final rounds (T = 3) with plane sliding and a normal refresh every round (M = 1), commit of the anchor. The loss is evaluated at the trial with the planes as step constants, decision L1; the committed anchor is the next step's start, and the trial-to-anchor gap is logged as the truncation fraction.</figcaption>
+</figure>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 240" role="img" aria-label="Heights of the vertices of both sides along the normal. Side A vertices below with upward approach rates, side B vertices above with downward rates. Two dashed bounds, the highest A vertex plus margin and the lowest B vertex minus margin, enclose the plane offset. The balanced offset gives the slowest approaching vertex on each side the same fraction of its remaining motion.">
+<defs>
+<marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+<marker id="ar7t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--tet)"/></marker>
+<marker id="ar7g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--grid)"/></marker>
+</defs>
+<line x1="120" y1="220" x2="120" y2="20" class="arr" marker-end="url(#ar7)"/>
+<text x="130" y="30" class="small mono">n</text>
+<circle cx="300" cy="190" r="6" class="dot-tet"/><circle cx="420" cy="170" r="6" class="dot-tet"/><circle cx="540" cy="200" r="6" class="dot-tet"/>
+<line x1="300" y1="184" x2="300" y2="150" class="arr-tet" marker-end="url(#ar7t)"/>
+<line x1="420" y1="164" x2="420" y2="152" class="arr-tet" marker-end="url(#ar7t)"/>
+<text x="300" y="226" text-anchor="middle" class="small t-tet">side A, rates a_i = max(0, n.r_i)</text>
+<circle cx="300" cy="60" r="6" class="dot-grid"/><circle cx="420" cy="45" r="6" class="dot-grid"/><circle cx="540" cy="70" r="6" class="dot-grid"/>
+<line x1="300" y1="66" x2="300" y2="96" class="arr-grid" marker-end="url(#ar7g)"/>
+<line x1="540" y1="76" x2="540" y2="86" class="arr-grid" marker-end="url(#ar7g)"/>
+<text x="420" y="32" text-anchor="middle" class="small t-muted">side B, rates a_j = max(0, -n.r_j)</text>
+<line x1="200" y1="155" x2="640" y2="155" class="ln-plane-dash"/>
+<text x="650" y="159" class="small mono t-plane">b_lo = max_A h_i + m</text>
+<line x1="200" y1="85" x2="640" y2="85" class="ln-plane-dash"/>
+<text x="650" y="89" class="small mono t-plane">b_hi = min_B h_j - m</text>
+<line x1="200" y1="120" x2="640" y2="120" class="ln-plane"/>
+<text x="650" y="124" class="small mono t-plane">b: equal fraction tau on both sides</text>
+<text x="650" y="142" class="small mono t-plane">b_ij = (a_j (h_i + m) + a_i (h_j - m)) / (a_i + a_j)</text>
+</svg>
+</div>
+<figcaption>Figure 7. Plane sliding. The pseudo-code's formula matches the maximin placement of the reference kernels line by line. A side that does not approach gets no room reserved. The margin m is a small, strictly positive float32 band, not a cushion; the cushion is the radius r alone. The margin shrinks to half the gap for thin pairs.</figcaption>
+</figure>
+
+<h3>Truncation on corners, not on vertices</h3>
+<p>LIDO's degrees of freedom are the corners. The embedding weights are fixed material coordinates, so a vertex path is linear when its eight corners share one factor; with different factors the vertex follows a convex combination and can swerve. The rule agreed on 2026-10-10: truncate at the vertex first, dividing its clearance by the harmful part of its corner motion, then apply that factor to the harmful corners only. It is exact on lattice tets and conservative mid-cell.</p>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 320" role="img" aria-label="Left: a vertex interpolated between two corners above a plane; the trial displacements of the corners, purple, make the interpolated vertex cross the plane. Right: the vertex factor, its clearance over the harmful part of the corner motion, scales both harmful corners; the interpolated vertex lands exactly on the margin.">
+<defs>
+<marker id="ar8v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--trial)"/></marker>
+<marker id="ar8a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--anchor)"/></marker>
+</defs>
+<line x1="60" y1="230" x2="420" y2="230" class="ln-plane"/>
+<line x1="60" y1="215" x2="420" y2="215" class="ln-plane-dash"/>
+<text x="66" y="248" class="small t-plane">plane</text>
+<line x1="120" y1="80" x2="360" y2="80" class="ln-grid"/>
+<circle cx="120" cy="80" r="6" class="dot"/><circle cx="360" cy="80" r="6" class="dot"/>
+<circle cx="264" cy="80" r="7" class="dot-tet"/>
+<text x="112" y="66" class="small mono">x_1</text><text x="352" y="66" class="small mono">x_2</text><text x="264" y="66" text-anchor="middle" class="small mono t-tet">x_v</text>
+<line x1="120" y1="86" x2="120" y2="140" class="arr-trial" marker-end="url(#ar8v)"/>
+<line x1="360" y1="86" x2="360" y2="300" class="arr-trial" marker-end="url(#ar8v)"/>
+<line x1="264" y1="88" x2="264" y2="236" class="arr-trial" marker-end="url(#ar8v)"/>
+<text x="240" y="300" text-anchor="middle" class="small t-trial">trial: the interpolated vertex crosses</text>
+<text x="252" y="200" text-anchor="end" class="small mono t-trial">0.4 * 60 + 0.6 * 220 = 156 &gt; c_v</text>
+<line x1="520" y1="230" x2="880" y2="230" class="ln-plane"/>
+<line x1="520" y1="215" x2="880" y2="215" class="ln-plane-dash"/>
+<text x="526" y="248" class="small t-plane">plane</text>
+<line x1="580" y1="80" x2="820" y2="80" class="ln-grid"/>
+<circle cx="580" cy="80" r="6" class="dot"/><circle cx="820" cy="80" r="6" class="dot"/>
+<circle cx="724" cy="80" r="7" class="dot-tet"/>
+<line x1="580" y1="86" x2="580" y2="138" class="arr-anchor" marker-end="url(#ar8a)"/>
+<line x1="820" y1="86" x2="820" y2="276" class="arr-anchor" marker-end="url(#ar8a)"/>
+<line x1="724" y1="88" x2="724" y2="215" class="arr-anchor" marker-end="url(#ar8a)"/>
+<text x="700" y="300" text-anchor="middle" class="small t-anchor">both harmful corners scaled by t_v: the vertex lands on the margin</text>
+<text x="712" y="165" text-anchor="end" class="small mono t-anchor">0.4 * 52 + 0.6 * 190 = 135 = c_v</text>
+<text x="590" y="262" class="small mono t-anchor">t_v = c_v / (0.4 * 60 + 0.6 * 220) = 0.87</text>
+</svg>
+</div>
+<figcaption>Figure 8. Here x_v = 0.4 x_1 + 0.6 x_2 and both corners move toward the plane. The vertex factor t_v divides the clearance by the harmful part of the corner motion, not by the net motion, so helpful and harmful corners cannot cancel. Each harmful corner takes the minimum t_v over the vertices it supports; later cuts only help. The motion budget is a displacement clamp per corner from the step start, not a path length, to avoid the lock-in seen in the reference code.</figcaption>
+</figure>
+
+<pre><code>for vertex v and plane (p, n):   c_v = n . (x_v(anchor) - p) - m &gt;= 0       clearance at the certified anchor
+    harmful corners k of v:      a_k = n . dx_k &lt; 0                        sign per side
+    t_v = min(1, gamma c_v / sum over harmful k of N_k |a_k|)                harmful part, not the net n . dx_v
+    for each harmful k:          t_k = min(t_k, t_v)                        atomic minimum; helpful corners untouched
+anchor_k = anchor_k + t_k dx_k,  then clamp |anchor_k - x_start_k| &lt;= B     displacement clamp per corner
+B = 1.25 x largest inertial corner displacement;  reach R = r + m + 2 B    one scalar per step for the detector</code></pre>
+
+<h2>5. Contact path B: coupled smooth-extrema constraint</h2>
+<p>One constraint per pair couples both sides, so the forces are exactly equal and opposite. Two corrections to the text: the radius enters with a minus sign, and the energy must be unilateral.</p>
+
+<div class="defect">
+  <div class="row">
+    <div class="as"><b>As written</b><code>C = softmin_b - softmax_a + r</code><br>C stays non-negative while the sides overlap by up to r.</div>
+    <div class="fix"><b>Corrected</b><code>C = softmin_b - softmax_a - r</code><br>Separation by r means C at least zero, as in the ALM contact design note.</div>
+  </div>
+  <div class="row">
+    <div class="as"><b>As written</b><code>E = C^3</code><br>Negative and unbounded below for C below zero; pulls the sides together for C above zero.</div>
+    <div class="fix"><b>Corrected</b><code>E = ke/(3r) relu(-C)^3</code><br>Zero when separated, cubic penalty on the overlap, same unit scale as the plane law.</div>
+  </div>
+</div>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 950 330" role="img" aria-label="Left: projections of the vertices of side A and side B along the normal. The soft-max U sits above the highest A vertex and the soft-min L below the lowest B vertex, so the constraint is conservative. Forces on the A vertices point against the normal and on the B vertices along it, scaled by the softmax weights, and sum to zero. Right: energy against C for the corrected unilateral cubic and for the cube as written, which goes negative.">
+<defs>
+<marker id="ar9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+<marker id="ar9t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--tet)"/></marker>
+<marker id="ar9g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--grid)"/></marker>
+</defs>
+<line x1="80" y1="300" x2="80" y2="30" class="arr" marker-end="url(#ar9)"/>
+<text x="90" y="40" class="small mono">n</text>
+<circle cx="250" cy="230" r="6" class="dot-tet"/><circle cx="250" cy="215" r="6" class="dot-tet"/><circle cx="250" cy="250" r="6" class="dot-tet"/>
+<text x="238" y="254" text-anchor="end" class="small mono t-tet">a_i, side A</text>
+<line x1="140" y1="205" x2="400" y2="205" class="ln-tet-dash"/>
+<text x="406" y="209" class="small mono t-tet">U &gt;= max_i n.a_i</text>
+<circle cx="250" cy="90" r="6" class="dot-grid"/><circle cx="250" cy="70" r="6" class="dot-grid"/><circle cx="250" cy="110" r="6" class="dot-grid"/>
+<text x="238" y="74" text-anchor="end" class="small mono t-muted">b_j, side B</text>
+<line x1="140" y1="120" x2="400" y2="120" class="ln-grid-dash"/>
+<text x="406" y="124" class="small mono t-muted">L &lt;= min_j n.b_j</text>
+<line x1="150" y1="205" x2="150" y2="120" class="ln"/>
+<line x1="144" y1="205" x2="156" y2="205" class="ln"/><line x1="144" y1="120" x2="156" y2="120" class="ln"/>
+<text x="112" y="166" class="small mono">L - U</text>
+<text x="440" y="166" text-anchor="end" class="small mono t-plane">C = L - U - r &gt;= 0: separated by r</text>
+<line x1="330" y1="215" x2="330" y2="255" class="arr-tet" marker-end="url(#ar9t)"/>
+<line x1="345" y1="230" x2="345" y2="246" class="arr-tet" marker-end="url(#ar9t)"/>
+<line x1="360" y1="250" x2="360" y2="258" class="arr-tet" marker-end="url(#ar9t)"/>
+<line x1="330" y1="110" x2="330" y2="70" class="arr-grid" marker-end="url(#ar9g)"/>
+<line x1="345" y1="90" x2="345" y2="74" class="arr-grid" marker-end="url(#ar9g)"/>
+<line x1="360" y1="70" x2="360" y2="62" class="arr-grid" marker-end="url(#ar9g)"/>
+<text x="250" y="292" text-anchor="middle" class="small">forces by softmax weights: sum on A = -(sum on B), exactly</text>
+<g transform="translate(50,0)">
+<line x1="470" y1="200" x2="850" y2="200" class="arr" marker-end="url(#ar9)"/>
+<line x1="640" y1="300" x2="640" y2="50" class="arr" marker-end="url(#ar9)"/>
+<text x="840" y="192" text-anchor="end" class="small mono">C</text>
+<text x="650" y="60" class="small">E</text>
+<text x="640" y="314" text-anchor="middle" class="small t-muted">contact at C = 0</text>
+<polyline points="496,96 520,140 550,175 580,192 610,199 640,200 784,200" class="ln-plane"/>
+<polyline points="496,300 520,260 580,207 640,200 700,193 730,175 760,140 784,96" class="ln-warn-dash"/>
+<line x1="660" y1="40" x2="690" y2="40" class="ln-plane"/><text x="696" y="44" class="small mono t-plane">corrected: ke/(3r) relu(-C)^3</text>
+<line x1="660" y1="62" x2="690" y2="62" class="ln-warn-dash"/><text x="696" y="66" class="small mono t-muted">as written: C^3</text>
+</g>
+</svg>
+</div>
+<figcaption>Figure 9. Soft bounds are conservative by at most log(m)/beta per side, m the vertex count of the primitive; beta about 10 over r keeps that slack below a tenth of r. The normal is re-picked only at certified anchors. Because the offset of the plane drops out of L minus U, the constraint slides for free.</figcaption>
+</figure>
+
+<pre><code>U = (1/beta) log sum_i exp(+beta n . a_i)          soft-max of side A
+L = -(1/beta) log sum_j exp(-beta n . b_j)         soft-min of side B
+C = L - U - r,     E = ke / (3 r) relu(-C)^3
+dC/da_i = -w_i n,  dC/db_j = +v_j n   (softmax and softmin weights)   -&gt;  equal and opposite
+world edges: two directed cell-graph edges per pair in per-cell slots reserved at the detector's row
+             capacities, marked valid per step; features: zeros plus a flag for the rest offset, the usual
+             current geometry, the partner's mass-ratio and kappa channels; edge width 27, zero-column pad</code></pre>
+<p>Decision of 2026-10-11: the coupled path builds the same division planes from the same pairs and runs the same final truncation, so the two paths differ only in the energy. The coupled energy without truncation stays as an ablation arm.</p>
+
+<div class="callout">
+<p><strong>No path promises penetration freedom.</strong> The DAT certificate needs complete detection within the reach, strict separation at the step start, linear committed motion and convex primitives. With truncation on both paths the committed state is certified on both, under those assumptions only. The plan measures each assumption: coverage flag, plane-crossing share, true surface penetration on the tet surface.</p>
+</div>
+
+<h2>6. Decisions taken in the review session</h2>
+<p>Recorded in the worktree glossary and ADR 0003 on 2026-10-10 and 2026-10-11.</p>
+<ol>
+  <li><strong>Goal.</strong> Fidelity on lattice tets against Newton VBD is the first gate; capability on real assets is the second.</li>
+  <li><strong>Energy transfer.</strong> Option A: one deformation gradient per tet from embedded vertices, gradient to corners through the embedding transpose. Option B is the fallback. ADR 0003.</li>
+  <li><strong>Mass.</strong> Linear-FEM lumping to the tet vertices, carried to corners by the embedding transpose; the library enforces corner coverage.</li>
+  <li><strong>Mesh source.</strong> Lattice tets for gates A and B; TetWild assets, QEM-decimated and re-meshed with fTetWild at about one cell edge length, for gates C and D; the fTetWild wrapper is the one new dependency; the library ships as a versioned archive; splits by mesh id.</li>
+  <li><strong>Surface encoder.</strong> One token per triangle, at most 16 per cell, volume fraction as a channel; encoder on against off is the ablation.</li>
+  <li><strong>Loss location.</strong> L1: the potential at the trial with the planes as step constants; the anchor is committed; the truncation fraction is logged.</li>
+  <li><strong>Tangential forces.</strong> F1: gap-rate damping and IPC friction against the plane with the held cubic load; F0 is an ablation.</li>
+  <li><strong>Schedule.</strong> Planes rebuilt after every query, three final rounds, normals refreshed every round; the margin is a small float32 band and the radius r is the whole cushion.</li>
+  <li><strong>Coupled path.</strong> Same planes and truncation as the decoupled path; energy only as an ablation.</li>
+  <li><strong>World edges.</strong> Per-cell slots reserved at the detector's row capacities, marked valid per step; edge width 27 with a zero-column pad.</li>
+  <li><strong>Detection.</strong> Newton's trimesh detector over one model with every body's tet surface; analytic plane and quads against vertices; one scalar reach per step from the largest inertial displacement; self-contact on behind a switch.</li>
+  <li><strong>Body from a mesh.</strong> Scaled to a drawn cell count; occupancy is the cells that contain a vertex; filters for components, closed surface, dihedral angle, joined sheets and coverage.</li>
+</ol>
+
+<h3>Defects in the proposal text, corrected</h3>
+<ul>
+  <li>Coupled constraint sign and unilateral cubic energy, section 5.</li>
+  <li>"Offline, costs nothing" holds for the tokens; the encoder forward runs on every training update.</li>
+  <li>The decoupled path trades the pair reaction for two forces on a fixed plane; no momentum exchange within a query.</li>
+  <li>The two signatures of the plane builder differ; the two-argument form, with the trial for the rates, is right everywhere.</li>
+  <li>"Newton's second law" reads as the third law.</li>
+  <li>Not copied from the reference code: the path-length budget lock-in, the missing friction and damping, and pairs dropped by a full detection buffer, which lose their plane. The coverage flag is the mitigation.</li>
+</ul>
+
+<h3>Still open</h3>
+<ul>
+  <li>Approval of the fTetWild wrapper install at implementation time.</li>
+  <li>Whether the contact architecture gets its own ADR 0004.</li>
+  <li>Small implementation defaults: the owner cell of an edge-edge pair, the tie rule for a vertex on a cell face, one density per body, fresh training rather than warm starts for tet arms.</li>
+</ul>
+
+<h2>7. Phases, each behind a switch with the v8 default</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Phase</th><th>Content</th><th>Code locations</th><th>Tests</th></tr></thead>
+<tbody>
+<tr><td>P0</td><td>Mesh library and embedding: tets, trilinear weights, vertex-lumped corner masses, occupancy from vertex cells, corner coverage, surface tokens, joined-sheet check. Kinds: five-tet lattice; TetWild assets decimated and re-meshed at about one cell edge length.</td><td>new <code>tetmesh.py</code>; <code>BodySpec</code> gains <code>mesh</code> beside <code>shape</code>; <code>realise</code>; five-tet tables in <code>pinning_gallery.py:91</code></td><td><code>test_tetmesh.py</code>: weights sum to one, mass totals, sheet check</td></tr>
+<tr><td>P1</td><td>Tet elastic and damping energy with gradient to corners; floor from tet volume; fused inference launch.</td><td>new <code>tet_energy_kernel.py</code>; dispatch at <code>physics.py:122</code>; <code>energy_kernel.py:252</code></td><td><code>test_tet_energy.py</code>: affine equality, finite differences, Warp against torch, Newton stress</td></tr>
+<tr><td>P2</td><td>Surface encoder, tokens in lattice coordinates, zero-init output, concat or add rule.</td><td><code>network.py</code> beside <code>ContactEncoder</code>; adapter at <code>network.py:410</code></td><td><code>test_surface_encoder.py</code>: zero-init identity, loading of old checkpoints</td></tr>
+<tr><td>P3</td><td>Tet-surface detection: Newton's trimesh detector over one model with all bodies' surfaces, vertex-triangle and edge-edge pairs, scalar reach per step, self-contact behind a switch; analytic plane and quads against vertices.</td><td><code>contact.py:162</code>, <code>contact.py:271</code>; Newton <code>TriMeshCollisionDetector</code></td><td><code>test_tet_collision.py</code>: brute force pairs, capacity layout</td></tr>
+<tr><td>P4</td><td>Division planes and corner truncation with the harmful-corner rule, ported from the sibling worktree kernels; F1 damping and friction against the plane; schedule N = 1, T = 3, M = 1 in <code>Step</code>; loss at the trial.</td><td>new <code>dat_planes.py</code>; <code>step.py:382</code>, <code>step.py:478</code>; source <code>particle_dat_kernels.py</code> of <code>alm-dat-solver</code></td><td><code>test_dat_planes.py</code>: no committed vertex crosses, resting truncation fraction near zero</td></tr>
+<tr><td>P5</td><td>Coupled constraint with the corrected sign and unilateral cubic, anchor-picked normals, the same planes and truncation, world edges in per-cell slots at the detector's capacities.</td><td><code>contact.py</code>, <code>features.py</code>, <code>network.py</code>, <code>grid.py</code></td><td><code>test_coupled_contact.py</code>: third law to 1e-10, conservative bound</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8. Arms, references and gates</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Arm</th><th>Energy</th><th>Surface encoder</th><th>Collision surface</th><th>Contact method</th><th>World edges</th></tr></thead>
+<tbody>
+<tr><td>base</td><td>hex</td><td><span class="pill off">off</span></td><td>voxel</td><td>pairs</td><td><span class="pill off">no</span></td></tr>
+<tr><td>T0</td><td><span class="pill tet">tet, lattice</span></td><td><span class="pill off">off</span></td><td>voxel</td><td>pairs</td><td><span class="pill off">no</span></td></tr>
+<tr><td>T1</td><td><span class="pill tet">tet, library</span></td><td><span class="pill off">off</span></td><td>voxel</td><td>pairs</td><td><span class="pill off">no</span></td></tr>
+<tr><td>T2</td><td><span class="pill tet">tet, library</span></td><td><span class="pill on">on</span></td><td>voxel</td><td>pairs</td><td><span class="pill off">no</span></td></tr>
+<tr><td>C1</td><td><span class="pill tet">tet</span></td><td>best of T1, T2</td><td><span class="pill tet">tet</span></td><td>pairs</td><td><span class="pill off">no</span></td></tr>
+<tr><td>D1</td><td><span class="pill tet">tet</span></td><td>same</td><td><span class="pill tet">tet</span></td><td><span class="pill plane">DAT planes</span></td><td><span class="pill off">no</span></td></tr>
+<tr><td>K1</td><td><span class="pill tet">tet</span></td><td>same</td><td><span class="pill tet">tet</span></td><td><span class="pill plane">coupled</span></td><td><span class="pill off">no</span></td></tr>
+<tr><td>K2</td><td><span class="pill tet">tet</span></td><td>same</td><td><span class="pill tet">tet</span></td><td><span class="pill plane">coupled</span></td><td><span class="pill on">yes</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Ablation arms added in the review session, each one switch away from its parent: L3 loss with a trial-to-anchor penalty; F0 normal cubic only; N = K planes rebuilt only after the queries; T in 2 and 4; slide-only final rounds; K-A coupled energy without truncation; world-edge capacities 4 and 8; hand-pooled surface features instead of attention; self-contact off; a resolution split in tets per cell.</p>
+<ul>
+  <li><strong>References.</strong> Newton SolverVBD on the same tet mesh with true tet degrees of freedom, for beams and drops. On lattice tets the two potentials coincide, so the hex-versus-tet floor of today's beam harness vanishes. The float64 fixed-point reference of the benchmark needs a tet-aware dispatch at <code>bench/reference.py:310</code>.</li>
+  <li><strong>Regime.</strong> The 24-hour ablation regime: 32k cells, 96 scenes per epoch, 20 epochs, cosine from 1.4e-4 to 1e-6, seed 73, gradient input local, 4 GPUs per arm. Then 60 epochs and two seeds for finalists.</li>
+  <li><strong>Splits.</strong> Disjoint mesh-library seeds for training, validation and test. Asset shapes and materials widened by a factor of three as out of distribution.</li>
+  <li><strong>Metrics.</strong> Benchmark position and residual ratios after 8 queries; surface-vertex error against VBD; penetration in units of r; plane-crossing share; truncation fraction; survival; milliseconds per query; memory; in-to-out distribution ratios.</li>
+</ul>
+
+<figure>
+<div class="figwrap">
+<svg viewBox="0 0 900 170" role="img" aria-label="Four gates in sequence: kernels, the first proof of concept against base, embedded library meshes, and contact. Each gate lists its stop condition.">
+<defs>
+<marker id="ar10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+</defs>
+<rect x="20" y="30" width="190" height="60" rx="6" class="bx"/>
+<text x="115" y="54" text-anchor="middle" class="lab">Gate A: kernels</text>
+<text x="115" y="74" text-anchor="middle" class="small">all invariants, Warp = torch</text>
+<text x="115" y="118" text-anchor="middle" class="small t-warn">stop: any invariant fails</text>
+<line x1="210" y1="60" x2="245" y2="60" class="arr" marker-end="url(#ar10)"/>
+<rect x="245" y="30" width="190" height="60" rx="6" class="bx"/>
+<text x="340" y="54" text-anchor="middle" class="lab">Gate B: T0 vs base</text>
+<text x="340" y="74" text-anchor="middle" class="small">beam vs VBD, inversion factor 0</text>
+<text x="340" y="118" text-anchor="middle" class="small t-warn">stop: worse on all three</text>
+<text x="340" y="134" text-anchor="middle" class="small t-warn">then try option B</text>
+<line x1="435" y1="60" x2="470" y2="60" class="arr" marker-end="url(#ar10)"/>
+<rect x="470" y="30" width="190" height="60" rx="6" class="bx"/>
+<text x="565" y="54" text-anchor="middle" class="lab">Gate C: T1, T2</text>
+<text x="565" y="74" text-anchor="middle" class="small">no divergence, within MDD of T0</text>
+<text x="565" y="118" text-anchor="middle" class="small t-warn">encoder kept only on a gain</text>
+<line x1="660" y1="60" x2="695" y2="60" class="arr" marker-end="url(#ar10)"/>
+<rect x="695" y="30" width="190" height="60" rx="6" class="bx"/>
+<text x="790" y="54" text-anchor="middle" class="lab">Gate D: D1, K1, K2</text>
+<text x="790" y="74" text-anchor="middle" class="small">0 crossings, third law, pen &lt;= r</text>
+<text x="790" y="118" text-anchor="middle" class="small t-warn">world edges kept only on a gain</text>
+</svg>
+</div>
+<figcaption>Figure 10. Stop and go. Gate B compares against Newton VBD on the same lattice tets with the inversion stiffening factor at 0 and tet-lumped masses, the two conditions under which the forces coincide exactly. MDD is the benchmark's minimum detectable difference from the stratified cluster bootstrap.</figcaption>
+</figure>
+
+<div class="callout ok">
+<p><strong>First step.</strong> P0 for lattice tets, P1 and its tests, then T0 against base on 4 GPUs each, scored by the beam harness against VBD on the same mesh and by the benchmark with a tet-aware reference. Estimate: one week of implementation, one day of training. Everything stays read-only until you approve and assign a worktree.</p>
+</div>
+
+<footer>Decisions of the 2026-10-10 and 2026-10-11 review session are in the worktree's <code>CONTEXT.md</code> and <code>docs/adr/0003</code>. Code facts checked against <code>experiments/lido/</code> at <code>2c7c474cc</code> and the Newton tree of the same worktree; stored-plane kernels from the sibling worktree <code>alm-dat-solver</code> at <code>11702e64c</code>. Estimates are labelled as estimates. Nothing in this page was run.</footer>
+</main>
+</body>
+</html>
