@@ -1,0 +1,44 @@
+Warp 1.19.0 initialized:
+   CUDA Toolkit 12.9, Driver 12.8
+   Devices:
+     "cpu"      : "x86_64"
+     "cuda:0"   : "NVIDIA L40" (47 GiB, sm_89, mempool enabled)
+   Kernel cache:
+     /tmp/horde-tmpdir/vbd-bidir-warp-cache/gpu2/1.19.0
+[harness] version=poker-metric-v1 device=cuda:0 frames=100 newton=/home/horde/Code/Graphics/newton-working-copies/vbd-bidir-damping/newton/__init__.py
+Module warp._src.coloring 5014867 load on device 'cpu' took 1.66 ms  (cached)
+Module newton._src.utils.mesh 8cb6ac2 load on device 'cpu' took 0.38 ms  (cached)
+Module validate_and_correct_inertia_kernel_dad5ce26 dad5ce2 load on device 'cuda:0' took 10.00 ms  (cached)
+Module compute_body_inverses_kernel_9c3de82e 9c3de82 load on device 'cuda:0' took 0.48 ms  (cached)
+Module newton._src.geometry.bvh b8a138d load on device 'cuda:0' took 0.69 ms  (cached)
+Module newton._src.geometry.kernels bb6ad79 load on device 'cuda:0' took 1.15 ms  (cached)
+Module newton._src.solvers.vbd.rigid_vbd_kernels cb1a443 load on device 'cuda:0' took 5.86 ms  (cached)
+Module newton._src.solvers.solver e6bdade load on device 'cuda:0' took 0.58 ms  (cached)
+[harness] contact_damping_bidirectional=False (soft and rigid) substeps=20 iterations=10 soft_contact_kd=1.000e+02 soft_contact_ke=1.000e+05
+[harness] sphere DISABLED (velocity_x=0): measuring pure settling
+[harness] n_particles=1820 total_mass=9.359999e-02
+Module newton._src.sim.collide cb709a0 load on device 'cuda:0' took 0.68 ms  (cached)
+Module newton._src.geometry.broad_phase_nxn 5cc826e load on device 'cuda:0' took 0.55 ms  (cached)
+Module narrow_phase_primitive_write_contact_False_False_False ae46fde load on device 'cuda:0' took 0.57 ms  (cached)
+Module newton._src.geometry.narrow_phase 103542a load on device 'cuda:0' took 0.59 ms  (cached)
+Module newton._src.geometry.kernels c312056 load on device 'cuda:0' took 1.26 ms  (cached)
+Module newton._src.geometry.kernels 0b7163c load on device 'cuda:0' took 1.30 ms  (cached)
+Module newton._src.solvers.xpbd.kernels db3f4c1 load on device 'cuda:0' took 2.68 ms  (cached)
+Module newton._src.solvers.vbd.rigid_vbd_kernels 75afd01 load on device 'cuda:0' took 1.67 ms  (cached)
+Module newton._src.solvers.vbd.particle_vbd_kernels d765b4e load on device 'cuda:0' took 0.84 ms  (cached)
+Module create_accumulate_body_body_contacts_per_body__locals__accumulate_body_body_contacts_per_body_64580d8d ce2dd41 load on device 'cuda:0' took 0.57 ms  (cached)
+Module create_solve_rigid_body__locals__solve_rigid_body_2d3d73d6 98892b7 load on device 'cuda:0' took 0.77 ms  (cached)
+Module create_update_duals_body_body_contacts__locals__update_duals_body_body_contacts_17f226ea 3a764b0 load on device 'cuda:0' took 0.61 ms  (cached)
+Module make_solve_elasticity_tile__locals__solve_elasticity_tile_kernel_b651c0de 3be6578 load on device 'cuda:0' took 0.61 ms  (cached)
+[harness] f=  0 ke=1.245e-03 vmax=1.635e-01 zext=0.0510 comz=0.2741
+[harness] f= 10 ke=5.619e-03 vmax=5.805e-01 zext=0.0733 comz=0.2405
+[harness] f= 20 ke=3.674e-04 vmax=2.147e-01 zext=0.0488 comz=0.2256
+[harness] f= 30 ke=1.075e-03 vmax=4.430e-01 zext=0.0512 comz=0.2283
+[harness] f= 40 ke=3.477e-03 vmax=8.084e-01 zext=0.0504 comz=0.2251
+[harness] f= 50 ke=5.617e-03 vmax=8.749e-01 zext=0.0657 comz=0.2257
+[harness] f= 60 ke=2.511e-03 vmax=7.138e-01 zext=0.0435 comz=0.2183
+[harness] f= 70 ke=1.035e-03 vmax=3.725e-01 zext=0.0440 comz=0.2182
+[harness] f= 80 ke=4.752e-04 vmax=2.590e-01 zext=0.0602 comz=0.2143
+[harness] f= 90 ke=3.996e-03 vmax=7.580e-01 zext=0.1382 comz=0.2076
+[harness] f= 99 ke=1.267e-02 vmax=8.435e-01 zext=0.2362 comz=0.1633
+[harness] wrote /home/horde/Code/AI-Docs/AI-Logs/Newton/tasks/vbd-bidirectional-contact-damping/demo-harness-split/one-sided-run1.json (100 frames, nan_frame=-1)

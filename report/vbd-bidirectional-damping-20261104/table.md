@@ -77,3 +77,5 @@ Benchmark passive scene `s4_poker_cards_no_ball` (65 s, no hold or release crite
 | Synced-main campaign 2026-11-04 (one-sided, other source revision) | 19.33 | 0.402 | n/a | 0.800 | n/a | n/a |
 
 Arm labels: the one-sided runs used `contact_damping_bidirectional=False`, the bidirectional runs `True`; the constructor default became `True` on the branch on 2026-11-04 afternoon, after the runs.
+
+Later the option was split by contact type (commit 2cd7d288f): `soft_contact_damping_bidirectional` (default `True`; self-contact and rigid-soft) and `rigid_contact_damping_bidirectional` (default `False`; rigid-rigid). The runs above used the earlier single flag.
