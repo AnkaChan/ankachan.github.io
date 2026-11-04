@@ -1,0 +1,408 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex,nofollow'><title>VBD bidirectional contact damping</title><style>*{box-sizing:border-box}body{margin:0;background:#f6f8fb;color:#192437;font:16px/1.5 system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:24px}h1{font-size:1.9rem}h2{font-size:1.25rem;overflow-wrap:anywhere}article{background:#fff;border:1px solid #d8dfe8;border-radius:10px;margin:22px 0;padding:20px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:8px;border-bottom:1px solid #e0e6ed;vertical-align:top;white-space:nowrap}th{background:#edf1f6}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.pair{grid-template-columns:1fr}}video{display:block;width:100%;background:#111;aspect-ratio:4/3}.muted{color:#526177}details{border-top:1px solid #e0e6ed;padding:8px 0}summary{cursor:pointer;font-weight:600}pre{font-size:.8rem;white-space:pre-wrap;background:#f5f7fa;padding:10px}.warn{border-left:4px solid #d99828;padding-left:10px}</style></head><body><main>
+<h1>VBD contact damping: one-sided vs bidirectional</h1>
+<p>Seven Franka and Allegro cloth manipulation cases from the collision benchmark, each run twice with the same source, settings, seeds and hand commands. The only difference is the new <code>SolverVBD</code> option <code>contact_damping_bidirectional</code>: <b>False</b> (default, damping only while a contact gap closes) versus <b>True</b> (damping also while the gap opens, with the matching Hessian).</p><p class='muted'>Standard VBD elasticity, fast math off, rigid-soft DAT on, merged OGC edge rule, contact stiffness capped at 10x the membrane coefficient, 30 Hz frames, ten substeps (dt = 1/300 s), 60 s hold. Contact damping coefficient kd = 0.1 in every scene. Single runs; they do not establish repeatability.</p>
+<article><h2>Overall</h2><div class='scroll'><table><tr><th>Arm</th><th>Completed runs</th><th>Retained through hold</th><th>Mean J* mm</th><th>Mean V* m/s</th><th>Mean static overlap mm</th><th>Mean solver substep ms</th></tr>
+<tr><td>Default (one-sided)</td><td>7/7</td><td>5/7</td><td>25.44</td><td>0.495</td><td>0.780</td><td>23.74</td></tr>
+<tr><td>Bidirectional</td><td>7/7</td><td>5/7</td><td>26.64</td><td>0.497</td><td>1.093</td><td>18.78</td></tr>
+</table></div><p class='muted'>Means are arithmetic means of per-case worst values over the 7 cases completed in both arms. J* is the largest cloth-vertex displacement RMS after removing a fitted linear drift over complete 0.5 s hold windows; V* is the largest cloth-vertex speed RMS over the same windows; the static overlap is the largest sampled overlap of the cloth particle shell with the declared table or ground. Hold retention uses the benchmark's conservative sampled whole-hand separation test: 'retained' means no sampled state proved full separation during the hold. The tables are measurements, not pass or fail verdicts.</p></article>
+<article><h2>Per case</h2><div class='scroll'><table><tr><th>Case</th><th>Robot</th><th>Rows</th><th>Arm</th><th>Hold</th><th>Release</th><th>J* mm</th><th>V* m/s</th><th>Windows</th><th>Overlap mm</th><th>Substep ms</th><th>Finite</th></tr>
+<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>separated at 4.5 s</td><td>hand clear at end (from 4.5 s)</td><td>16.96</td><td>0.695</td><td>120</td><td>0.998</td><td>57.66</td><td>yes</td></tr>
+<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>separated at 42.0 s</td><td>hand clear at end (from 42.0 s)</td><td>28.34</td><td>0.532</td><td>120</td><td>0.998</td><td>23.29</td><td>yes</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>Default (one-sided)</td><td>separated at 7.3 s</td><td>hand clear at end (from 7.3 s)</td><td>50.08</td><td>1.072</td><td>120</td><td>1.838</td><td>10.47</td><td>yes</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>Bidirectional</td><td>separated at 17.9 s</td><td>hand clear at end (from 17.9 s)</td><td>53.65</td><td>1.233</td><td>120</td><td>1.006</td><td>9.97</td><td>yes</td></tr>
+<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>22.88</td><td>0.371</td><td>120</td><td>0.901</td><td>11.11</td><td>yes</td></tr>
+<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>21.61</td><td>0.372</td><td>120</td><td>2.938</td><td>11.20</td><td>yes</td></tr>
+<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>24.55</td><td>0.344</td><td>120</td><td>0.209</td><td>27.20</td><td>yes</td></tr>
+<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>23.34</td><td>0.348</td><td>120</td><td>0.000</td><td>30.73</td><td>yes</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>20.67</td><td>0.324</td><td>120</td><td>0.712</td><td>15.44</td><td>yes</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>21.16</td><td>0.334</td><td>120</td><td>2.710</td><td>20.44</td><td>yes</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.3 s)</td><td>24.45</td><td>0.359</td><td>120</td><td>0.799</td><td>16.31</td><td>yes</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.0 s)</td><td>20.50</td><td>0.355</td><td>120</td><td>0.000</td><td>12.46</td><td>yes</td></tr>
+<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>18.52</td><td>0.301</td><td>120</td><td>0.000</td><td>27.98</td><td>yes</td></tr>
+<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>17.85</td><td>0.301</td><td>120</td><td>0.000</td><td>23.38</td><td>yes</td></tr>
+</table></div><p class='muted'>Rows: self-contact vertex and edge row storage per primitive. The towel cases stopped on the benchmark's 64-row capacity guard during release in one arm each (after a complete hold); the tables use their 512-row repeats in both arms, listed with every attempt below. The solver substep time is a secondary measure here: four cases ran at the same time on four GPUs of one host, and a dropped cloth changes the contact load.</p></article>
+<article><h2>All attempts</h2><div class='scroll'><table><tr><th>Case</th><th>Arm</th><th>Storage</th><th>Status</th><th>Stopped at s</th><th>Hold</th><th>J* mm</th><th>V* m/s</th><th>Windows</th></tr>
+<tr><td>m2_franka_pouch</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 4.5 s</td><td>16.96</td><td>0.695</td><td>120</td></tr>
+<tr><td>m2_franka_pouch</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 42.0 s</td><td>28.34</td><td>0.532</td><td>120</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 7.3 s</td><td>50.08</td><td>1.072</td><td>120</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 17.9 s</td><td>53.65</td><td>1.233</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.91</td><td>0.374</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Default (one-sided)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.88</td><td>0.371</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>error</td><td>67.90</td><td>run error</td><td>23.60</td><td>0.375</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Bidirectional</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.61</td><td>0.372</td><td>120</td></tr>
+<tr><td>r5_franka_dress</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.55</td><td>0.344</td><td>120</td></tr>
+<tr><td>r5_franka_dress</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>23.34</td><td>0.348</td><td>120</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.67</td><td>0.324</td><td>120</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.16</td><td>0.334</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>error</td><td>68.67</td><td>run error</td><td>24.11</td><td>0.358</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Default (one-sided)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.45</td><td>0.359</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.77</td><td>0.351</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.50</td><td>0.355</td><td>120</td></tr>
+<tr><td>r5_franka_trousers</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>18.52</td><td>0.301</td><td>120</td></tr>
+<tr><td>r5_franka_trousers</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>17.85</td><td>0.301</td><td>120</td></tr>
+</table></div></article>
+<article><h2>Context: the synced-main campaign (2026-11-02)</h2><p class='muted'>Same recipes, one-sided damping, upstream main 351b9d9f (43 commits before this branch's base), Warp 1.19.0+cu12. Shown only to judge run-to-run sensitivity; it is a different source revision.</p><div class='scroll'><table><tr><th>Case</th><th>Hold</th><th>J* mm</th><th>V* m/s</th><th>Overlap mm</th><th>Substep ms</th></tr>
+<tr><td>m2_franka_pouch</td><td>separated at 49.5 s</td><td>27.72</td><td>0.458</td><td>0.998</td><td>14.18</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>separated at 13.0 s</td><td>53.47</td><td>1.330</td><td>2.683</td><td>11.68</td></tr>
+<tr><td>r5_allegro_towel</td><td>retained through hold</td><td>23.05</td><td>0.369</td><td>0.892</td><td>11.00</td></tr>
+<tr><td>r5_franka_dress</td><td>retained through hold</td><td>25.84</td><td>0.383</td><td>0.098</td><td>22.34</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>retained through hold</td><td>20.47</td><td>0.328</td><td>0.822</td><td>12.30</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>retained through hold</td><td>24.67</td><td>0.356</td><td>0.592</td><td>11.64</td></tr>
+<tr><td>r5_franka_trousers</td><td>retained through hold</td><td>18.21</td><td>0.301</td><td>0.277</td><td>19.17</td></tr>
+</table></div></article>
+<article id='m2_franka_pouch'><h2>m2_franka_pouch (Franka)</h2>
+<p>M2 | Franka hand and pouch: prepared rim hold, carry, release</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/m2_franka_pouch/poster.jpg' src='runs/default/m2_franka_pouch/video.mp4'></video>
+<p class='muted'>Hold: separated at 4.5 s. Release: hand clear at end (from 4.5 s). J* 16.96 mm, V* 0.695 m/s, overlap 0.998 mm, solver 57.66 ms per substep, wall 1266 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/m2_franka_pouch/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/m2_franka_pouch/results.json'>results.json</a> | <a href='runs/default/m2_franka_pouch/task-observations.json'>task-observations.json</a> | <a href='runs/default/m2_franka_pouch/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/m2_franka_pouch/poster.jpg' src='runs/bidirectional/m2_franka_pouch/video.mp4'></video>
+<p class='muted'>Hold: separated at 42.0 s. Release: hand clear at end (from 42.0 s). J* 28.34 mm, V* 0.532 m/s, overlap 0.998 mm, solver 23.29 ms per substep, wall 533 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/m2_franka_pouch/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/m2_franka_pouch/results.json'>results.json</a> | <a href='runs/bidirectional/m2_franka_pouch/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/m2_franka_pouch/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 40,
+ &quot;gravity_m_s2&quot;: [
+  0.0,
+  0.0,
+  -9.81
+ ],
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;mass_kg&quot;: 0.01537800021469593,
+ &quot;tri_ke&quot;: 3000.0,
+ &quot;tri_ka&quot;: 3000.0,
+ &quot;tri_kd&quot;: 0.025,
+ &quot;edge_ke&quot;: 0.025,
+ &quot;edge_kd&quot;: 0.0005,
+ &quot;particle_radius_m&quot;: 0.001,
+ &quot;effective_shell_thickness_m&quot;: 0.002,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_interaction_margin_m&quot;: 0.002,
+ &quot;self_contact_extra_detection_gap_m&quot;: 0.0015,
+ &quot;topological_contact_filter_rings&quot;: 2,
+ &quot;rest_shape_contact_exclusion_radius_m&quot;: 0.0,
+ &quot;soft_contact_ke&quot;: 50000.0,
+ &quot;soft_contact_kd&quot;: 0.1,
+ &quot;soft_contact_mu&quot;: 1.5,
+ &quot;robot_shape_mu&quot;: 1.5,
+ &quot;table_shape_mu&quot;: 0.6,
+ &quot;rigid_shape_margin_m&quot;: 0.0,
+ &quot;robot_shape_gap_m&quot;: 0.002,
+ &quot;ground_shape_gap_m&quot;: 0.002,
+ &quot;table_shape_gap_m&quot;: 0.1,
+ &quot;rigid_soft_extra_detection_gap_m&quot;: 0.003,
+ &quot;rigid_soft_full_surface_contact&quot;: true,
+ &quot;friction_epsilon&quot;: 0.001,
+ &quot;mesh_dimensions_xyz_m&quot;: [
+  0.15,
+  0.018,
+  0.2
+ ],
+ &quot;mesh_cells_xyz&quot;: [
+  24,
+  4,
+  24
+ ],
+ &quot;mesh_vertex_count&quot;: 1469,
+ &quot;mesh_triangle_count&quot;: 2880,
+ &quot;nominal_closed_finger_opening_m&quot;: 0.0015,
+ &quot;robot_pose_integration&quot;: &quot;Input FK at t; output FK at t+substep_dt&quot;
+}</pre></details>
+</article>
+<article id='m3_franka_tote_empty'><h2>m3_franka_tote_empty (Franka)</h2>
+<p>M3 | Franka hands: tote | 0 payloads</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/m3_franka_tote_empty/poster.jpg' src='runs/default/m3_franka_tote_empty/video.mp4'></video>
+<p class='muted'>Hold: separated at 7.3 s. Release: hand clear at end (from 7.3 s). J* 50.08 mm, V* 1.072 m/s, overlap 1.838 mm, solver 10.47 ms per substep, wall 268 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/m3_franka_tote_empty/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/m3_franka_tote_empty/results.json'>results.json</a> | <a href='runs/default/m3_franka_tote_empty/task-observations.json'>task-observations.json</a> | <a href='runs/default/m3_franka_tote_empty/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/m3_franka_tote_empty/poster.jpg' src='runs/bidirectional/m3_franka_tote_empty/video.mp4'></video>
+<p class='muted'>Hold: separated at 17.9 s. Release: hand clear at end (from 17.9 s). J* 53.65 mm, V* 1.233 m/s, overlap 1.006 mm, solver 9.97 ms per substep, wall 257 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/m3_franka_tote_empty/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/m3_franka_tote_empty/results.json'>results.json</a> | <a href='runs/bidirectional/m3_franka_tote_empty/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/m3_franka_tote_empty/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 40,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;tri_ke&quot;: 3000.0,
+ &quot;tri_ka&quot;: 3000.0,
+ &quot;tri_kd&quot;: 0.025,
+ &quot;edge_ke&quot;: 0.025,
+ &quot;edge_kd&quot;: 0.0005,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;payload_density_kg_m3&quot;: 180.0,
+ &quot;payload_k_mu&quot;: 8000.0,
+ &quot;payload_k_lambda&quot;: 8000.0,
+ &quot;payload_k_damp&quot;: 0.5,
+ &quot;payload_particle_radius_m&quot;: 0.0025,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_interaction_margin_m&quot;: 0.005,
+ &quot;self_contact_extra_detection_gap_m&quot;: 0.005,
+ &quot;topological_contact_filter_rings&quot;: 2,
+ &quot;rest_shape_contact_exclusion_radius_m&quot;: 0.0,
+ &quot;soft_contact_ke&quot;: 50000.0,
+ &quot;soft_contact_kd&quot;: 0.1,
+ &quot;soft_contact_mu&quot;: 1.5,
+ &quot;robot_shape_mu&quot;: 1.5,
+ &quot;table_shape_mu&quot;: 0.6,
+ &quot;robot_shape_gap_m&quot;: 0.002,
+ &quot;table_shape_gap_m&quot;: 0.1,
+ &quot;rigid_shape_margin_m&quot;: 0.0,
+ &quot;rigid_soft_extra_detection_gap_m&quot;: 0.01,
+ &quot;rigid_soft_full_surface_contact&quot;: true,
+ &quot;nominal_closed_finger_opening_m&quot;: 0.004,
+ &quot;robot_pose_integration&quot;: &quot;External rigid VBD: input FK at t; output FK at t+dt&quot;
+}</pre></details>
+</article>
+<article id='r5_allegro_towel'><h2>r5_allegro_towel (Allegro)</h2>
+<p>R5 | Allegro: original-size towel</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/r5_allegro_towel/poster.jpg' src='runs/default/r5_allegro_towel/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.6 s). J* 22.88 mm, V* 0.371 m/s, overlap 0.901 mm, solver 11.11 ms per substep, wall 301 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/r5_allegro_towel/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/r5_allegro_towel/results.json'>results.json</a> | <a href='runs/default/r5_allegro_towel/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_allegro_towel/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/r5_allegro_towel/poster.jpg' src='runs/bidirectional/r5_allegro_towel/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.7 s). J* 21.61 mm, V* 0.372 m/s, overlap 2.938 mm, solver 11.20 ms per substep, wall 302 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_allegro_towel/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/r5_allegro_towel/results.json'>results.json</a> | <a href='runs/bidirectional/r5_allegro_towel/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/r5_allegro_towel/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 30,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;membrane_stretch_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_area_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_damping&quot;: 0.025,
+ &quot;bending_coefficient_N&quot;: 0.08,
+ &quot;bending_damping&quot;: 0.0005,
+ &quot;bending_rest_angles&quot;: &quot;unchanged original source&quot;,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_margin_m&quot;: 0.002,
+ &quot;self_contact_gap_m&quot;: 0.001,
+ &quot;self_contact_rest_exclusion_m&quot;: 0.005,
+ &quot;self_contact_topological_rings&quot;: 1,
+ &quot;friction_robot&quot;: 1.0,
+ &quot;friction_table&quot;: 1.0,
+ &quot;friction_soft_self&quot;: 1.0,
+ &quot;contact_stiffness_N_m&quot;: 50000.0,
+ &quot;contact_damping&quot;: 0.1,
+ &quot;shape_margin_m&quot;: 0.001,
+ &quot;rigid_soft_detection_gap_m&quot;: 0.005,
+ &quot;full_surface_rigid_soft_contact&quot;: true,
+ &quot;mesh_vertices&quot;: 2180,
+ &quot;mesh_triangles&quot;: 4228,
+ &quot;original_scene_mesh_scale&quot;: 1.0
+}</pre></details>
+</article>
+<article id='r5_franka_dress'><h2>r5_franka_dress (Franka)</h2>
+<p>R5 | Franka: original-size dress</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/r5_franka_dress/poster.jpg' src='runs/default/r5_franka_dress/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.6 s). J* 24.55 mm, V* 0.344 m/s, overlap 0.209 mm, solver 27.20 ms per substep, wall 701 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/r5_franka_dress/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/r5_franka_dress/results.json'>results.json</a> | <a href='runs/default/r5_franka_dress/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_dress/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/r5_franka_dress/poster.jpg' src='runs/bidirectional/r5_franka_dress/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.4 s). J* 23.34 mm, V* 0.348 m/s, overlap 0.000 mm, solver 30.73 ms per substep, wall 756 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_dress/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/r5_franka_dress/results.json'>results.json</a> | <a href='runs/bidirectional/r5_franka_dress/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/r5_franka_dress/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 30,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;membrane_stretch_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_area_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_damping&quot;: 0.025,
+ &quot;bending_coefficient_N&quot;: 0.08,
+ &quot;bending_damping&quot;: 0.0005,
+ &quot;bending_rest_angles&quot;: &quot;unchanged original source&quot;,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_margin_m&quot;: 0.002,
+ &quot;self_contact_gap_m&quot;: 0.001,
+ &quot;self_contact_rest_exclusion_m&quot;: 0.005,
+ &quot;self_contact_topological_rings&quot;: 1,
+ &quot;friction_robot&quot;: 1.0,
+ &quot;friction_table&quot;: 1.0,
+ &quot;friction_soft_self&quot;: 1.0,
+ &quot;contact_stiffness_N_m&quot;: 50000.0,
+ &quot;contact_damping&quot;: 0.1,
+ &quot;shape_margin_m&quot;: 0.001,
+ &quot;rigid_soft_detection_gap_m&quot;: 0.005,
+ &quot;full_surface_rigid_soft_contact&quot;: true,
+ &quot;mesh_vertices&quot;: 4602,
+ &quot;mesh_triangles&quot;: 8972,
+ &quot;original_scene_mesh_scale&quot;: 0.6000000238418579
+}</pre></details>
+</article>
+<article id='r5_franka_patch_contact_v2'><h2>r5_franka_patch_contact_v2 (Franka)</h2>
+<p>R5 | Franka: original-size patch</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/r5_franka_patch_contact_v2/poster.jpg' src='runs/default/r5_franka_patch_contact_v2/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.4 s). J* 20.67 mm, V* 0.324 m/s, overlap 0.712 mm, solver 15.44 ms per substep, wall 435 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/r5_franka_patch_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/r5_franka_patch_contact_v2/results.json'>results.json</a> | <a href='runs/default/r5_franka_patch_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_patch_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/r5_franka_patch_contact_v2/poster.jpg' src='runs/bidirectional/r5_franka_patch_contact_v2/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.4 s). J* 21.16 mm, V* 0.334 m/s, overlap 2.710 mm, solver 20.44 ms per substep, wall 532 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_patch_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/r5_franka_patch_contact_v2/results.json'>results.json</a> | <a href='runs/bidirectional/r5_franka_patch_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/r5_franka_patch_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 30,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;membrane_stretch_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_area_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_damping&quot;: 0.025,
+ &quot;bending_coefficient_N&quot;: 0.08,
+ &quot;bending_damping&quot;: 0.0005,
+ &quot;bending_rest_angles&quot;: &quot;unchanged original source&quot;,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_margin_m&quot;: 0.002,
+ &quot;self_contact_gap_m&quot;: 0.001,
+ &quot;self_contact_rest_exclusion_m&quot;: 0.005,
+ &quot;self_contact_topological_rings&quot;: 1,
+ &quot;friction_robot&quot;: 1.0,
+ &quot;friction_table&quot;: 1.0,
+ &quot;friction_soft_self&quot;: 1.0,
+ &quot;contact_stiffness_N_m&quot;: 50000.0,
+ &quot;contact_damping&quot;: 0.1,
+ &quot;shape_margin_m&quot;: 0.001,
+ &quot;rigid_soft_detection_gap_m&quot;: 0.005,
+ &quot;full_surface_rigid_soft_contact&quot;: true,
+ &quot;mesh_vertices&quot;: 3205,
+ &quot;mesh_triangles&quot;: 6244,
+ &quot;original_scene_mesh_scale&quot;: 6.0
+}</pre></details>
+</article>
+<article id='r5_franka_towel_contact_v2'><h2>r5_franka_towel_contact_v2 (Franka)</h2>
+<p>R5 | Franka: original-size towel</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/r5_franka_towel_contact_v2/poster.jpg' src='runs/default/r5_franka_towel_contact_v2/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.3 s). J* 24.45 mm, V* 0.359 m/s, overlap 0.799 mm, solver 16.31 ms per substep, wall 421 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/r5_franka_towel_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/r5_franka_towel_contact_v2/results.json'>results.json</a> | <a href='runs/default/r5_franka_towel_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_towel_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/r5_franka_towel_contact_v2/poster.jpg' src='runs/bidirectional/r5_franka_towel_contact_v2/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.0 s). J* 20.50 mm, V* 0.355 m/s, overlap 0.000 mm, solver 12.46 ms per substep, wall 331 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_towel_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/r5_franka_towel_contact_v2/results.json'>results.json</a> | <a href='runs/bidirectional/r5_franka_towel_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/r5_franka_towel_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 30,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;membrane_stretch_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_area_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_damping&quot;: 0.025,
+ &quot;bending_coefficient_N&quot;: 0.08,
+ &quot;bending_damping&quot;: 0.0005,
+ &quot;bending_rest_angles&quot;: &quot;unchanged original source&quot;,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_margin_m&quot;: 0.002,
+ &quot;self_contact_gap_m&quot;: 0.001,
+ &quot;self_contact_rest_exclusion_m&quot;: 0.005,
+ &quot;self_contact_topological_rings&quot;: 1,
+ &quot;friction_robot&quot;: 1.0,
+ &quot;friction_table&quot;: 1.0,
+ &quot;friction_soft_self&quot;: 1.0,
+ &quot;contact_stiffness_N_m&quot;: 50000.0,
+ &quot;contact_damping&quot;: 0.1,
+ &quot;shape_margin_m&quot;: 0.001,
+ &quot;rigid_soft_detection_gap_m&quot;: 0.005,
+ &quot;full_surface_rigid_soft_contact&quot;: true,
+ &quot;mesh_vertices&quot;: 2767,
+ &quot;mesh_triangles&quot;: 5384,
+ &quot;original_scene_mesh_scale&quot;: 1.0
+}</pre></details>
+</article>
+<article id='r5_franka_trousers'><h2>r5_franka_trousers (Franka)</h2>
+<p>R5 | Franka: original-size trousers</p>
+<div class='pair'>
+<div><h3>Default (one-sided)</h3>
+<video controls preload='metadata' poster='runs/default/r5_franka_trousers/poster.jpg' src='runs/default/r5_franka_trousers/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.7 s). J* 18.52 mm, V* 0.301 m/s, overlap 0.000 mm, solver 27.98 ms per substep, wall 723 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/default/r5_franka_trousers/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/default/r5_franka_trousers/results.json'>results.json</a> | <a href='runs/default/r5_franka_trousers/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_trousers/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+<div><h3>Bidirectional</h3>
+<video controls preload='metadata' poster='runs/bidirectional/r5_franka_trousers/poster.jpg' src='runs/bidirectional/r5_franka_trousers/video.mp4'></video>
+<p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.4 s). J* 17.85 mm, V* 0.301 m/s, overlap 0.000 mm, solver 23.38 ms per substep, wall 596 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
+<details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_trousers/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
+<p class='muted'>Raw: <a href='runs/bidirectional/r5_franka_trousers/results.json'>results.json</a> | <a href='runs/bidirectional/r5_franka_trousers/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/r5_franka_trousers/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
+</div>
+</div>
+<details><summary>Scene physics parameters</summary><pre>{
+ &quot;frame_dt_s&quot;: 0.03333333333333333,
+ &quot;substeps&quot;: 10,
+ &quot;substep_dt_s&quot;: 0.003333333333333333,
+ &quot;iterations&quot;: 30,
+ &quot;density_kg_m2&quot;: 0.22,
+ &quot;membrane_stretch_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_area_coefficient_N_m&quot;: 1800.0,
+ &quot;membrane_damping&quot;: 0.025,
+ &quot;bending_coefficient_N&quot;: 0.08,
+ &quot;bending_damping&quot;: 0.0005,
+ &quot;bending_rest_angles&quot;: &quot;unchanged original source&quot;,
+ &quot;particle_radius_m&quot;: 0.003,
+ &quot;self_contact_enabled&quot;: true,
+ &quot;self_contact_margin_m&quot;: 0.002,
+ &quot;self_contact_gap_m&quot;: 0.001,
+ &quot;self_contact_rest_exclusion_m&quot;: 0.005,
+ &quot;self_contact_topological_rings&quot;: 1,
+ &quot;friction_robot&quot;: 1.0,
+ &quot;friction_table&quot;: 1.0,
+ &quot;friction_soft_self&quot;: 1.0,
+ &quot;contact_stiffness_N_m&quot;: 50000.0,
+ &quot;contact_damping&quot;: 0.1,
+ &quot;shape_margin_m&quot;: 0.001,
+ &quot;rigid_soft_detection_gap_m&quot;: 0.005,
+ &quot;full_surface_rigid_soft_contact&quot;: true,
+ &quot;mesh_vertices&quot;: 4570,
+ &quot;mesh_triangles&quot;: 8990,
+ &quot;original_scene_mesh_scale&quot;: 0.7058823704719543
+}</pre></details>
+</article>
+<footer class='muted'><p>Newton revision c49851e53ee18336f1e81b24d51f1126c0137c7f on branch ankac/vbd-bidirectional-contact-damping (upstream main 76349f7a9 plus the option). Warp 1.19.0+cu12, NVIDIA L40. Built 2026-11-04.</p></footer></main></body></html>
