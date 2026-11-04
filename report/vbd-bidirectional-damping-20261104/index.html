@@ -1,45 +1,47 @@
 <!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex,nofollow'><title>VBD bidirectional contact damping</title><style>*{box-sizing:border-box}body{margin:0;background:#f6f8fb;color:#192437;font:16px/1.5 system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:24px}h1{font-size:1.9rem}h2{font-size:1.25rem;overflow-wrap:anywhere}article{background:#fff;border:1px solid #d8dfe8;border-radius:10px;margin:22px 0;padding:20px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:8px;border-bottom:1px solid #e0e6ed;vertical-align:top;white-space:nowrap}th{background:#edf1f6}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.pair{grid-template-columns:1fr}}video{display:block;width:100%;background:#111;aspect-ratio:4/3}.muted{color:#526177}details{border-top:1px solid #e0e6ed;padding:8px 0}summary{cursor:pointer;font-weight:600}pre{font-size:.8rem;white-space:pre-wrap;background:#f5f7fa;padding:10px}.warn{border-left:4px solid #d99828;padding-left:10px}</style></head><body><main>
 <h1>VBD contact damping: one-sided vs bidirectional</h1>
-<p>Seven Franka and Allegro cloth manipulation cases from the collision benchmark, each run twice with the same source, settings, seeds and hand commands. The only difference is the new <code>SolverVBD</code> option <code>contact_damping_bidirectional</code>: <b>False</b> (default, damping only while a contact gap closes) versus <b>True</b> (damping also while the gap opens, with the matching Hessian).</p><p class='muted'>Standard VBD elasticity, fast math off, rigid-soft DAT on, merged OGC edge rule, contact stiffness capped at 10x the membrane coefficient, 30 Hz frames, ten substeps (dt = 1/300 s), 60 s hold. Contact damping coefficient kd = 0.1 in every scene. Single runs; they do not establish repeatability.</p>
+<p>Seven Franka and Allegro cloth manipulation cases from the collision benchmark, each run twice with the same source, settings, seeds and hand commands. The only difference is the new <code>SolverVBD</code> option <code>contact_damping_bidirectional</code>: <b>False</b> (one-sided: damping only while a contact gap closes; the constructor default when these runs were made) versus <b>True</b> (bidirectional: damping also while the gap opens, with the matching Hessian; the constructor default on the branch since the afternoon of 2026-11-04).</p><p class='muted'>Standard VBD elasticity, fast math off, rigid-soft DAT on, merged OGC edge rule, contact stiffness capped at 10x the membrane coefficient, 30 Hz frames, ten substeps (dt = 1/300 s), 60 s hold. Contact damping coefficient kd = 0.1 in every scene. Single runs; they do not establish repeatability.</p>
+<article class='warn'><h2>Update, 2026-11-04 afternoon</h2><p>Anka decided to make the bidirectional damping the default. The branch now carries the option (b989e846c), the default change (36590004e) and the rebase onto upstream main 7f0c13af6. Two more commits followed: the tuning-guide additions (81fd7250a) and an objective gap rate for the self-contact and rigid-rigid dampers (68c18328a), which the repo's rigid-motion test required once the two-sided gate became the default. The arm labels on this page were changed to match: <b>One-sided (closing only; previous default)</b> is the run with <code>contact_damping_bidirectional=False</code>, <b>Bidirectional (new default)</b> the run with <code>True</code>. The runs themselves were made at commit c49851e53, before these follow-up commits, and are unchanged. The poker-card results below were added in the same update.</p></article>
+<article id='poker'><h2>Poker cards: the issue #3494 scene</h2><p>The shipped <code>example_cloth_poker_cards</code> is the scene behind issue #3494 (the card stack never settles). Two measurements, both at commit c49851e53, with the same two damping modes.</p><h3>1. The demo itself with the ball disabled (issue-3494 harness)</h3><p class='muted'>52 cards, 60 Hz, 20 substeps, 10 iterations, soft_contact_ke 1e5, soft_contact_kd 100, sphere velocity set to zero. Settle score = mean over frames 40 to 79 of the largest card-vertex speed; lower is more settled, 0.1 m/s was the threshold of the 2026-07 investigation. Two runs per mode.</p><div class='scroll'><table><tr><th>Mode</th><th>Run</th><th>Settle score m/s</th><th>Mean kinetic energy J</th><th>Stack height swing m</th><th>Verdict</th></tr><tr><td>One-sided (closing only; previous default)</td><td>1</td><td>0.615</td><td>2.33e-3</td><td>0.0404</td><td>bouncy</td></tr><tr><td>One-sided (closing only; previous default)</td><td>2</td><td>0.630</td><td>2.38e-3</td><td>0.0379</td><td>bouncy</td></tr><tr><td>Bidirectional (new default)</td><td>1</td><td>0.0705</td><td>5.12e-5</td><td>0.0026</td><td>settled</td></tr><tr><td>Bidirectional (new default)</td><td>2</td><td>0.0704</td><td>4.84e-5</td><td>0.0023</td><td>settled</td></tr></table></div><p class='muted'>Reference values from the 2026-07 investigation with the same harness: Newton v1.3.0 0.0025 m/s, v1.4.0rc1 0.62 m/s, the fix proposed then 0.06 to 0.07 m/s. Re-run at the final commit 68c18328a (objective gap rate), one run per mode: one-sided 0.539 m/s, bidirectional 0.070 m/s (<a href='demo-harness-final/one-sided-run1.analysis.txt'>one-sided</a> | <a href='demo-harness-final/bidirectional-run1.analysis.txt'>bidirectional</a>). Raw: <a href='demo-harness/default-run1.json'>default-run1.json</a> | <a href='demo-harness/default-run2.json'>default-run2.json</a> | <a href='demo-harness/bidirectional-run1.json'>bidirectional-run1.json</a> | <a href='demo-harness/bidirectional-run2.json'>bidirectional-run2.json</a> | <a href='demo-harness/default-run1.analysis.txt'>analysis</a> | <a href='demo-harness/schedule.log'>schedule</a>.</p><h3>2. The benchmark's passive card scene s4_poker_cards_no_ball</h3><p class='muted'>Benchmark recipe: 60 Hz, ten substeps (dt 1/600 s), ten iterations, platform contact stiffness capped at 1e5, observation 5 to 65 s, no hold or release criteria. In both arms the deck spills off the platform within the first seconds and cards keep slipping later, as in the synced-main run. The J* and V* windows are dominated by those falls, so this scene does not separate the two modes.</p><div class='scroll'><table><tr><th>Arm</th><th>J* mm</th><th>V* m/s</th><th>Windows</th><th>Overlap mm</th><th>Substep ms</th><th>Finite</th></tr><tr><td>One-sided (closing only; previous default)</td><td>16.36</td><td>0.421</td><td>120</td><td>0.782</td><td>4.53</td><td>yes</td></tr><tr><td>Bidirectional (new default)</td><td>15.61</td><td>0.422</td><td>120</td><td>0.864</td><td>6.19</td><td>yes</td></tr><tr><td>Synced-main campaign of 2026-11-04 (one-sided, different source revision)</td><td>19.33</td><td>0.402</td><td>n/a</td><td>0.800</td><td>n/a</td><td>n/a</td></tr></table></div><div class='pair'><div><h3>One-sided (closing only; previous default)</h3><video controls preload='metadata' poster='runs/default/s4_poker_cards_no_ball/poster.jpg' src='runs/default/s4_poker_cards_no_ball/video.mp4'></video><p class='muted'>J* 16.36 mm, V* 0.421 m/s, overlap 0.782 mm, solver 4.53 ms per substep, wall 239 s. Status completed, finite True, contact overflow False.</p><details><summary>Contact sheet</summary><img src='runs/default/s4_poker_cards_no_ball/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details><p class='muted'>Raw: <a href='runs/default/s4_poker_cards_no_ball/results.json'>results.json</a> | <a href='runs/default/s4_poker_cards_no_ball/task-observations.json'>task-observations.json</a> | <a href='runs/default/s4_poker_cards_no_ball/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p></div><div><h3>Bidirectional (new default)</h3><video controls preload='metadata' poster='runs/bidirectional/s4_poker_cards_no_ball/poster.jpg' src='runs/bidirectional/s4_poker_cards_no_ball/video.mp4'></video><p class='muted'>J* 15.61 mm, V* 0.422 m/s, overlap 0.864 mm, solver 6.19 ms per substep, wall 289 s. Status completed, finite True, contact overflow False.</p><details><summary>Contact sheet</summary><img src='runs/bidirectional/s4_poker_cards_no_ball/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details><p class='muted'>Raw: <a href='runs/bidirectional/s4_poker_cards_no_ball/results.json'>results.json</a> | <a href='runs/bidirectional/s4_poker_cards_no_ball/task-observations.json'>task-observations.json</a> | <a href='runs/bidirectional/s4_poker_cards_no_ball/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p></div></div></article>
 <article><h2>Overall</h2><div class='scroll'><table><tr><th>Arm</th><th>Completed runs</th><th>Retained through hold</th><th>Mean J* mm</th><th>Mean V* m/s</th><th>Mean static overlap mm</th><th>Mean solver substep ms</th></tr>
-<tr><td>Default (one-sided)</td><td>7/7</td><td>5/7</td><td>25.44</td><td>0.495</td><td>0.780</td><td>23.74</td></tr>
-<tr><td>Bidirectional</td><td>7/7</td><td>5/7</td><td>26.64</td><td>0.497</td><td>1.093</td><td>18.78</td></tr>
+<tr><td>One-sided (closing only; previous default)</td><td>7/7</td><td>5/7</td><td>25.44</td><td>0.495</td><td>0.780</td><td>23.74</td></tr>
+<tr><td>Bidirectional (new default)</td><td>7/7</td><td>5/7</td><td>26.64</td><td>0.497</td><td>1.093</td><td>18.78</td></tr>
 </table></div><p class='muted'>Means are arithmetic means of per-case worst values over the 7 cases completed in both arms. J* is the largest cloth-vertex displacement RMS after removing a fitted linear drift over complete 0.5 s hold windows; V* is the largest cloth-vertex speed RMS over the same windows; the static overlap is the largest sampled overlap of the cloth particle shell with the declared table or ground. Hold retention uses the benchmark's conservative sampled whole-hand separation test: 'retained' means no sampled state proved full separation during the hold. The tables are measurements, not pass or fail verdicts.</p></article>
 <article><h2>Per case</h2><div class='scroll'><table><tr><th>Case</th><th>Robot</th><th>Rows</th><th>Arm</th><th>Hold</th><th>Release</th><th>J* mm</th><th>V* m/s</th><th>Windows</th><th>Overlap mm</th><th>Substep ms</th><th>Finite</th></tr>
-<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>separated at 4.5 s</td><td>hand clear at end (from 4.5 s)</td><td>16.96</td><td>0.695</td><td>120</td><td>0.998</td><td>57.66</td><td>yes</td></tr>
-<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>separated at 42.0 s</td><td>hand clear at end (from 42.0 s)</td><td>28.34</td><td>0.532</td><td>120</td><td>0.998</td><td>23.29</td><td>yes</td></tr>
-<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>Default (one-sided)</td><td>separated at 7.3 s</td><td>hand clear at end (from 7.3 s)</td><td>50.08</td><td>1.072</td><td>120</td><td>1.838</td><td>10.47</td><td>yes</td></tr>
-<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>Bidirectional</td><td>separated at 17.9 s</td><td>hand clear at end (from 17.9 s)</td><td>53.65</td><td>1.233</td><td>120</td><td>1.006</td><td>9.97</td><td>yes</td></tr>
-<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>22.88</td><td>0.371</td><td>120</td><td>0.901</td><td>11.11</td><td>yes</td></tr>
-<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>21.61</td><td>0.372</td><td>120</td><td>2.938</td><td>11.20</td><td>yes</td></tr>
-<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>24.55</td><td>0.344</td><td>120</td><td>0.209</td><td>27.20</td><td>yes</td></tr>
-<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>23.34</td><td>0.348</td><td>120</td><td>0.000</td><td>30.73</td><td>yes</td></tr>
-<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>20.67</td><td>0.324</td><td>120</td><td>0.712</td><td>15.44</td><td>yes</td></tr>
-<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>21.16</td><td>0.334</td><td>120</td><td>2.710</td><td>20.44</td><td>yes</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.3 s)</td><td>24.45</td><td>0.359</td><td>120</td><td>0.799</td><td>16.31</td><td>yes</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.0 s)</td><td>20.50</td><td>0.355</td><td>120</td><td>0.000</td><td>12.46</td><td>yes</td></tr>
-<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>Default (one-sided)</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>18.52</td><td>0.301</td><td>120</td><td>0.000</td><td>27.98</td><td>yes</td></tr>
-<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>Bidirectional</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>17.85</td><td>0.301</td><td>120</td><td>0.000</td><td>23.38</td><td>yes</td></tr>
+<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>One-sided (closing only; previous default)</td><td>separated at 4.5 s</td><td>hand clear at end (from 4.5 s)</td><td>16.96</td><td>0.695</td><td>120</td><td>0.998</td><td>57.66</td><td>yes</td></tr>
+<tr><td>m2_franka_pouch</td><td>Franka</td><td>512</td><td>Bidirectional (new default)</td><td>separated at 42.0 s</td><td>hand clear at end (from 42.0 s)</td><td>28.34</td><td>0.532</td><td>120</td><td>0.998</td><td>23.29</td><td>yes</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>One-sided (closing only; previous default)</td><td>separated at 7.3 s</td><td>hand clear at end (from 7.3 s)</td><td>50.08</td><td>1.072</td><td>120</td><td>1.838</td><td>10.47</td><td>yes</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Franka</td><td>128</td><td>Bidirectional (new default)</td><td>separated at 17.9 s</td><td>hand clear at end (from 17.9 s)</td><td>53.65</td><td>1.233</td><td>120</td><td>1.006</td><td>9.97</td><td>yes</td></tr>
+<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>One-sided (closing only; previous default)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>22.88</td><td>0.371</td><td>120</td><td>0.901</td><td>11.11</td><td>yes</td></tr>
+<tr><td>r5_allegro_towel</td><td>Allegro</td><td>512</td><td>Bidirectional (new default)</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>21.61</td><td>0.372</td><td>120</td><td>2.938</td><td>11.20</td><td>yes</td></tr>
+<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>One-sided (closing only; previous default)</td><td>retained through hold</td><td>hand clear at end (from 68.6 s)</td><td>24.55</td><td>0.344</td><td>120</td><td>0.209</td><td>27.20</td><td>yes</td></tr>
+<tr><td>r5_franka_dress</td><td>Franka</td><td>512</td><td>Bidirectional (new default)</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>23.34</td><td>0.348</td><td>120</td><td>0.000</td><td>30.73</td><td>yes</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>One-sided (closing only; previous default)</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>20.67</td><td>0.324</td><td>120</td><td>0.712</td><td>15.44</td><td>yes</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional (new default)</td><td>retained through hold</td><td>hand clear at end (from 68.4 s)</td><td>21.16</td><td>0.334</td><td>120</td><td>2.710</td><td>20.44</td><td>yes</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>One-sided (closing only; previous default)</td><td>retained through hold</td><td>hand clear at end (from 68.3 s)</td><td>24.45</td><td>0.359</td><td>120</td><td>0.799</td><td>16.31</td><td>yes</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Franka</td><td>512</td><td>Bidirectional (new default)</td><td>retained through hold</td><td>hand clear at end (from 69.0 s)</td><td>20.50</td><td>0.355</td><td>120</td><td>0.000</td><td>12.46</td><td>yes</td></tr>
+<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>One-sided (closing only; previous default)</td><td>retained through hold</td><td>hand clear at end (from 68.7 s)</td><td>18.52</td><td>0.301</td><td>120</td><td>0.000</td><td>27.98</td><td>yes</td></tr>
+<tr><td>r5_franka_trousers</td><td>Franka</td><td>64</td><td>Bidirectional (new default)</td><td>retained through hold</td><td>hand clear at end (from 69.4 s)</td><td>17.85</td><td>0.301</td><td>120</td><td>0.000</td><td>23.38</td><td>yes</td></tr>
 </table></div><p class='muted'>Rows: self-contact vertex and edge row storage per primitive. The towel cases stopped on the benchmark's 64-row capacity guard during release in one arm each (after a complete hold); the tables use their 512-row repeats in both arms, listed with every attempt below. The solver substep time is a secondary measure here: four cases ran at the same time on four GPUs of one host, and a dropped cloth changes the contact load.</p></article>
 <article><h2>All attempts</h2><div class='scroll'><table><tr><th>Case</th><th>Arm</th><th>Storage</th><th>Status</th><th>Stopped at s</th><th>Hold</th><th>J* mm</th><th>V* m/s</th><th>Windows</th></tr>
-<tr><td>m2_franka_pouch</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 4.5 s</td><td>16.96</td><td>0.695</td><td>120</td></tr>
-<tr><td>m2_franka_pouch</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 42.0 s</td><td>28.34</td><td>0.532</td><td>120</td></tr>
-<tr><td>m3_franka_tote_empty</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 7.3 s</td><td>50.08</td><td>1.072</td><td>120</td></tr>
-<tr><td>m3_franka_tote_empty</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 17.9 s</td><td>53.65</td><td>1.233</td><td>120</td></tr>
-<tr><td>r5_allegro_towel</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.91</td><td>0.374</td><td>120</td></tr>
-<tr><td>r5_allegro_towel</td><td>Default (one-sided)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.88</td><td>0.371</td><td>120</td></tr>
-<tr><td>r5_allegro_towel</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>error</td><td>67.90</td><td>run error</td><td>23.60</td><td>0.375</td><td>120</td></tr>
-<tr><td>r5_allegro_towel</td><td>Bidirectional</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.61</td><td>0.372</td><td>120</td></tr>
-<tr><td>r5_franka_dress</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.55</td><td>0.344</td><td>120</td></tr>
-<tr><td>r5_franka_dress</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>23.34</td><td>0.348</td><td>120</td></tr>
-<tr><td>r5_franka_patch_contact_v2</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.67</td><td>0.324</td><td>120</td></tr>
-<tr><td>r5_franka_patch_contact_v2</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.16</td><td>0.334</td><td>120</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>error</td><td>68.67</td><td>run error</td><td>24.11</td><td>0.358</td><td>120</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Default (one-sided)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.45</td><td>0.359</td><td>120</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.77</td><td>0.351</td><td>120</td></tr>
-<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.50</td><td>0.355</td><td>120</td></tr>
-<tr><td>r5_franka_trousers</td><td>Default (one-sided)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>18.52</td><td>0.301</td><td>120</td></tr>
-<tr><td>r5_franka_trousers</td><td>Bidirectional</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>17.85</td><td>0.301</td><td>120</td></tr>
+<tr><td>m2_franka_pouch</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 4.5 s</td><td>16.96</td><td>0.695</td><td>120</td></tr>
+<tr><td>m2_franka_pouch</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 42.0 s</td><td>28.34</td><td>0.532</td><td>120</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 7.3 s</td><td>50.08</td><td>1.072</td><td>120</td></tr>
+<tr><td>m3_franka_tote_empty</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>separated at 17.9 s</td><td>53.65</td><td>1.233</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.91</td><td>0.374</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>One-sided (closing only; previous default)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.88</td><td>0.371</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>error</td><td>67.90</td><td>run error</td><td>23.60</td><td>0.375</td><td>120</td></tr>
+<tr><td>r5_allegro_towel</td><td>Bidirectional (new default)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.61</td><td>0.372</td><td>120</td></tr>
+<tr><td>r5_franka_dress</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.55</td><td>0.344</td><td>120</td></tr>
+<tr><td>r5_franka_dress</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>23.34</td><td>0.348</td><td>120</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.67</td><td>0.324</td><td>120</td></tr>
+<tr><td>r5_franka_patch_contact_v2</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>21.16</td><td>0.334</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>error</td><td>68.67</td><td>run error</td><td>24.11</td><td>0.358</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>One-sided (closing only; previous default)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>24.45</td><td>0.359</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>22.77</td><td>0.351</td><td>120</td></tr>
+<tr><td>r5_franka_towel_contact_v2</td><td>Bidirectional (new default)</td><td>512-row repeat</td><td>completed</td><td>completed</td><td>retained through hold</td><td>20.50</td><td>0.355</td><td>120</td></tr>
+<tr><td>r5_franka_trousers</td><td>One-sided (closing only; previous default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>18.52</td><td>0.301</td><td>120</td></tr>
+<tr><td>r5_franka_trousers</td><td>Bidirectional (new default)</td><td>as selected by the synced-main campaign</td><td>completed</td><td>completed</td><td>retained through hold</td><td>17.85</td><td>0.301</td><td>120</td></tr>
 </table></div></article>
 <article><h2>Context: the synced-main campaign (2026-11-02)</h2><p class='muted'>Same recipes, one-sided damping, upstream main 351b9d9f (43 commits before this branch's base), Warp 1.19.0+cu12. Shown only to judge run-to-run sensitivity; it is a different source revision.</p><div class='scroll'><table><tr><th>Case</th><th>Hold</th><th>J* mm</th><th>V* m/s</th><th>Overlap mm</th><th>Substep ms</th></tr>
 <tr><td>m2_franka_pouch</td><td>separated at 49.5 s</td><td>27.72</td><td>0.458</td><td>0.998</td><td>14.18</td></tr>
@@ -53,13 +55,13 @@
 <article id='m2_franka_pouch'><h2>m2_franka_pouch (Franka)</h2>
 <p>M2 | Franka hand and pouch: prepared rim hold, carry, release</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/m2_franka_pouch/poster.jpg' src='runs/default/m2_franka_pouch/video.mp4'></video>
 <p class='muted'>Hold: separated at 4.5 s. Release: hand clear at end (from 4.5 s). J* 16.96 mm, V* 0.695 m/s, overlap 0.998 mm, solver 57.66 ms per substep, wall 1266 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/m2_franka_pouch/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/m2_franka_pouch/results.json'>results.json</a> | <a href='runs/default/m2_franka_pouch/task-observations.json'>task-observations.json</a> | <a href='runs/default/m2_franka_pouch/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/m2_franka_pouch/poster.jpg' src='runs/bidirectional/m2_franka_pouch/video.mp4'></video>
 <p class='muted'>Hold: separated at 42.0 s. Release: hand clear at end (from 42.0 s). J* 28.34 mm, V* 0.532 m/s, overlap 0.998 mm, solver 23.29 ms per substep, wall 533 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/m2_franka_pouch/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -121,13 +123,13 @@
 <article id='m3_franka_tote_empty'><h2>m3_franka_tote_empty (Franka)</h2>
 <p>M3 | Franka hands: tote | 0 payloads</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/m3_franka_tote_empty/poster.jpg' src='runs/default/m3_franka_tote_empty/video.mp4'></video>
 <p class='muted'>Hold: separated at 7.3 s. Release: hand clear at end (from 7.3 s). J* 50.08 mm, V* 1.072 m/s, overlap 1.838 mm, solver 10.47 ms per substep, wall 268 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/m3_franka_tote_empty/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/m3_franka_tote_empty/results.json'>results.json</a> | <a href='runs/default/m3_franka_tote_empty/task-observations.json'>task-observations.json</a> | <a href='runs/default/m3_franka_tote_empty/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/m3_franka_tote_empty/poster.jpg' src='runs/bidirectional/m3_franka_tote_empty/video.mp4'></video>
 <p class='muted'>Hold: separated at 17.9 s. Release: hand clear at end (from 17.9 s). J* 53.65 mm, V* 1.233 m/s, overlap 1.006 mm, solver 9.97 ms per substep, wall 257 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/m3_franka_tote_empty/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -173,13 +175,13 @@
 <article id='r5_allegro_towel'><h2>r5_allegro_towel (Allegro)</h2>
 <p>R5 | Allegro: original-size towel</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/r5_allegro_towel/poster.jpg' src='runs/default/r5_allegro_towel/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.6 s). J* 22.88 mm, V* 0.371 m/s, overlap 0.901 mm, solver 11.11 ms per substep, wall 301 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/r5_allegro_towel/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/r5_allegro_towel/results.json'>results.json</a> | <a href='runs/default/r5_allegro_towel/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_allegro_towel/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/r5_allegro_towel/poster.jpg' src='runs/bidirectional/r5_allegro_towel/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.7 s). J* 21.61 mm, V* 0.372 m/s, overlap 2.938 mm, solver 11.20 ms per substep, wall 302 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_allegro_towel/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -220,13 +222,13 @@
 <article id='r5_franka_dress'><h2>r5_franka_dress (Franka)</h2>
 <p>R5 | Franka: original-size dress</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/r5_franka_dress/poster.jpg' src='runs/default/r5_franka_dress/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.6 s). J* 24.55 mm, V* 0.344 m/s, overlap 0.209 mm, solver 27.20 ms per substep, wall 701 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/r5_franka_dress/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/r5_franka_dress/results.json'>results.json</a> | <a href='runs/default/r5_franka_dress/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_dress/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/r5_franka_dress/poster.jpg' src='runs/bidirectional/r5_franka_dress/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.4 s). J* 23.34 mm, V* 0.348 m/s, overlap 0.000 mm, solver 30.73 ms per substep, wall 756 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_dress/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -267,13 +269,13 @@
 <article id='r5_franka_patch_contact_v2'><h2>r5_franka_patch_contact_v2 (Franka)</h2>
 <p>R5 | Franka: original-size patch</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/r5_franka_patch_contact_v2/poster.jpg' src='runs/default/r5_franka_patch_contact_v2/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.4 s). J* 20.67 mm, V* 0.324 m/s, overlap 0.712 mm, solver 15.44 ms per substep, wall 435 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/r5_franka_patch_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/r5_franka_patch_contact_v2/results.json'>results.json</a> | <a href='runs/default/r5_franka_patch_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_patch_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/r5_franka_patch_contact_v2/poster.jpg' src='runs/bidirectional/r5_franka_patch_contact_v2/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.4 s). J* 21.16 mm, V* 0.334 m/s, overlap 2.710 mm, solver 20.44 ms per substep, wall 532 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_patch_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -314,13 +316,13 @@
 <article id='r5_franka_towel_contact_v2'><h2>r5_franka_towel_contact_v2 (Franka)</h2>
 <p>R5 | Franka: original-size towel</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/r5_franka_towel_contact_v2/poster.jpg' src='runs/default/r5_franka_towel_contact_v2/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.3 s). J* 24.45 mm, V* 0.359 m/s, overlap 0.799 mm, solver 16.31 ms per substep, wall 421 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/r5_franka_towel_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/r5_franka_towel_contact_v2/results.json'>results.json</a> | <a href='runs/default/r5_franka_towel_contact_v2/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_towel_contact_v2/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/r5_franka_towel_contact_v2/poster.jpg' src='runs/bidirectional/r5_franka_towel_contact_v2/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.0 s). J* 20.50 mm, V* 0.355 m/s, overlap 0.000 mm, solver 12.46 ms per substep, wall 331 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_towel_contact_v2/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -361,13 +363,13 @@
 <article id='r5_franka_trousers'><h2>r5_franka_trousers (Franka)</h2>
 <p>R5 | Franka: original-size trousers</p>
 <div class='pair'>
-<div><h3>Default (one-sided)</h3>
+<div><h3>One-sided (closing only; previous default)</h3>
 <video controls preload='metadata' poster='runs/default/r5_franka_trousers/poster.jpg' src='runs/default/r5_franka_trousers/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 68.7 s). J* 18.52 mm, V* 0.301 m/s, overlap 0.000 mm, solver 27.98 ms per substep, wall 723 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/default/r5_franka_trousers/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
 <p class='muted'>Raw: <a href='runs/default/r5_franka_trousers/results.json'>results.json</a> | <a href='runs/default/r5_franka_trousers/task-observations.json'>task-observations.json</a> | <a href='runs/default/r5_franka_trousers/dat-ogc-provenance.json'>dat-ogc-provenance.json</a></p>
 </div>
-<div><h3>Bidirectional</h3>
+<div><h3>Bidirectional (new default)</h3>
 <video controls preload='metadata' poster='runs/bidirectional/r5_franka_trousers/poster.jpg' src='runs/bidirectional/r5_franka_trousers/video.mp4'></video>
 <p class='muted'>Hold: retained through hold. Release: hand clear at end (from 69.4 s). J* 17.85 mm, V* 0.301 m/s, overlap 0.000 mm, solver 23.38 ms per substep, wall 596 s. Status completed, finite True, contact overflow False, source guard unchanged True.</p>
 <details><summary>Contact sheet</summary><img src='runs/bidirectional/r5_franka_trousers/contact-sheet.jpg' alt='contact sheet' style='width:100%'></details>
@@ -405,4 +407,4 @@
  &quot;original_scene_mesh_scale&quot;: 0.7058823704719543
 }</pre></details>
 </article>
-<footer class='muted'><p>Newton revision c49851e53ee18336f1e81b24d51f1126c0137c7f on branch ankac/vbd-bidirectional-contact-damping (upstream main 76349f7a9 plus the option). Warp 1.19.0+cu12, NVIDIA L40. Built 2026-11-04.</p></footer></main></body></html>
+<footer class='muted'><p>Newton revision c49851e53ee18336f1e81b24d51f1126c0137c7f on branch ankac/vbd-bidirectional-contact-damping (upstream main 76349f7a9 plus the option). Warp 1.19.0+cu12, NVIDIA L40. Built 2026-11-04; updated the same afternoon with the poker-card results and the decision note at the top.</p></footer></main></body></html>

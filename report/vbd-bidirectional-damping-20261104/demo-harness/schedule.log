@@ -1,0 +1,9 @@
+[2026-11-04T21:39:45Z] GPU2 default-run1 start
+[2026-11-04T21:39:45Z] GPU3 bidirectional-run1 start
+[2026-11-04T21:40:16Z] GPU2 default-run1 exit 0
+[2026-11-04T21:40:16Z] GPU2 default-run2 start
+[2026-11-04T21:40:18Z] GPU3 bidirectional-run1 exit 0
+[2026-11-04T21:40:18Z] GPU3 bidirectional-run2 start
+[2026-11-04T21:40:44Z] GPU2 default-run2 exit 0
+[2026-11-04T21:40:47Z] GPU3 bidirectional-run2 exit 0
+[2026-11-04T21:40:47Z] demo harness done

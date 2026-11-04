@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "sample_interval_s": 0.016666666666666666,
+  "method": "Conservative whole-object shell AABB versus whole original-hand collision AABB, expanded by shape margin; detection gap excluded. Positive distance establishes geometric separation at the sampled state. Zero is inconclusive, not contact.",
+  "hold_interval_s": [
+    null,
+    null
+  ],
+  "hold_sample_count": 0,
+  "hold_fully_separated_sample_count": 0,
+  "first_proven_hold_separation_s": null,
+  "final_fully_separated": null,
+  "final_separation_suffix_start_s": null,
+  "final_separation_suffix_observed_duration_s": 0,
+  "hands": [],
+  "support_planes": [],
+  "warnings": [],
+  "scope_limits": [
+    "Sampled separation evidence, not continuous retention or acquisition qualification.",
+    "No force, contact membership, interface slip, target-placement tolerance or fidelity pass is inferred.",
+    "Support-plane height is a geometric task observable; negative height outside a finite table is not penetration.",
+    "Cable bounds are conservative; particle shell bounds use all vertices and their radii.",
+    "AABB overlap can hide separation. Absence of a positive bound cannot establish retention."
+  ],
+  "rows": []
+}
