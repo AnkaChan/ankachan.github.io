@@ -31,7 +31,7 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 <tr><td>gap along d</td><td>|P − w|: the plain distance (what I had switched to).</td></tr>
 </tbody></table>
 
-<div class="controls"><button id="play">play / pause</button><input id="t" type="range" min="0" max="1000" value="0"><span id="tv">t = 0.00</span></div>
+<div class="controls"><button id="play">play / pause</button><input id="t" type="range" min="0" max="1000" value="0"><span id="tv">t = 0.00</span><label>planes rebuilt: <select id="ce"><option value="0.34">rarely (exaggerated, to see the lag)</option><option value="0.02">every sweep (the code default)</option></select></label></div>
 <div class="row">
 <div><svg id="A" viewBox="0 0 560 360"></svg><p class="cap" id="capA"></p></div>
 <div><svg id="B" viewBox="0 0 560 360"></svg><p class="cap" id="capB"></p></div>
@@ -44,6 +44,7 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 <li><b>The ground is made of triangles.</b> A vertex P within the detection reach of several triangles has one contact pair with each of them: with the triangle directly below it, and with its neighbours, which P is not above but beside. Each pair gets its own division plane between P and that triangle.</li>
 <li><b>The pair below gives a level plane</b>, normal straight up. <b>A neighbour pair gives a tilted plane</b>: the closest point of the neighbour to P is on its edge or corner, the separator between P and that triangle leans, and the force of that pair leans with it. That is the correct contact force against the neighbour; the penalty path has exactly the same tilted forces, one per triangle within reach. On a level sheet the sideways parts of the neighbours cancel; the small asymmetry of the triangulation leaves a few millimetres of settling, which both runs show (0.6 cm).</li>
 <li><b>Where n and d really differ.</b> The planes are rebuilt at the anchor at every commit, so right after a commit n = d for every pair. Between commits n is fixed while d follows P every sweep. The lag is tiny for a resting patch and grows with the motion per commit. The other difference is the gap: n·(P − w) along the plane normal against |P − w| along the line to the witness.</li>
+<li><b>When P leaves the contact radius.</b> The force must go to zero, and it does, with two small tails. Between commits the gap is measured along the stored n, so when P slides sideways past a triangle's corner the plane gap n·(P − w) stays small while the real distance grows, and that row keeps pushing until the next commit rebuilds its plane. With the code default, a commit every sweep, that is one sweep; the animation's "rarely" setting exaggerates it so it can be seen, and the "every sweep" setting shows it vanish. The second tail is the ALM memory: the row releases when gap − λ/ρ ≥ R, so a multiplier carried from the last step fades over the distance λ/ρ beyond the margin instead of switching off exactly at R. The penalty path has neither tail.</li>
 <li><b>The October story.</b> The commit of 2026-10-05 blamed the drift on tilted planes and moved the force to d. The ablation on this page's companion shows the drift was the small penalty metric, not the direction, and that on the current separator the stored normals are the closest-point directions anyway. The tilted neighbour planes were never the problem.</li>
 </ul>
 
@@ -57,11 +58,12 @@ const W = 560, H = 360, sx = W / 4.4, sz = H / 2.2;
 const X = x => (x + 2.2) * sx, Z = z => H - (z + 0.6) * sz;
 const TRIS = [[-1.3, 0.0], [0.0, 1.3]];
 const R = 0.75;            // cushion width (margin), drawing units
-const COMMITS = [0, 0.34, 0.67];   // the planes are rebuilt at the anchor at these times
+let commitEvery = 0.34;             // the planes are rebuilt at the anchor every this much of the motion; the code default is every sweep
+function COMMITS_() { const c = []; for (let k = 0; k <= 1.0001; k += commitEvery) c.push(+k.toFixed(4)); return c; }
 function path(t) { return [-0.75 + 1.75 * t, 0.5 - 0.1 * t]; }
 function witness(P, T) { return [Math.max(T[0], Math.min(T[1], P[0])), 0]; }
 function dirTo(P, w) { const v = [P[0] - w[0], P[1] - w[1]], l = Math.hypot(v[0], v[1]); return [v[0] / l, v[1] / l]; }
-function lastCommit(t) { let c = 0; for (const k of COMMITS) if (k <= t + 1e-9) c = k; return c; }
+function lastCommit(t) { let c = 0; for (const k of COMMITS_()) if (k <= t + 1e-9) c = k; return c; }
 function arrow(x1, z1, x2, z2, color, w, dash) {
   const id = color.replace("#", "m");
   return `<line x1="${X(x1)}" y1="${Z(z1)}" x2="${X(x2)}" y2="${Z(z2)}" stroke="${color}" stroke-width="${w}" ${dash ? 'stroke-dasharray="6 4"' : ""} marker-end="url(#${id})"/>`;
@@ -100,20 +102,21 @@ function scene(t, mode) {
   s += `<circle cx="${X(P[0])}" cy="${Z(P[1])}" r="6" fill="#1f77b4"/><text x="${X(P[0]) - 22}" y="${Z(P[1]) - 10}" font-size="13" fill="#1f77b4">P</text>`;
   const lateral = L > 0.02 ? Math.abs(sum[0]) / L : 0;
   s += `<text x="10" y="18" font-size="13" fill="#333">${mode === "n" ? "force along each pair's stored plane normal n" : "force along each pair's closest-point direction d"}</text>`;
-  s += `<text x="10" y="36" font-size="12" fill="#666">dashed red: stored planes (rebuilt at the commits, t = 0, 0.34, 0.67); orange: witness points; purple: sum of the two forces, sideways ${(100 * lateral).toFixed(0)} %</text>`;
+  s += `<text x="10" y="36" font-size="12" fill="#666">dashed red: stored planes, rebuilt every ${commitEvery} of the motion; orange: witness points; purple: sum of the two forces, sideways ${(100 * lateral).toFixed(0)} %</text>`;
   s += `<text x="10" y="${H - 10}" font-size="12" fill="#666">tilt of the force on pair T1: ${tiltOf[0]}°, on pair T2: ${tiltOf[1]}°</text>`;
   return {svg: s, lateral, tiltOf};
 }
 let t = 0, playing = true;
 function render() {
   const a = scene(t, "n"), b = scene(t, "d");
-  svgA.innerHTML = a.svg; svgB.innerHTML = b.svg; slider.value = Math.round(t * 1000); tv.textContent = "t = " + t.toFixed(2) + (COMMITS.some(c => Math.abs(c - t) < 0.01) ? "  (commit: planes rebuilt)" : "");
+  svgA.innerHTML = a.svg; svgB.innerHTML = b.svg; slider.value = Math.round(t * 1000); tv.textContent = "t = " + t.toFixed(2) + (COMMITS_().some(c => Math.abs(c - t) < 0.004) ? "  (commit: planes rebuilt)" : "");
   capA.textContent = "Each pair has its own plane. The plane of T1 (P above it) is level; the plane of T2 (P to its side) is tilted, and that is correct: it separates P from T2. Between two commits the planes do not move while P does, so n lags behind.";
   capB.textContent = "d is recomputed every sweep from the current witness, so it follows P at once. At a commit the planes are rebuilt and n = d again. The two panels differ only by this lag and by how the gap is measured.";
 }
 function tick() { if (playing) { t += 1 / 300; if (t > 1) t = 0; render(); } requestAnimationFrame(tick); }
 slider.addEventListener("input", () => { t = slider.value / 1000; playing = false; render(); });
 document.getElementById("play").addEventListener("click", () => { playing = !playing; });
+document.getElementById("ce").addEventListener("change", e => { commitEvery = +e.target.value; render(); });
 render(); tick();
 </script>
 </body></html>
