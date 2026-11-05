@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Two contact force directions</title>
+<style>
+:root{--fg:#1a1a1a;--mut:#666;--bd:#e3e3e3;--acc:#ff7043;--bg:#fafafa}
+*{box-sizing:border-box} body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--fg);max-width:1180px;margin:0 auto;padding:32px 24px;background:#fff}
+h1{font-size:26px;margin:0 0 4px} h2{font-size:20px;margin:30px 0 8px;border-bottom:2px solid var(--acc);padding-bottom:4px}
+.sub{color:var(--mut);margin:0 0 18px}
+.row{display:flex;gap:16px;flex-wrap:wrap} .row>div{flex:1 1 460px}
+svg{width:100%;height:auto;border:1px solid var(--bd);border-radius:8px;background:#fff}
+.controls{display:flex;gap:12px;align-items:center;margin:8px 0;font-size:14px} input[type=range]{flex:1}
+button{padding:4px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);cursor:pointer}
+.note{background:var(--bg);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.cap{font-size:14px;min-height:3.2em}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px} th,td{border:1px solid var(--bd);padding:6px 9px;text-align:left} th{background:var(--bg)}
+code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
+.red{color:#c62828} .green{color:#2e7d32} .blue{color:#1f77b4} .orange{color:#e65100}
+</style></head>
+<body>
+<h1>The two contact force directions, side by side</h1>
+<p class="sub">One vertex <b class="blue">P</b> of the upper sheet, one triangle of the lower sheet seen edge-on, its stored division plane, and the same motion of P in both panels. Left: the force along the <b class="red">plane normal n</b>. Right: the force along the <b class="green">closest-point direction d</b>. Drag the slider or press play. 中文：左边是沿分割平面法线 n 推，右边是沿最近点方向 d 推，同一个顶点同一段运动。</p>
+
+<h2>The words</h2>
+<table><tbody>
+<tr><td><b class="blue">P</b></td><td>the vertex we look at (upper sheet).</td></tr>
+<tr><td><b class="orange">witness</b> w</td><td>the point of the triangle closest to P. Nothing more. The gap of the pair is measured between P and w. 中文：witness 就是三角形上离 P 最近的那个点。</td></tr>
+<tr><td><b class="red">division plane</b>, normal <b class="red">n</b></td><td>the certified separator stored for the pair: the triangle is entirely on one side, P on the other. The truncation keeps the anchor from crossing it. n is fixed between two commits.</td></tr>
+<tr><td><b class="green">d</b></td><td>the unit vector from w to P, the closest-point direction. It changes whenever P or the triangle moves.</td></tr>
+<tr><td>gap along n</td><td>n · (P − w): how far P is from w measured along n (the design's constraint).</td></tr>
+<tr><td>gap along d</td><td>|P − w|: the plain distance (what I had switched to).</td></tr>
+</tbody></table>
+
+<div class="controls"><button id="play">play / pause</button><input id="t" type="range" min="0" max="1000" value="0"><span id="tv">t = 0.00</span></div>
+<div class="row">
+<div><svg id="A" viewBox="0 0 560 360"></svg><p class="cap" id="capA"></p></div>
+<div><svg id="B" viewBox="0 0 560 360"></svg><p class="cap" id="capB"></p></div>
+</div>
+
+<div class="note"><b>Why the direction is not a free choice.</b> The ALM row carries one multiplier λ for one constraint C(x) ≥ 0, and its force is λ times the gradient of that constraint. With the design's constraint C = n·(P − w) the gradient on P is n, so the force is along the plane normal. With C = |P − w| the gradient is d, so the force is along the closest-point direction. Picking the direction means picking the constraint. The division plane is what the truncation certifies, so the row that belongs to it pushes along n. That is what the code does again since dd26a7264.</div>
+
+<h2>Where the two differ</h2>
+<ul>
+<li><b>P above the interior of the triangle, plane tilted.</b> d is vertical, n is tilted: the n-force has a sideways part, the d-force has none. The plane is tilted whenever the separator search had to certify the pair with an axis other than the vertical one, or because the plane was built at an earlier anchor pose and P has moved since.</li>
+<li><b>P past the edge of the triangle.</b> w sticks to the corner, d swings toward the corner as P moves on, n does not move at all. The d-force now has the sideways part, the n-force keeps its fixed direction.</li>
+<li><b>P crossing the plane.</b> The gap along n becomes negative on the far side and the n-force keeps pushing P back across the plane. The distance |P − w| is never negative, so a pure distance row cannot tell the two sides apart; my version used the sign of n·(P − w) to patch that, which is another sign the row really belongs to the plane.</li>
+</ul>
+
+<script>
+const svgA = document.getElementById("A"), svgB = document.getElementById("B");
+const capA = document.getElementById("capA"), capB = document.getElementById("capB");
+const slider = document.getElementById("t"), tv = document.getElementById("tv");
+// world: x in [-2.2, 2.2], z in [-0.6, 1.6]; triangle edge-on from A=(-1,0) to Bt=(1,0)
+const W = 560, H = 360, sx = W / 4.4, sz = H / 2.2;
+const X = x => (x + 2.2) * sx, Z = z => H - (z + 0.6) * sz;
+const theta = 25 * Math.PI / 180, n = [Math.sin(theta), Math.cos(theta)], p0 = [0.0, 0.28];
+const R = 0.7; // cushion width (margin) in these units
+function path(t) { // P moves right and slightly down, then past the corner
+  const x = -0.6 + 2.2 * t, z = 0.75 - 0.25 * t;
+  return [x, z];
+}
+function witness(P) { return [Math.max(-1, Math.min(1, P[0])), 0]; }
+function arrow(x1, z1, x2, z2, color, w, dash) {
+  const id = color.replace("#", "m");
+  return `<line x1="${X(x1)}" y1="${Z(z1)}" x2="${X(x2)}" y2="${Z(z2)}" stroke="${color}" stroke-width="${w}" ${dash ? 'stroke-dasharray="6 4"' : ""} marker-end="url(#${id})"/>`;
+}
+function defs() {
+  return ["#c62828", "#2e7d32", "#1f77b4", "#e65100", "#999999"].map(c => `<marker id="${c.replace("#", "m")}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`).join("");
+}
+function scene(P, mode) {
+  const w = witness(P);
+  const diff = [P[0] - w[0], P[1] - w[1]], dis = Math.hypot(diff[0], diff[1]);
+  const d = [diff[0] / dis, diff[1] / dis];
+  const gapN = n[0] * diff[0] + n[1] * diff[1], gapD = dis;
+  const gap = mode === "n" ? gapN : gapD;
+  const F = Math.max(R - gap, 0) * 1.1; // cushion force, drawn length
+  const dir = mode === "n" ? n : d;
+  let s = `<defs>${defs()}</defs>`;
+  // triangle edge-on
+  s += `<rect x="${X(-1)}" y="${Z(0)}" width="${2 * sx}" height="10" fill="#bbbbbb"/><text x="${X(0)}" y="${Z(0) + 28}" font-size="12" text-anchor="middle" fill="#666">triangle of the lower sheet, edge-on; corner at the right end</text>`;
+  // division plane: through p0 with normal n, drawn long
+  const tdir = [n[1], -n[0]];
+  s += `<line x1="${X(p0[0] - 2.4 * tdir[0])}" y1="${Z(p0[1] - 2.4 * tdir[1])}" x2="${X(p0[0] + 2.4 * tdir[0])}" y2="${Z(p0[1] + 2.4 * tdir[1])}" stroke="#c62828" stroke-dasharray="7 5"/>`;
+  s += `<text x="${X(-2.1)}" y="${Z(p0[1] - 2.1 * tdir[1]) - 8}" font-size="12" fill="#c62828">stored division plane</text>`;
+  s += arrow(p0[0] + 1.2 * tdir[0], p0[1] + 1.2 * tdir[1], p0[0] + 1.2 * tdir[0] + 0.35 * n[0], p0[1] + 1.2 * tdir[1] + 0.35 * n[1], "#c62828", 2, false);
+  s += `<text x="${X(p0[0] + 1.2 * tdir[0] + 0.4 * n[0])}" y="${Z(p0[1] + 1.2 * tdir[1] + 0.4 * n[1])}" font-size="13" fill="#c62828">n</text>`;
+  // witness and the gap construction
+  s += `<circle cx="${X(w[0])}" cy="${Z(w[1])}" r="5" fill="#e65100"/><text x="${X(w[0]) + 8}" y="${Z(w[1]) - 8}" font-size="12" fill="#e65100">witness w</text>`;
+  if (mode === "n") {
+    // projection of (P - w) on n: foot point w + gapN n
+    const foot = [w[0] + gapN * n[0], w[1] + gapN * n[1]];
+    s += `<line x1="${X(w[0])}" y1="${Z(w[1])}" x2="${X(foot[0])}" y2="${Z(foot[1])}" stroke="#c62828" stroke-width="2"/>`;
+    s += `<line x1="${X(foot[0])}" y1="${Z(foot[1])}" x2="${X(P[0])}" y2="${Z(P[1])}" stroke="#999" stroke-dasharray="3 3"/>`;
+    s += `<text x="${X((w[0] + foot[0]) / 2) - 70}" y="${Z((w[1] + foot[1]) / 2)}" font-size="12" fill="#c62828">gap along n = ${gapN.toFixed(2)}</text>`;
+  } else {
+    s += `<line x1="${X(w[0])}" y1="${Z(w[1])}" x2="${X(P[0])}" y2="${Z(P[1])}" stroke="#2e7d32" stroke-width="2"/>`;
+    s += `<text x="${X((w[0] + P[0]) / 2) + 10}" y="${Z((w[1] + P[1]) / 2)}" font-size="12" fill="#2e7d32">gap = |P − w| = ${gapD.toFixed(2)}</text>`;
+  }
+  // P and the force
+  s += `<circle cx="${X(P[0])}" cy="${Z(P[1])}" r="6" fill="#1f77b4"/><text x="${X(P[0]) + 10}" y="${Z(P[1]) - 10}" font-size="13" fill="#1f77b4">P</text>`;
+  const color = mode === "n" ? "#c62828" : "#2e7d32";
+  if (F > 0.02) {
+    s += arrow(P[0], P[1], P[0] + F * dir[0], P[1] + F * dir[1], color, 4, false);
+    s += arrow(w[0], w[1], w[0] - F * dir[0] * 0.5, w[1] - F * dir[1] * 0.5, color, 3, true);
+    const lateral = Math.abs(F * dir[0]) / F;
+    s += `<text x="${X(P[0] + F * dir[0]) + 8}" y="${Z(P[1] + F * dir[1])}" font-size="12" fill="${color}">force on P, sideways part ${(100 * lateral).toFixed(0)} %</text>`;
+  } else {
+    s += `<text x="${X(P[0]) + 12}" y="${Z(P[1]) + 16}" font-size="12" fill="#999">outside the cushion: no force</text>`;
+  }
+  s += `<text x="10" y="18" font-size="13" fill="#333">${mode === "n" ? "force along the plane normal n (design, current code)" : "force along the closest-point direction d (what I had switched to)"}</text>`;
+  return {svg: s, gapN, gapD, lateral: F > 0.02 ? Math.abs(dir[0]) : 0, past: P[0] > 1};
+}
+let t = 0, playing = true;
+function render() {
+  const P = path(t);
+  const a = scene(P, "n"), b = scene(P, "d");
+  svgA.innerHTML = a.svg; svgB.innerHTML = b.svg; slider.value = Math.round(t * 1000); tv.textContent = "t = " + t.toFixed(2);
+  capA.textContent = a.past ? "P is past the corner. n does not move; the force keeps its fixed tilt. The gap is still measured along n." : "P is above the triangle. n is tilted, so the force has a sideways part of " + (100 * a.lateral).toFixed(0) + " % even though P only sits on the sheet.";
+  capB.textContent = b.past ? "P is past the corner. The witness sticks at the corner and d swings toward it: now the force has a sideways part of " + (100 * b.lateral).toFixed(0) + " %." : "P is above the triangle. d is vertical, the force has no sideways part. The direction follows P, not the stored plane.";
+}
+function tick() { if (playing) { t += 1 / 240; if (t > 1) t = 0; render(); } requestAnimationFrame(tick); }
+slider.addEventListener("input", () => { t = slider.value / 1000; playing = false; render(); });
+document.getElementById("play").addEventListener("click", () => { playing = !playing; });
+render(); tick();
+</script>
+</body></html>
