@@ -56,7 +56,7 @@ const X = x => (x + 2.2) * sx, Z = z => H - (z + 0.6) * sz;
 const theta = 25 * Math.PI / 180, n = [Math.sin(theta), Math.cos(theta)], p0 = [0.0, 0.28];
 const R = 0.7; // cushion width (margin) in these units
 function path(t) { // P moves right and slightly down, then past the corner
-  const x = -0.6 + 2.2 * t, z = 0.75 - 0.25 * t;
+  const x = -0.6 + 2.2 * t, z = 0.62 - 0.2 * t;
   return [x, z];
 }
 function witness(P) { return [Math.max(-1, Math.min(1, P[0])), 0]; }
@@ -65,7 +65,7 @@ function arrow(x1, z1, x2, z2, color, w, dash) {
   return `<line x1="${X(x1)}" y1="${Z(z1)}" x2="${X(x2)}" y2="${Z(z2)}" stroke="${color}" stroke-width="${w}" ${dash ? 'stroke-dasharray="6 4"' : ""} marker-end="url(#${id})"/>`;
 }
 function defs() {
-  return ["#c62828", "#2e7d32", "#1f77b4", "#e65100", "#999999"].map(c => `<marker id="${c.replace("#", "m")}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`).join("");
+  return ["#c62828", "#2e7d32", "#1f77b4", "#e65100", "#999999"].map(c => `<marker id="${c.replace("#", "m")}" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join("");
 }
 function scene(P, mode) {
   const w = witness(P);
@@ -82,8 +82,8 @@ function scene(P, mode) {
   const tdir = [n[1], -n[0]];
   s += `<line x1="${X(p0[0] - 2.4 * tdir[0])}" y1="${Z(p0[1] - 2.4 * tdir[1])}" x2="${X(p0[0] + 2.4 * tdir[0])}" y2="${Z(p0[1] + 2.4 * tdir[1])}" stroke="#c62828" stroke-dasharray="7 5"/>`;
   s += `<text x="${X(-2.1)}" y="${Z(p0[1] - 2.1 * tdir[1]) - 8}" font-size="12" fill="#c62828">stored division plane</text>`;
-  s += arrow(p0[0] + 1.2 * tdir[0], p0[1] + 1.2 * tdir[1], p0[0] + 1.2 * tdir[0] + 0.35 * n[0], p0[1] + 1.2 * tdir[1] + 0.35 * n[1], "#c62828", 2, false);
-  s += `<text x="${X(p0[0] + 1.2 * tdir[0] + 0.4 * n[0])}" y="${Z(p0[1] + 1.2 * tdir[1] + 0.4 * n[1])}" font-size="13" fill="#c62828">n</text>`;
+  s += arrow(p0[0] - 1.5 * tdir[0], p0[1] - 1.5 * tdir[1], p0[0] - 1.5 * tdir[0] + 0.35 * n[0], p0[1] - 1.5 * tdir[1] + 0.35 * n[1], "#c62828", 2, false);
+  s += `<text x="${X(p0[0] - 1.5 * tdir[0] + 0.42 * n[0])}" y="${Z(p0[1] - 1.5 * tdir[1] + 0.42 * n[1])}" font-size="13" fill="#c62828">n</text>`;
   // witness and the gap construction
   s += `<circle cx="${X(w[0])}" cy="${Z(w[1])}" r="5" fill="#e65100"/><text x="${X(w[0]) + 8}" y="${Z(w[1]) - 8}" font-size="12" fill="#e65100">witness w</text>`;
   if (mode === "n") {
@@ -101,7 +101,7 @@ function scene(P, mode) {
   const color = mode === "n" ? "#c62828" : "#2e7d32";
   if (F > 0.02) {
     s += arrow(P[0], P[1], P[0] + F * dir[0], P[1] + F * dir[1], color, 4, false);
-    s += arrow(w[0], w[1], w[0] - F * dir[0] * 0.5, w[1] - F * dir[1] * 0.5, color, 3, true);
+    s += arrow(w[0], w[1], w[0] - F * dir[0] * 0.5, w[1] - F * dir[1] * 0.5, color, 2, true);
     const lateral = Math.abs(F * dir[0]) / F;
     s += `<text x="${X(P[0] + F * dir[0]) + 8}" y="${Z(P[1] + F * dir[1])}" font-size="12" fill="${color}">force on P, sideways part ${(100 * lateral).toFixed(0)} %</text>`;
   } else {
