@@ -78,15 +78,4 @@ Benchmark passive scene `s4_poker_cards_no_ball` (65 s, no hold or release crite
 
 Arm labels: the one-sided runs used `contact_damping_bidirectional=False`, the bidirectional runs `True`; the constructor default became `True` on the branch on 2026-11-04 afternoon, after the runs.
 
-Later the option was split by contact type (commit 2cd7d288f): `soft_contact_damping_bidirectional` (default `True`; self-contact and rigid-soft) and `rigid_contact_damping_bidirectional` (default `False`; rigid-rigid). The runs above used the earlier single flag.
-
-## Slip-error demo (2026-11-05)
-
-A 16 cm cloth patch slides at 1 m/s over a fully pinned 2 m cloth sheet (self-contact only, interaction distance 2 mm, friction 0.5, Coulomb stop at 0.10 m). The distance-based gap rate of 68c18328a reads tangential slip as a closing gap and removes friction; the projected rate does not. Videos: `demo-slip/compare_<preset>.mp4`. Commit 68c18328a was removed from the branch on 2026-11-05 (new head 93f4eb8fb).
-
-| `soft_contact_ke, soft_contact_kd` | upstream main 7f0c13af6, one-sided, projected rate | 81fd7250a, two-sided, projected rate | HEAD 2cd7d288f, two-sided, distance rate |
-| --- | --- | --- | --- |
-| 5e4, 0.1 | stops at 0.34 m, 0.40 s | stops at 0.34 m, 0.40 s | stops at 0.35 m, 0.42 s |
-| 1e4, 1 | stops at 0.98 m, 1.68 s | stops at 0.97 m, 1.68 s | 0.78 m/s at 1.5 s, leaves the sheet at 2.23 s |
-| 1e3, 0.1 | 0.83 m/s at 1.5 s, leaves at 2.10 s | 0.83 m/s at 1.5 s, leaves at 2.10 s | 0.95 m/s at 1.5 s, leaves at 1.90 s |
-| 1e3, 10 | 0.93 m/s at 1.5 s, leaves at 1.95 s | 0.51 m/s at 1.5 s, still on the sheet at 2.5 s | 0.99 m/s at 1.5 s, rides 3 mm above the contact distance, leaves at 1.87 s |
+Later the option was split by contact type (commit 93f4eb8fb): `soft_contact_damping_bidirectional` (default `True`; self-contact and rigid-soft) and `rigid_contact_damping_bidirectional` (default `False`; rigid-rigid). The runs above used the earlier single flag.
