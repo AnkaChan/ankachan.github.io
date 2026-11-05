@@ -82,7 +82,7 @@ Later the option was split by contact type (commit 2cd7d288f): `soft_contact_dam
 
 ## Slip-error demo (2026-11-05)
 
-A 16 cm cloth patch slides at 1 m/s over a fully pinned 2 m cloth sheet (self-contact only, interaction distance 2 mm, friction 0.5, Coulomb stop at 0.10 m). The distance-based gap rate of 68c18328a reads tangential slip as a closing gap and removes friction; the projected rate does not. Videos: `demo-slip/compare_<preset>.mp4`.
+A 16 cm cloth patch slides at 1 m/s over a fully pinned 2 m cloth sheet (self-contact only, interaction distance 2 mm, friction 0.5, Coulomb stop at 0.10 m). The distance-based gap rate of 68c18328a reads tangential slip as a closing gap and removes friction; the projected rate does not. Videos: `demo-slip/compare_<preset>.mp4`. Commit 68c18328a was removed from the branch on 2026-11-05 (new head 93f4eb8fb).
 
 | `soft_contact_ke, soft_contact_kd` | upstream main 7f0c13af6, one-sided, projected rate | 81fd7250a, two-sided, projected rate | HEAD 2cd7d288f, two-sided, distance rate |
 | --- | --- | --- | --- |
