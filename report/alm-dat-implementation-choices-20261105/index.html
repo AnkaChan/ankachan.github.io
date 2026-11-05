@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ALM-DAT implementation choices</title>
+<style>
+:root{--fg:#1a1a1a;--mut:#666;--bd:#e3e3e3;--acc:#ff7043;--bg:#fafafa}
+*{box-sizing:border-box} body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+color:var(--fg);max-width:1180px;margin:0 auto;padding:32px 24px;background:#fff}
+h1{font-size:28px;margin:0 0 4px} h2{font-size:20px;margin:34px 0 8px;border-bottom:2px solid var(--acc);padding-bottom:4px}
+h3{font-size:15px;margin:16px 0 4px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.sub{color:var(--mut);margin:0 0 18px}
+img{width:100%;border:1px solid var(--bd);border-radius:8px;margin:10px 0;background:#fff} img.small{max-width:460px;display:block}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--bd);padding:6px 9px;text-align:left;vertical-align:top} th{background:var(--bg)}
+code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
+.note{background:var(--bg);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;margin-left:6px;vertical-align:middle}
+.removed{background:#e8f5e9;color:#2e7d32} .incode{background:#ffebee;color:#c62828} .fork{background:#fff3e0;color:#e65100} .design{background:#e3f2fd;color:#1565c0}
+</style></head>
+<body>
+<h1>ALM-DAT self-contact: implementation choices beyond the design</h1>
+<p class="sub">An inventory of the mechanisms, rules and constants in the <code>alm_dat</code> path of <code>SolverVBD</code> that were my own decisions, not part of the reference pseudo code or the ISF design. One section each: what it is, where it lives, why I added it, what the measurements say, and its status. Code references are to <code>ankac/alm-dat-main</code> (today's main plus the #4222 self-contact storage and the ALM-DAT commits). Written 2026-11-05.</p>
+
+<div class="note">Badges: <span class="badge removed">removed</span> taken out on 2026-11-05 by a review decision; <span class="badge incode">in the code, not approved</span> still active and never raised for decision; <span class="badge fork">in the code, pending fork</span> active, listed as a fork in the design review (<a href="https://github.com/AnkaChan/newton/pull/9">PR #9</a>) and waiting for a decision.</div>
+
+<h2>Overview</h2>
+
+<table><thead><tr><th>From the design (reference pseudo code of 2026-10-14, ISF)</th><th>Added by me</th></tr></thead><tbody>
+<tr><td>trial and certified anchor; the committed state is the anchor</td><td>the budget rule |offset| + |step| &lt;= B (removed)</td></tr>
+<tr><td>one stored division plane per detected pair, truncation against the planes</td><td>one forced detection per substep (removed)</td></tr>
+<tr><td>sliding the planes with the maximin rule (<code>dat_plane_offset</code>)</td><td>penalty metric floored at K, user scale on the metric</td></tr>
+<tr><td>two-stage truncation: every sweep, then final rounds</td><td>force along the closest-point direction</td></tr>
+<tr><td>cushion-plus-wall row through one slack, multiplier updated at the trial</td><td>hard wall at 0.25 margin above the plane</td></tr>
+<tr><td>multipliers matched across steps through the sorted rows</td><td>smooth transition with wall ratio 9 (off by default)</td></tr>
+<tr><td>Coulomb friction as a capped tangential multiplier</td><td>one-sided margin-anchored damping, friction metric choice</td></tr>
+<tr><td>separator search, separation band, plane truncation from the rigid-soft DAT (#4180)</td><td>normal refresh every commit, margin 0, kept plane, one edge direction, defaults</td></tr>
+</tbody></table>
+<p>The two removed items caused the two headline failures of the benchmark: the lock-in and the lost grasps. The metric floor caused the third, the non-finite bag runs. The remaining items have not been measured; the review forks exist so that they can be decided by ablation rather than by default.</p>
+
+
+<h2 id="budget">1. Motion budget as |offset| + |step| <= B<span class="badge removed">removed</span></h2>
+<img src="fig_budget.svg" alt="budget"><p class="sub">Left: the kept rule. A step is cut where it leaves the sphere; a step back inside is admitted whole. Right: the removed rule freezes a vertex at the cap.</p>
+<h3>What it is</h3><p>The budget bounds how far a vertex may be committed from the detection pose inside one substep, B = 0.5 x 0.85 x (margin + gap). The penalty DAT path clamps the length of the displacement from the detection pose: the end point stays in a sphere of radius B. My commit kernel instead required |offset| + |step| <= B at each commit. By the triangle inequality that is only a sufficient condition for the end point; it is strictly tighter and gives nothing back.</p>
+<h3>Where</h3><p><code>_commit_truncated_displacement_kernel</code>, <code>particle_dat_kernels.py</code>, commit 6cbff0aeb (2026-10-04). Removed by decision D1 on 2026-11-05: <code>budget_sphere_fraction</code> is the only rule.</p>
+<h3>Why I added it</h3><p>A shortcut: the triangle inequality is one line, the sphere intersection a quadratic. I treated sufficient as good enough and never checked what the rule does off the radial direction.</p>
+<h3>What the data says</h3><p>At the cap, B - |offset| is zero, so the vertex cannot move at all, not even back toward the detection pose. Off the cap every non-radial step is cut short. On the benchmark this was the lock-in: cloth sinking at the budget cap, the 10-layer stack non-finite, 10 of 44 ALM-DAT runs completing. With the end-point rule 44 of 44 complete.</p>
+<h3>Status and proposal</h3><p>Removed. The end-point clamp is the only behaviour, the same as the penalty DAT path.</p>
+
+<h2 id="detections">2. One detection per substep, forced<span class="badge removed">removed</span></h2>
+<img src="fig_detections.svg" alt="detections"><p class="sub">The admitted motion per substep against the lift's requirement.</p>
+<h3>What it is</h3><p>The soft self-contact slot has a schedule: <code>PRE_INIT</code> (detect at the step start) or <code>PRE_POST_INIT</code> (detect again after the inertial step). Each detection resets the motion reference, so the admitted motion per substep is B per detection. The host's default is <code>PRE_POST_INIT</code>. I forced <code>alm_dat</code> to <code>PRE_INIT</code> and raised if anything else was set.</p>
+<h3>Where</h3><p><code>_default_collision_frequency_type</code> and <code>_validate_dat_collision_schedules</code>, <code>solver_vbd.py</code>, commit 9eb4ce203 (2026-10-04). Removed by decision D3 on 2026-11-05: <code>_alm_dat_redetect</code> runs the second detection at the certified anchor.</p>
+<h3>Why I added it</h3><p>The first implementation initialized the stored planes and matched the multipliers once per step. A second detection re-assigns the row slots, which needed a re-initialization I had not written, so I forbade it instead of doing it. Nothing in the scheme requires one detection: the anchor is penetration-free and can serve as the new detection pose.</p>
+<h3>What the data says</h3><p>For the cloth recipes B is 1.27 mm per 1/300 s, a cap of 0.38 m/s. The Franka lift peaks at 0.49 m/s and needs 1.63 mm per substep. One detection cannot follow it, two can (2.56 mm): every garment slipped at the lift, VBD with its two detections held. The second detection costs about 1 % of a substep (0.7 ms of 64 ms on the towel), the alternative of a 3 mm detection gap costs 2 % plus 14 to 19 times the self-contact records.</p>
+<h3>Status and proposal</h3><p>Removed. <code>alm_dat</code> follows the host's schedule; <code>PRE_POST_INIT</code> is the default, <code>PRE_INIT</code> stays available, <code>ITERATIONS</code> is refused. The free-flight test admits 1.0 budget per step with one detection and 1.5 with two.</p>
+
+<h2 id="floor">3. Penalty metric floored at the contact stiffness<span class="badge incode">in the code, not approved</span></h2>
+<img src="fig_rho_floor.svg" alt="floor"><p class="sub">Left: largest normal multiplier per substep on the gusset bag for three floor settings (my 8 s traces). Right: the scales involved.</p>
+<h3>What it is</h3><p>Each contact row has a penalty metric rho. The row's multiplier advances by rho times the residual after every sweep, and the row's in-sweep stiffness is K rho / (K + rho). I set rho = max(m/dt² x rho_scale, floor x K) with floor = 1, so rho is never below the contact stiffness K.</p>
+<h3>Where</h3><p><code>contact_alm_rho</code>, <code>particle_dat_kernels.py</code>; option <code>particle_contact_alm_rho_floor_ratio = 1.0</code>; commit 5fb018286 (2026-10-05).</p>
+<h3>Why I added it</h3><p>A frictionless cloth patch on a level plate drifted 12 cm in 2 s. That patch had rho = m/dt² = 72 N/m against K = 1000 N/m. With rho that small a sweep transmits mostly the stale multiplier through a tiny Hessian and the coupled iteration pumped a lateral oscillation. Flooring rho at K stopped it. The real cause of the drift was the force direction (section 5), fixed in the same commit; the floor was a second patch on top, validated on one case with K/rho = 14, and made the default.</p>
+<h3>What the data says</h3><p>The gusset bag has K = 30,000 N/m, bag vertices of 0.02 to 0.12 g and payload vertices of 0.045 to 0.18 g, so m/dt² is 4 to 12 N/m: the floor makes rho 3,000 to 7,000 times the vertex scale. The multipliers on the loaded rows reach 3 to 5 N during the transport, 10 N when the transport stops and 6 to 17 N during the hold, while a whole payload weighs 0.1 N. At 6.3 s one substep runs away to 3.85 x 10⁶ N and a bag particle goes non-finite (campaign runs: 4.2 s and 4.4 s). With the floor at 0.1 K, 0.01 K or off, the same run stays finite to 8 s with multipliers of 0.2 to 1.5 N; the campaign's no-floor run completed 67.5 s holding the bag. The towel survives the same ratio because its self-contact rows carry no load.</p>
+<h3>Status and proposal</h3><p>Newton's other compliant ALM rows take rho from the inertia support alone: rigid contacts (<code>_contact_auto_normal_rho</code>), joint limits, particle-body attachments. Only bilateral structural and drive rows floor rho at 9 K, and that is where the elasticity ALM floor was refused before. Proposal: remove the floor and the scale, rho = support, as the host's contact rows do. Then re-run the patch drift test and the two bags.</p>
+
+<h2 id="scale">4. User scale on the inertia metric<span class="badge incode">in the code, not approved</span></h2>
+
+<h3>What it is</h3><p><code>particle_contact_alm_rho_scale</code> multiplies m/dt² before the floor is applied. Default 1.</p>
+<h3>Where</h3><p>Same place and commit as the floor (5fb018286).</p>
+<h3>Why I added it</h3><p>A tuning knob added together with the floor so the metric could be pushed up without the floor. Nothing in the host has a user scale on an ALM metric: the auto-rho policies compute rho from the support.</p>
+<h3>What the data says</h3><p>Not exercised by the benchmark (always 1).</p>
+<h3>Status and proposal</h3><p>Remove with the floor.</p>
+
+<h2 id="direction">5. Contact force along the closest-point direction<span class="badge incode">in the code, not approved</span></h2>
+<img src="fig_direction.svg" alt="direction">
+<h3>What it is</h3><p>The row's force originally acted along the stored division-plane normal. Now it acts along the closest-point direction between the two primitives, as the penalty path does; the stored normal only fixes the sign so a crossed pair reports a negative gap instead of a flipped normal.</p>
+<h3>Where</h3><p><code>_vertex_triangle_row_geometry</code>, <code>_edge_edge_row_geometry</code>, <code>particle_dat_kernels.py</code>, commit 5fb018286.</p>
+<h3>Why I added it</h3><p>The certified separator picks the largest-gap axis. For laterally adjacent triangles of two sheets that axis is tilted or horizontal, so the cushion pushed the resting patch sideways: 12 cm in 2 s. The closest-point direction is vertical there.</p>
+<h3>What the data says</h3><p>The regression test <code>test_resting_patch_does_not_drift_sideways</code> passes; the design document had the force along the plane normal.</p>
+<h3>Status and proposal</h3><p>A deviation from the written design that I did not raise. Proposed as a fork for the review: force along the closest-point direction (today) or along the plane normal with a better normal choice.</p>
+
+<h2 id="wall">6. Hard wall a quarter margin above the plane<span class="badge fork">in the code, pending fork</span></h2>
+<img src="fig_row_law.svg" alt="wall"><p class="sub">Left: the row force against the gap. The in-sweep force with lam = 0 depends on rho, the converged force does not. Right: the optional smooth transition of section 7.</p>
+<h3>What it is</h3><p>The row is a cushion of stiffness K across the margin R and a hard wall. The design put the wall at the stored plane. I moved it to <code>hard_gap = 0.25 x margin</code> above the plane and evaluate the row with gap - hard_gap and R - hard_gap.</p>
+<h3>Where</h3><p><code>particle_contact_alm_hard_gap</code>, default 0.25 x margin, <code>solver_vbd.py</code>; commit 986b7c921 (2026-10-05).</p>
+<h3>Why I added it</h3><p>With the wall on the certificate plane, a loaded pair sits exactly on the plane that the truncation must never let it cross, and every truncation then cuts motion at zero room. A wall one thickness above the plane keeps the load off the certificate. The factor 0.25 is my choice.</p>
+<h3>What the data says</h3><p>No ablation. The campaign ran with 0.25 throughout.</p>
+<h3>Status and proposal</h3><p>Fork D10 "Wall position" in the review, open: wall on the plane, or above it by a fraction of the margin, and which fraction.</p>
+
+<h2 id="transition">7. Smooth compliant-to-hard transition with a wall stiffness of 9 rho<span class="badge fork">in the code, pending fork</span></h2>
+
+<h3>What it is</h3><p>With a transition band the cushion stiffness rises along a smoothstep from K to <code>wall_ratio x rho</code> as the gap approaches the wall, so the in-sweep stiffness and the ascent factor reach their hard-regime values before the slack hits its bound. Default band 0, which is the piecewise law.</p>
+<h3>Where</h3><p><code>cushion_stiffness</code>, <code>cushion_force</code>, <code>alm_contact_row_smooth</code>; options <code>particle_contact_alm_transition_band</code> (0) and <code>particle_contact_alm_wall_stiffness_ratio</code> (9); commit 119d9ba90 (2026-11-05).</p>
+<h3>Why I added it</h3><p>The transition is Miles's idea (2026-10-14). The ratio 9 is mine: it realizes k_eff = 0.9 K at the wall, mirroring the host's bilateral rows, but no measurement supports the value.</p>
+<h3>What the data says</h3><p>Off in every benchmark run. The unit test checks continuity of force and stiffness.</p>
+<h3>Status and proposal</h3><p>Fork D9 in the review: keep off, or make the band the default, and which wall ratio.</p>
+
+<h2 id="damping">8. One-sided gap-rate damping anchored at the margin<span class="badge incode">in the code, not approved</span></h2>
+<img src="fig_damping.svg" alt="damping">
+<h3>What it is</h3><p>A dashpot on the closing rate of the witness gap, active only inside the margin and only while closing. The rate is measured from the margin crossing, so the force is zero before contact and continuous at the margin. Separating motion is never damped. Coefficient <code>soft_contact_kd</code>, like the penalty path.</p>
+<h3>Where</h3><p><code>contact_damping_row</code>, <code>particle_dat_kernels.py</code>, commit 119d9ba90.</p>
+<h3>Why I added it</h3><p>Landing cloth chattered: a force switching on abruptly at the margin made the local solve overshoot outside the margin, where every contact force vanishes, and fall back the next iteration. Anchoring the rate at the crossing removed the chatter.</p>
+<h3>What the data says</h3><p>No benchmark ablation. The penalty path's own damping was changed after the poker-card stack finding: a closing-only gate injects energy, and the soft flag for the two-sided gate is now on by default in the bidirectional-damping branch. My row repeats the closing-only pattern.</p>
+<h3>Status and proposal</h3><p>Not raised in the review. Proposal: use the host's two-sided gate, or take damping out of the row until decided.</p>
+
+<h2 id="friction">9. Friction multiplier with the normal row's metric<span class="badge fork">in the code, pending fork</span></h2>
+<img src="fig_friction.svg" alt="friction" class="small">
+<h3>What it is</h3><p>Coulomb friction is a tangential multiplier: projected into the tangent plane, advanced by rho_t times the slip, clamped to the disk of radius mu times the normal force. The design has the disk; I chose rho_t = m/dt² x rho_scale, the same inertia metric as the normal row before the floor.</p>
+<h3>Where</h3><p><code>alm_friction_row</code>, <code>particle_dat_kernels.py</code>, commit 119d9ba90.</p>
+<h3>Why I added it</h3><p>The simplest choice. The host's rigid contact rows use the tangent support, strengthened by the pair structure up to the normal rho (<code>_contact_auto_tangent_rho</code>).</p>
+<h3>What the data says</h3><p>The incline test (patch sticks with friction) passes. No benchmark ablation.</p>
+<h3>Status and proposal</h3><p>Fork D11 "Friction metric" in the review.</p>
+
+<h2 id="cadence">10. Normals re-searched at every commit<span class="badge fork">in the code, pending fork</span></h2>
+<img src="fig_cadence.svg" alt="cadence">
+<h3>What it is</h3><p>At every truncation the planes are rebuilt at the anchor with a fresh separator search (<code>refresh_normals=True</code> from the solver, always). The reference pseudo code re-picks the normals every <code>NORMAL_UPDATE_INTERVAL</code> rounds and only slides the offsets in between.</p>
+<h3>Where</h3><p><code>_alm_dat_truncate</code>, <code>solver_vbd.py</code>; the <code>refresh_normals</code> argument exists, the solver never passes False.</p>
+<h3>Why I added it</h3><p>Simplest to implement; a stale normal can also fail to certify after the anchor moved.</p>
+<h3>What the data says</h3><p>No ablation.</p>
+<h3>Status and proposal</h3><p>Fork D6 in the review.</p>
+
+<h2 id="margin-separator-edges">11. Plane margin 0, kept plane on a failed search, one edge-edge direction<span class="badge fork">in the code, pending fork</span></h2>
+<img src="fig_margin_separator_edges.svg" alt="margin-separator-edges">
+<h3>What it is</h3><p>Three smaller choices. The planes carry no thickness margin: the certificate is "no crossing", the row's hard gap keeps the load off the plane. When the separator search fails at the anchor (a pair thinner than the separation band), the slot keeps its stored plane, which the anchor never crossed; a slot that never had one stays unconstrained. Edge-edge pairs are recorded twice by the detector, once per edge; only the <code>e1 &lt; e2</code> record builds a plane, the mirror is marked invalid.</p>
+<h3>Where</h3><p><code>_dat_margin = 0.0</code> in <code>solver_vbd.py</code>; <code>_build_contact_planes_kernel</code> in <code>particle_dat_kernels.py</code> (the <code>ee_valid</code> handling and the kept-plane branch).</p>
+<h3>Why I added it</h3><p>Margin 0 because the row already keeps surfaces apart. Keeping the plane because invalidating it would drop the certificate for a pair that is still separated. One direction because two planes for one pair would double the truncation and could disagree.</p>
+<h3>What the data says</h3><p>No ablations. The rigid-soft DAT on main freezes an uncertifiable pair with a diagnostic instead of keeping a plane.</p>
+<h3>Status and proposal</h3><p>Forks D7, D8 and "Edge-edge direction" in the review.</p>
+
+<h2 id="defaults">12. Default values and small constants<span class="badge fork">in the code, pending fork</span></h2>
+
+<h3>What it is</h3><p><code>particle_dat_plane_update_interval = 1</code> (truncate and rebuild after every sweep), <code>particle_dat_truncation_iterations = 2</code> (final rounds), <code>_CONTACT_DIRECTION_EPS = 1e-9</code> (below this closest-point distance the direction falls back to the plane normal), <code>_DAT_INFINITE_ROOM = 1e30</code> (room reported when nobody approaches a plane).</p>
+<h3>Where</h3><p><code>solver_vbd.py</code> argument list; <code>particle_dat_kernels.py</code> module constants.</p>
+<h3>Why I added it</h3><p>The two cadence values come from the reference pseudo code's stage 1 and stage 2 but their numbers are mine; the constants are numerical guards.</p>
+<h3>What the data says</h3><p>No sweeps over the cadence values.</p>
+<h3>Status and proposal</h3><p>Covered by the forks "Plane update cadence" and "Final rounds" in the review.</p>
+
+
+<h2>Provenance</h2>
+<ul>
+<li>Design inputs: <code>notes/alm-dat-design-review/inputs/algorithm-reference.md</code> (reference pseudo code of 2026-10-14) and the ISF draft; design review with decisions D1 to D14: <a href="https://github.com/AnkaChan/newton/pull/9">AnkaChan/newton PR #9</a>.</li>
+<li>Commits named above are on <code>ankac/alm-dat-fable-review</code>; their rebased copies on <code>ankac/alm-dat-main</code>.</li>
+<li>Measurements: collision-fidelity campaign of 2026-11-04/05 (<code>notes/collision-benchmark-alm-dat/report.md</code>), the headline videos (<a href="https://ankachen.com/report/alm-dat-collision-videos-20261105/">page</a>), the gusset multiplier traces (<code>notes/collision-benchmark-alm-dat/diagnostics/gusset8s_floor*.json</code>), the detection-cost timing on the towel scene.</li>
+<li>Figures by <code>notes/alm-dat-implementation-choices/make_figures.py</code>; page by <code>build_page.py</code> in the same folder.</li>
+</ul>
+</body></html>
