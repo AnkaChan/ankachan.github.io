@@ -19,7 +19,7 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 </style></head>
 <body>
 <h1>ALM-DAT self-contact: implementation choices beyond the design</h1>
-<p class="sub">An inventory of the mechanisms, rules and constants in the <code>alm_dat</code> path of <code>SolverVBD</code> that were my own decisions, not part of the reference pseudo code or the ISF design. One section each: what it is, where it lives, why I added it, what the measurements say, and its status. Code references are to <code>ankac/alm-dat-main</code> (today's main plus the #4222 self-contact storage and the ALM-DAT commits). Written 2026-11-05.</p>
+<p class="sub">An inventory of the mechanisms, rules and constants in the <code>alm_dat</code> path of <code>SolverVBD</code> that were my own decisions, not part of the reference pseudo code or the ISF design. One section each: what it is, where it lives, why I added it, what the measurements say, and its status. Code references are to <code>ankac/alm-dat-main</code> (today's main plus the #4222 self-contact storage and the ALM-DAT commits). Written 2026-11-06.</p>
 
 <div class="note">Badges: <span class="badge removed">removed</span> taken out on 2026-11-05 by a review decision; <span class="badge incode">in the code, not approved</span> still active and never raised for decision; <span class="badge fork">in the code, pending fork</span> active, listed as a fork in the design review (<a href="https://github.com/AnkaChan/newton/pull/9">PR #9</a>) and waiting for a decision.</div>
 
@@ -35,7 +35,7 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 <tr><td>Coulomb friction as a capped tangential multiplier</td><td>one-sided margin-anchored damping, friction metric choice</td></tr>
 <tr><td>separator search, separation band, plane truncation from the rigid-soft DAT (#4180)</td><td>normal refresh every commit, margin 0, kept plane, one edge direction, defaults</td></tr>
 </tbody></table>
-<p>The two removed items caused the two headline failures of the benchmark: the lock-in and the lost grasps. The metric floor caused the third, the non-finite bag runs. The remaining items have not been measured; the review forks exist so that they can be decided by ablation rather than by default.</p>
+<p>Status on 2026-11-06: five items are resolved by review decisions (D1 budget rule, D3 detections, D15 metric floor and scale, D16 force direction). The three caused the three headline failures of the benchmark: the lock-in, the lost grasps and the non-finite bags. The remaining items are forks awaiting decision or ablation.</p>
 
 
 <h2 id="budget">1. Motion budget as |offset| + |step| <= B<span class="badge removed">removed</span></h2>
@@ -54,29 +54,29 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 <h3>What the data says</h3><p>For the cloth recipes B is 1.27 mm per 1/300 s, a cap of 0.38 m/s. The Franka lift peaks at 0.49 m/s and needs 1.63 mm per substep. One detection cannot follow it, two can (2.56 mm): every garment slipped at the lift, VBD with its two detections held. The second detection costs about 1 % of a substep (0.7 ms of 64 ms on the towel), the alternative of a 3 mm detection gap costs 2 % plus 14 to 19 times the self-contact records.</p>
 <h3>Status and proposal</h3><p>Removed. <code>alm_dat</code> follows the host's schedule; <code>PRE_POST_INIT</code> is the default, <code>PRE_INIT</code> stays available, <code>ITERATIONS</code> is refused. The free-flight test admits 1.0 budget per step with one detection and 1.5 with two.</p>
 
-<h2 id="floor">3. Penalty metric floored at the contact stiffness<span class="badge incode">in the code, not approved</span></h2>
+<h2 id="floor">3. Penalty metric floored at the contact stiffness<span class="badge removed">removed</span></h2>
 <img src="fig_rho_floor.svg" alt="floor"><p class="sub">Left: largest normal multiplier per substep on the gusset bag for three floor settings (my 8 s traces). Right: the scales involved.</p>
 <h3>What it is</h3><p>Each contact row has a penalty metric rho. The row's multiplier advances by rho times the residual after every sweep, and the row's in-sweep stiffness is K rho / (K + rho). I set rho = max(m/dt² x rho_scale, floor x K) with floor = 1, so rho is never below the contact stiffness K.</p>
 <h3>Where</h3><p><code>contact_alm_rho</code>, <code>particle_dat_kernels.py</code>; option <code>particle_contact_alm_rho_floor_ratio = 1.0</code>; commit 5fb018286 (2026-10-05).</p>
 <h3>Why I added it</h3><p>A frictionless cloth patch on a level plate drifted 12 cm in 2 s. That patch had rho = m/dt² = 72 N/m against K = 1000 N/m. With rho that small a sweep transmits mostly the stale multiplier through a tiny Hessian and the coupled iteration pumped a lateral oscillation. Flooring rho at K stopped it. Re-measured on 2026-11-05 with the four-run ablation (<a href='https://ankachen.com/report/alm-dat-force-direction-20261105/'>page</a>): the floor is the whole drift fix; with it off the patch drifts 12 to 47 cm in 4 s whichever force direction is used, with it on it settles in both. Validated on one case with K/rho = 14 and made the default.</p>
 <h3>What the data says</h3><p>The gusset bag has K = 30,000 N/m, bag vertices of 0.02 to 0.12 g and payload vertices of 0.045 to 0.18 g, so m/dt² is 4 to 12 N/m: the floor makes rho 3,000 to 7,000 times the vertex scale. The multipliers on the loaded rows reach 3 to 5 N during the transport, 10 N when the transport stops and 6 to 17 N during the hold, while a whole payload weighs 0.1 N. At 6.3 s one substep runs away to 3.85 x 10⁶ N and a bag particle goes non-finite (campaign runs: 4.2 s and 4.4 s). With the floor at 0.1 K, 0.01 K or off, the same run stays finite to 8 s with multipliers of 0.2 to 1.5 N; the campaign's no-floor run completed 67.5 s holding the bag. The towel survives the same ratio because its self-contact rows carry no load.</p>
-<h3>Status and proposal</h3><p>Newton's other compliant ALM rows take rho from the inertia support alone: rigid contacts (<code>_contact_auto_normal_rho</code>), joint limits, particle-body attachments. Only bilateral structural and drive rows floor rho at 9 K, and that is where the elasticity ALM floor was refused before. Proposal: remove the floor and the scale, rho = support, as the host's contact rows do. Then re-run the patch drift test and the two bags.</p>
+<h3>Status and proposal</h3><p>Removed on 2026-11-06 by decision D15 (Anka: follow the rigid rules). The row metric is now the pair's support along the plane normal, each particle's inertia in series with its material stiffness along that normal, from a per-particle material Hessian evaluated once per step; the friction row uses the inertial support alone. Measured: the gusset and tote complete 8 s (non-finite before), the level patch does not drift, the incline holds with friction (0.11 cm against the penalty path's 0.40 cm) and slides without it. The full-norm scalar variant was tried first and rejected: on the 20 g patch it gave ten K and jammed even the frictionless slide.</p>
 
-<h2 id="scale">4. User scale on the inertia metric<span class="badge incode">in the code, not approved</span></h2>
+<h2 id="scale">4. User scale on the inertia metric<span class="badge removed">removed</span></h2>
 
 <h3>What it is</h3><p><code>particle_contact_alm_rho_scale</code> multiplies m/dt² before the floor is applied. Default 1.</p>
 <h3>Where</h3><p>Same place and commit as the floor (5fb018286).</p>
 <h3>Why I added it</h3><p>A tuning knob added together with the floor so the metric could be pushed up without the floor. Nothing in the host has a user scale on an ALM metric: the auto-rho policies compute rho from the support.</p>
 <h3>What the data says</h3><p>Not exercised by the benchmark (always 1).</p>
-<h3>Status and proposal</h3><p>Remove with the floor.</p>
+<h3>Status and proposal</h3><p>Removed with the floor on 2026-11-06 (D15).</p>
 
-<h2 id="direction">5. Contact force along the closest-point direction<span class="badge incode">in the code, not approved</span></h2>
+<h2 id="direction">5. Contact force along the closest-point direction<span class="badge removed">removed</span></h2>
 <img src="fig_direction.svg" alt="direction">
 <h3>What it is</h3><p>The row's force originally acted along the stored division-plane normal. Now it acts along the closest-point direction between the two primitives, as the penalty path does; the stored normal only fixes the sign so a crossed pair reports a negative gap instead of a flipped normal.</p>
 <h3>Where</h3><p><code>_vertex_triangle_row_geometry</code>, <code>_edge_edge_row_geometry</code>, <code>particle_dat_kernels.py</code>, commit 5fb018286.</p>
 <h3>Why I added it</h3><p>The certified separator picks the largest-gap axis. For laterally adjacent triangles of two sheets that axis is tilted or horizontal, so the cushion pushed the resting patch sideways: 12 cm in 2 s. The closest-point direction is vertical there.</p>
 <h3>What the data says</h3><p>Re-measured on 2026-11-05 with an ablation switch (<a href='https://ankachen.com/report/alm-dat-force-direction-20261105/'>page</a>): on the current base the stored plane normal and the closest-point direction coincide for every resting row, because the separator search keeps the closest-point axis when it certifies the pair. Both directions settle by 0.6 cm with the floor on and both drift without end with the floor off. The direction change had no measurable effect; the October drift was stopped by the floor. The regression test passes under both.</p>
-<h3>Status and proposal</h3><p>A deviation from the written design that I did not raise, and one whose stated reason did not survive the ablation. Now the switch <code>particle_contact_alm_force_direction</code> (default <code>closest_point</code>). Anka's direction: stay consistent with the penalty path, which is the closest-point direction.</p>
+<h3>Status and proposal</h3><p>Removed on 2026-11-05 by decision D16: the row is the multiplier of the division-plane constraint, so its force is that constraint's gradient, the stored plane normal, and its gap is measured along it. The closest-point variant and the switch are gone (dd26a7264). The animated explanation is at <a href='https://ankachen.com/report/alm-dat-two-directions-20261105/'>alm-dat-two-directions-20261105</a>.</p>
 
 <h2 id="wall">6. Hard wall a quarter margin above the plane<span class="badge fork">in the code, pending fork</span></h2>
 <img src="fig_row_law.svg" alt="wall"><p class="sub">Left: the row force against the gap. The in-sweep force with lam = 0 depends on rho, the converged force does not. Right: the optional smooth transition of section 7.</p>
