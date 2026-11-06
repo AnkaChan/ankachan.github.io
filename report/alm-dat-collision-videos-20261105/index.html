@@ -6,8 +6,8 @@
 :root{--fg:#1a1a1a;--mut:#666;--bd:#e3e3e3;--acc:#ff7043;--bg:#fafafa}
 *{box-sizing:border-box} body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 color:var(--fg);max-width:1180px;margin:0 auto;padding:32px 24px;background:#fff}
-h1{font-size:28px;margin:0 0 4px} h2{font-size:20px;margin:34px 0 8px;border-bottom:2px solid var(--acc);padding-bottom:4px}
-h3{font-size:16px;margin:22px 0 6px}
+h1{font-size:28px;margin:0 0 4px} h2{font-size:22px;margin:40px 0 8px;border-bottom:3px solid var(--acc);padding-bottom:4px}
+h3{font-size:18px;margin:30px 0 6px;border-bottom:1px solid var(--bd);padding-bottom:3px} h4{font-size:15px;margin:18px 0 4px}
 .sub{color:var(--mut);margin:0 0 18px}
 video,img{width:100%;border:1px solid var(--bd);border-radius:8px;margin:10px 0;background:#fff}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
@@ -19,31 +19,93 @@ code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
 </style></head>
 <body>
 <h1>ALM-DAT on the collision-fidelity benchmark: headline videos</h1>
-<p class="sub">Recorded 2026-11-05 on the Horde L40 VM. Branch <code>ankac/alm-dat-fable-review</code> at <code>986b7c921</code>
-with the uncommitted ALM-DAT changes of that day (friction, damping, smooth compliant-to-hard transition, end-point motion budget).
-Every ALM-DAT panel uses the distance budget rule: the committed displacement from the detection pose stays inside a sphere of radius
-0.5 x 0.85 x (margin + gap). Page built 2026-11-05.</p>
+<p class="sub">Two recordings of the six headline cases on the Horde L40 VM. <a href="#rerun">Recording 2</a> (2026-11-06) is the current code,
+<code>ankac/alm-dat-main</code> at <code>cfd6e07b5</code>, VBD against ALM-DAT. <a href="#recording1">Recording 1</a> (2026-11-05) is the first
+ALM-DAT revision with its ablation columns. Page built 2026-11-06.</p>
 
 <div class="note">Each video shows the same case under several configurations, side by side, 1280x720 per panel, 30 frames per second,
 real time. A panel whose run stopped early holds its last frame behind a red bar that names the stop time and the reason
 (<code>nonfinite</code> = a non-finite state was observed). Hold outcomes are the benchmark's own criteria: "lost at t" is the first
-proven hand-object separation.</div>
+proven hand-object separation. Jitter is the worst detrended RMS displacement over the complete 0.5 s stationary windows, speed the worst
+relative RMS speed over those windows. Rigid-soft DAT is off in every ALM-DAT configuration because the ALM-DAT path does not yet run
+together with it; the "VBD, rigid-soft DAT off" column of recording 1 is the control for that difference.</div>
 
-<h2>What the videos show</h2>
+<h2 id="rerun">Recording 2 (2026-11-06): current code, VBD against ALM-DAT</h2>
+<p class="sub">Branch <code>ankac/alm-dat-main</code> at <code>cfd6e07b5</code>: today's main, the #4222 self-contact storage and the
+ALM-DAT self-contact with the decisions of the design review: D1 (the committed displacement from the detection pose stays inside the
+sphere of radius 0.5 x 0.85 x (margin + gap)), D3 (two detections per substep, the second at the certified anchor), D16 (the row pushes along
+the stored division-plane normal) and D15 (the row metric is the pair's support along that normal, inertia in series with the material
+stiffness; the stiffness floor and the user scale are gone). Default detection gap. Six cases, two columns, twelve runs, all twelve finite.</p>
+
+<div class="note"><b>What changed against recording 1.</b>
+<ul>
+<li><b>Garments hold at the default reach.</b> Both towels and the jacket are held to the release under ALM-DAT. Recording 1 lost them at the lift
+(5.50 s, 6.47 s, 7.53 s); the 3 mm gap variant is no longer needed for that and was not rerun.</li>
+<li><b>Bags hold without any floor variant.</b> ALM-DAT holds the tote and the gusset bag to the release; VBD loses them at 20.07 s and 31.10 s.
+Recording 1 needed the no-floor ablation for this; the floor no longer exists. After the release the gusset bag stays caught on one open
+finger to the end of the run; the tote drops.</li>
+<li><b>The cloth stack does not rest.</b> New, and the one regression: the ten-layer stack ripples at 1 to 2 m/s relative speed to the end of the
+run, where recording 1 rested at 3 to 6 mm of jitter. One run; the responsible change (D3, D15 or D16) is not established.</li>
+<li><b>Self-crossings.</b> Fewer confirmed crossing pairs under ALM-DAT on the H1 towel, both bags and the jacket; more on the Franka towel
+(5 pairs in 118 frames against 1 pair in 12 frames).</li>
+<li><b>Wall time.</b> Lower under ALM-DAT in every case, but rigid-soft DAT is off in the ALM-DAT runs and on in the VBD runs, so this is not a
+solver comparison (the control column of recording 1 shows that effect alone).</li>
+</ul></div>
+
+<h3 id="rerun-20261106-r5_franka_towel_contact_v2">Franka grippers, towel <code>r5_franka_towel_contact_v2</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/r5_franka_towel_contact_v2_last.jpg"><source src="rerun-20261106/r5_franka_towel_contact_v2.mp4" type="video/mp4"></video>
+<p>Both runs hold the towel through the lift, the carry and the 60 s hold, and release it at 70 s. In recording 1 the ALM-DAT run lost the towel at the lift (5.50 s). The second detection per substep (D3) doubles the motion budget at the same detection reach, and the D3 towel page showed the same recovery before D15 and D16 were in. Confirmed self-crossings: 1 pair in 12 frames under VBD, 5 pairs in 118 frames under ALM-DAT.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>1 (12/2100)</td><td>24.6</td><td>0.37</td><td>0.00</td><td>31</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>held</td><td>5 (118/2100)</td><td>30.0</td><td>0.60</td><td>0.20</td><td>26</td></tr></tbody></table>
+<h3 id="rerun-20261106-r7_h1_towel">Two H1 hands, towel <code>r7_h1_towel</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/r7_h1_towel_last.jpg"><source src="rerun-20261106/r7_h1_towel.mp4" type="video/mp4"></video>
+<p>Both runs hold the towel to the release. The ALM-DAT run has no confirmed self-crossing in any frame; the VBD run has up to 5 pairs in 58 frames. In recording 1 the ALM-DAT run lost the towel at 6.47 s.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>5 (58/2222)</td><td>25.0</td><td>0.39</td><td>0.79</td><td>83</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>held</td><td>0 (0/2222)</td><td>42.6</td><td>0.66</td><td>0.00</td><td>34</td></tr></tbody></table>
+<h3 id="rerun-20261106-j3_h1_jacket">Two H1 hands, native jacket <code>j3_h1_jacket</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/j3_h1_jacket_last.jpg"><source src="rerun-20261106/j3_h1_jacket.mp4" type="video/mp4"></video>
+<p>Both runs complete the 79.5 s timeline and hold the jacket to the release. In recording 1 the ALM-DAT run lost it at 7.53 s. The jacket mesh crosses itself in every frame under both solvers (884 pairs at most under VBD, 797 under ALM-DAT); that is the mesh, not the contact.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>884 (2385/2385)</td><td>21.2</td><td>0.35</td><td>0.55</td><td>201</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>held</td><td>797 (2385/2385)</td><td>43.2</td><td>0.70</td><td>0.18</td><td>89</td></tr></tbody></table>
+<h3 id="rerun-20261106-m3_franka_tote_2">Franka grippers, shopping bag with two blocks <code>m3_franka_tote_2</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/m3_franka_tote_2_last.jpg"><source src="rerun-20261106/m3_franka_tote_2.mp4" type="video/mp4"></video>
+<p>VBD loses the bag: it slides out of the grippers from about 6 s and the first proven separation is at 20.07 s. ALM-DAT holds it to the release at 67.5 s. In recording 1 every ALM-DAT run with the metric floor went non-finite within 3 s; this code has no floor, the metric is the pair&#x27;s support (D15). Support penetration 2.95 mm under VBD, 0.05 mm under ALM-DAT.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 20.07 s</td><td>33 (1523/2025)</td><td>58.6</td><td>1.22</td><td>2.95</td><td>31</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>held</td><td>4 (259/2025)</td><td>85.5</td><td>1.77</td><td>0.05</td><td>24</td></tr></tbody></table>
+<h3 id="rerun-20261106-m3_franka_gusset_4">Franka grippers, gusset bag with four payloads <code>m3_franka_gusset_4</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/m3_franka_gusset_4_last.jpg"><source src="rerun-20261106/m3_franka_gusset_4.mp4" type="video/mp4"></video>
+<p>VBD loses the bag at 31.10 s. ALM-DAT holds it through the transport and the hold. At the release (about 65 s) the grippers open, but the bag stays hanging from one finger of the right gripper by a handle strap to the end of the run at 67.5 s; it does not drop (the tote drops). The benchmark has no release criterion, so this shows only in the video. In recording 1 the ALM-DAT run went non-finite at 4.4 s with the floor and completed only in the no-floor variant. Confirmed self-crossings: 101 pairs in 1745 frames under VBD, 4 pairs in 74 frames under ALM-DAT.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 31.10 s</td><td>101 (1745/2025)</td><td>95.4</td><td>1.47</td><td>3.00</td><td>29</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>held</td><td>4 (74/2025)</td><td>52.8</td><td>1.06</td><td>0.03</td><td>24</td></tr></tbody></table>
+<h3 id="rerun-20261106-s1_cloth_10_10substeps">Cloth stack, 10 layers <code>s1_cloth_10_10substeps</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</p>
+<video controls muted playsinline preload="metadata" poster="rerun-20261106/s1_cloth_10_10substeps_last.jpg"><source src="rerun-20261106/s1_cloth_10_10substeps.mp4" type="video/mp4"></video>
+<p>Both runs complete with zero confirmed self-crossings, but only the VBD stack comes to rest. Under ALM-DAT the layers keep rippling and crumpling to the end of the run: every 0.5 s window from 2 s to 7 s has a detrended jitter of 42 to 130 mm and a worst relative speed of 1.0 to 2.0 m/s, against 2 to 22 mm and 0.1 to 0.6 m/s under VBD. In recording 1, with the metric floor at K, the ALM-DAT stack rested at 3 to 6 mm. This is one run; which of D3, D15 and D16 is responsible is not established. The 14 mm support penetration is the first impact on the ground at 0.13 s with rigid-soft DAT off.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>completed</td><td>0 (0/210)</td><td>22.5</td><td>0.56</td><td>4.00</td><td>1</td></tr><tr><td>ALM-DAT at cfd6e07b5 (D1, D3, D15, D16), rigid-soft DAT off</td><td>completed</td><td>0 (0/210)</td><td>129.5</td><td>1.97</td><td>14.28</td><td>1</td></tr></tbody></table>
+
+
+
+<h2 id="recording1">Recording 1 (2026-11-05): first ALM-DAT revision and its ablations</h2>
+<p class="sub">Branch <code>ankac/alm-dat-fable-review</code> at <code>986b7c921</code>
+with the uncommitted ALM-DAT changes of that day (friction, damping, smooth compliant-to-hard transition, end-point motion budget).
+Every ALM-DAT panel uses the distance budget rule with one self-contact detection per substep, and the metric floor rho &gt;= K of that revision.</p>
+
+<h3>What these videos show</h3>
 <ul>
 <li><b>Speed cap.</b> One self-contact detection per substep bounds the committed motion to half the detection reach per substep.
 For the cloth recipes (3 mm reach at 300 Hz) that is 0.38 m/s. The Franka lift peaks at 0.49 m/s, so every garment slips at the lift.
 A 3 mm detection gap (5 mm reach) raises the cap to 0.64 m/s and the garments hold, at a steep price in records (table below).
-The design review proposes a second detection at the certified anchor instead (decision D3), which doubles the cap at the same reach.</li>
+The design review chose a second detection at the certified anchor instead (decision D3), which doubles the cap at the same reach; recording 2 runs with it.</li>
 <li><b>Metric floor.</b> The ALM row's penalty metric is floored at the contact stiffness. On light payload tetrahedra this makes the
-multiplier update overshoot and the run goes non-finite within seconds. With the floor off, ALM-DAT completes the bag cases and holds the bags.</li>
-<li><b>Soft stacks.</b> ALM-DAT rests quieter than the penalty path with zero confirmed self-crossings.</li>
+multiplier update overshoot and the run goes non-finite within seconds. With the floor off, ALM-DAT completes the bag cases and holds the bags.
+The floor was replaced by the pair-support metric (decision D15); recording 2 runs with it.</li>
+<li><b>Soft stacks.</b> ALM-DAT rests quieter than the penalty path with zero confirmed self-crossings in this recording. Recording 2 does not repeat this: without the floor the stack does not rest.</li>
 <li><b>Jacket.</b> The native jacket mesh self-crosses under every solver; that is the mesh, not the contact.</li>
 <li><b>Budget rule.</b> The first ALM-DAT revision used a path-length style bound (|offset| + |step| &le; B) that froze vertices at the cap
 and sank the cloth. It was removed on 2026-11-05 (decision D1); the end-point rule shown here is now the only behaviour.</li>
 </ul>
 
-<h3>Self-contact record demand, default reach versus 3 mm gap</h3>
+<h4>Self-contact record demand, default reach versus 3 mm gap</h4>
 <p>The wider gap buys speed by widening the detection reach, and the record count grows with it. Peak records per case over the run:</p>
 
 <table><thead><tr><th>Case</th><th>Records at 3 mm reach (vt / ee)</th><th>Records at 5 mm reach (vt / ee)</th><th>Ratio</th></tr></thead>
@@ -57,47 +119,48 @@ and sank the cloth. It was removed on 2026-11-05 (decision D1); the end-point ru
 </tbody></table>
 
 
-<h2 id="r5_franka_towel_contact_v2">Franka grippers, towel <code>r5_franka_towel_contact_v2</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
+<h3 id="r5_franka_towel_contact_v2">Franka grippers, towel <code>r5_franka_towel_contact_v2</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="r5_franka_towel_contact_v2_last.jpg"><source src="r5_franka_towel_contact_v2.mp4" type="video/mp4"></video>
 <p>The two grippers pinch the towel, lift it, carry it and release it. The lift peaks at 0.49 m/s. The one-detection budget of the ALM-DAT path caps the committed motion at 0.38 m/s for this recipe (0.5 x 0.85 x 3 mm per 1/300 s), so the towel slips out at the lift and lands on the table edge. The 3 mm detection gap raises the cap to 0.64 m/s and the towel is carried like under VBD, at 14 to 19 times the self-contact record demand.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>1 (2/2100)</td><td>24.56</td><td>0.00</td><td>41</td></tr><tr><td>ALM-DAT, distance budget rule</td><td>lost at 5.50 s</td><td>12 (30/2100)</td><td>12.24</td><td>0.00</td><td>25</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td>held</td><td>6 (6/2100)</td><td>31.26</td><td>0.43</td><td>24</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>8 (257/2100)</td><td>23.63</td><td>0.00</td><td>23</td></tr></tbody></table>
-<h2 id="r7_h1_towel">Two H1 hands, towel <code>r7_h1_towel</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>1 (2/2100)</td><td>24.6</td><td>0.39</td><td>0.00</td><td>41</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td>lost at 5.50 s</td><td>12 (30/2100)</td><td>12.2</td><td>0.24</td><td>0.00</td><td>25</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td>held</td><td>6 (6/2100)</td><td>31.3</td><td>0.64</td><td>0.43</td><td>24</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>8 (257/2100)</td><td>23.6</td><td>0.42</td><td>0.00</td><td>23</td></tr></tbody></table>
+<h3 id="r7_h1_towel">Two H1 hands, towel <code>r7_h1_towel</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="r7_h1_towel_last.jpg"><source src="r7_h1_towel.mp4" type="video/mp4"></video>
 <p>The same pattern with the humanoid hands: the default budget loses the towel at the lift, the wider gap holds it.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 42.83 s</td><td>207 (885/2222)</td><td>25.34</td><td>3.00</td><td>49</td></tr><tr><td>ALM-DAT, distance budget rule</td><td>lost at 6.47 s</td><td>21 (1404/2222)</td><td>17.94</td><td>0.00</td><td>29</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td>held</td><td>2 (164/2222)</td><td>37.48</td><td>0.00</td><td>29</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2222)</td><td>25.53</td><td>0.00</td><td>28</td></tr></tbody></table>
-<h2 id="j3_h1_jacket">Two H1 hands, native jacket <code>j3_h1_jacket</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 42.83 s</td><td>207 (885/2222)</td><td>25.3</td><td>0.45</td><td>3.00</td><td>49</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td>lost at 6.47 s</td><td>21 (1404/2222)</td><td>17.9</td><td>0.25</td><td>0.00</td><td>29</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td>held</td><td>2 (164/2222)</td><td>37.5</td><td>0.64</td><td>0.00</td><td>29</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2222)</td><td>25.5</td><td>0.40</td><td>0.00</td><td>28</td></tr></tbody></table>
+<h3 id="j3_h1_jacket">Two H1 hands, native jacket <code>j3_h1_jacket</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | ALM-DAT, distance rule, detection gap 3 mm | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="j3_h1_jacket_last.jpg"><source src="j3_h1_jacket.mp4" type="video/mp4"></video>
 <p>The jacket mesh crosses itself under every solver, VBD included (the campaign counted the same intersecting pairs in every frame). The ALM-DAT run with the 3 mm gap goes non-finite early: the panel freezes and the red bar names the stop time.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>948 (2385/2385)</td><td>19.59</td><td>0.40</td><td>120</td></tr><tr><td>ALM-DAT, distance budget rule</td><td>lost at 7.53 s</td><td>1074 (2385/2385)</td><td>3.51</td><td>0.80</td><td>91</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 5.5 s</span></td><td>841 (166/166)</td><td>n/a</td><td>8.23</td><td>7</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>945 (2385/2385)</td><td>19.82</td><td>0.46</td><td>84</td></tr></tbody></table>
-<h2 id="m3_franka_tote_2">Franka grippers, shopping bag with two blocks <code>m3_franka_tote_2</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | ALM-DAT, distance rule, detection gap 3 mm | ALM-DAT, distance rule, no metric floor | VBD, rigid-soft DAT off (control)</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>held</td><td>948 (2385/2385)</td><td>19.6</td><td>0.44</td><td>0.40</td><td>120</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td>lost at 7.53 s</td><td>1074 (2385/2385)</td><td>3.5</td><td>0.11</td><td>0.80</td><td>91</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 5.5 s</span></td><td>841 (166/166)</td><td>n/a</td><td>n/a</td><td>8.23</td><td>7</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>945 (2385/2385)</td><td>19.8</td><td>0.33</td><td>0.46</td><td>84</td></tr></tbody></table>
+<h3 id="m3_franka_tote_2">Franka grippers, shopping bag with two blocks <code>m3_franka_tote_2</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | ALM-DAT, distance rule, detection gap 3 mm | ALM-DAT, distance rule, no metric floor | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="m3_franka_tote_2_last.jpg"><source src="m3_franka_tote_2.mp4" type="video/mp4"></video>
 <p>Light payload tetrahedra (0.09 g per vertex) meet the ALM metric floor rho &gt;= K: the multipliers overshoot and the run goes non-finite within the first seconds, with or without the wider gap. Without the floor the run completes and the bag is held. The VBD default loses the bag.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 17.30 s</td><td>8 (111/2025)</td><td>116.83</td><td>2.03</td><td>29</td></tr><tr><td>ALM-DAT, distance budget rule</td><td><span class="bad">nonfinite at 3.2 s</span></td><td>0 (0/95)</td><td>n/a</td><td>0.09</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 3.2 s</span></td><td>0 (0/96)</td><td>n/a</td><td>0.18</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, no metric floor</td><td>held</td><td>3 (59/2025)</td><td>16.53</td><td>1.64</td><td>24</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2025)</td><td>66.74</td><td>0.12</td><td>22</td></tr></tbody></table>
-<h2 id="m3_franka_gusset_4">Franka grippers, gusset bag with four payloads <code>m3_franka_gusset_4</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | ALM-DAT, distance rule, detection gap 3 mm | ALM-DAT, distance rule, no metric floor | VBD, rigid-soft DAT off (control)</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 17.30 s</td><td>8 (111/2025)</td><td>116.8</td><td>1.75</td><td>2.03</td><td>29</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td><span class="bad">nonfinite at 3.2 s</span></td><td>0 (0/95)</td><td>n/a</td><td>n/a</td><td>0.09</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 3.2 s</span></td><td>0 (0/96)</td><td>n/a</td><td>n/a</td><td>0.18</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, no metric floor</td><td>held</td><td>3 (59/2025)</td><td>16.5</td><td>1.28</td><td>1.64</td><td>24</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2025)</td><td>66.7</td><td>1.11</td><td>0.12</td><td>22</td></tr></tbody></table>
+<h3 id="m3_franka_gusset_4">Franka grippers, gusset bag with four payloads <code>m3_franka_gusset_4</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | ALM-DAT, distance rule, detection gap 3 mm | ALM-DAT, distance rule, no metric floor | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="m3_franka_gusset_4_last.jpg"><source src="m3_franka_gusset_4.mp4" type="video/mp4"></video>
 <p>The same mechanism as the tote: the floor breaks the run, the no-floor variant completes.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 20.73 s</td><td>2 (1355/2025)</td><td>98.44</td><td>1.84</td><td>29</td></tr><tr><td>ALM-DAT, distance budget rule</td><td><span class="bad">nonfinite at 4.4 s</span></td><td>0 (0/133)</td><td>n/a</td><td>0.18</td><td>2</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 3.0 s</span></td><td>0 (0/90)</td><td>n/a</td><td>0.31</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, no metric floor</td><td>held</td><td>0 (0/2025)</td><td>8.65</td><td>0.09</td><td>22</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2025)</td><td>80.69</td><td>4.21</td><td>22</td></tr></tbody></table>
-<h2 id="s1_cloth_10_10substeps">Cloth stack, 10 layers <code>s1_cloth_10_10substeps</code></h2>
-<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance budget rule | VBD, rigid-soft DAT off (control)</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>lost at 20.73 s</td><td>2 (1355/2025)</td><td>98.4</td><td>1.38</td><td>1.84</td><td>29</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td><span class="bad">nonfinite at 4.4 s</span></td><td>0 (0/133)</td><td>n/a</td><td>n/a</td><td>0.18</td><td>2</td></tr><tr><td>ALM-DAT, distance rule, detection gap 3 mm</td><td><span class="bad">nonfinite at 3.0 s</span></td><td>0 (0/90)</td><td>n/a</td><td>n/a</td><td>0.31</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, no metric floor</td><td>held</td><td>0 (0/2025)</td><td>8.7</td><td>1.27</td><td>0.09</td><td>22</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>held</td><td>0 (0/2025)</td><td>80.7</td><td>1.47</td><td>4.21</td><td>22</td></tr></tbody></table>
+<h3 id="s1_cloth_10_10substeps">Cloth stack, 10 layers <code>s1_cloth_10_10substeps</code></h3>
+<p class="sub">Panels, left to right: VBD, benchmark default (rigid-soft DAT on) | ALM-DAT, distance rule, one detection per substep | VBD, rigid-soft DAT off (control)</p>
 <video controls muted playsinline preload="metadata" poster="s1_cloth_10_10substeps_last.jpg"><source src="s1_cloth_10_10substeps.mp4" type="video/mp4"></video>
-<p>Ten cloth layers dropped onto each other. Both complete; the ALM-DAT stack rests quieter and the confirmed self-crossing count stays at zero.</p>
-<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter [mm]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>completed</td><td>0 (0/210)</td><td>10.32</td><td>4.00</td><td>1</td></tr><tr><td>ALM-DAT, distance budget rule</td><td>completed</td><td>0 (0/210)</td><td>5.97</td><td>32.33</td><td>1</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>completed</td><td>0 (0/210)</td><td>7.03</td><td>18.11</td><td>1</td></tr></tbody></table>
+<p>Ten cloth layers dropped onto each other. Both complete; the ALM-DAT stack rests quieter and the confirmed self-crossing count stays at zero. Recording 2 below does not repeat this result: with the metric floor removed the stack does not come to rest.</p>
+<table><thead><tr><th>Configuration</th><th>Outcome</th><th>Self-crossings, max pairs (frames with / frames)</th><th>Jitter, worst 0.5 s window [mm]</th><th>Relative speed, worst window [m/s]</th><th>Support penetration [mm]</th><th>Wall time [min]</th></tr></thead><tbody><tr><td>VBD, benchmark default (rigid-soft DAT on)</td><td>completed</td><td>0 (0/210)</td><td>10.3</td><td>0.29</td><td>4.00</td><td>1</td></tr><tr><td>ALM-DAT, distance rule, one detection per substep</td><td>completed</td><td>0 (0/210)</td><td>6.0</td><td>0.23</td><td>32.33</td><td>1</td></tr><tr><td>VBD, rigid-soft DAT off (control)</td><td>completed</td><td>0 (0/210)</td><td>7.0</td><td>0.17</td><td>18.11</td><td>1</td></tr></tbody></table>
 
 
 <h2>Provenance</h2>
 <ul>
-<li>Campaign report and tooling: <code>notes/collision-benchmark-alm-dat/</code> on the <code>alm-dat-fable-review</code> worktree
-(<code>report.md</code>, <code>launch_campaign.py --video</code>, <code>compose_videos.py</code>, <code>build_video_page.py</code>).
-Raw per-configuration videos and result JSON: <code>notes/collision-benchmark-alm-dat/video/&lt;config&gt;/&lt;case&gt;/</code>.</li>
-<li>Design review of the implementation: <a href="https://github.com/AnkaChan/newton/pull/9">AnkaChan/newton PR #9</a>.
-Rebased code: branch <code>ankac/alm-dat-main</code> (today's main plus the #4222 CSR self-contact storage).</li>
+<li>Recording 2: <code>notes/collision-benchmark-alm-dat/video-d15/</code> on the <code>alm-dat-main</code> worktree
+(journal, per-configuration videos and result JSON under <code>&lt;config&gt;/&lt;case&gt;/</code>, composed videos under <code>compare/</code>).
+Launched with <code>launch_campaign.py --video</code> at 2026-11-06 00:40 UTC, finished 04:57 UTC.</li>
+<li>Recording 1: <code>notes/collision-benchmark-alm-dat/video/</code> on the <code>alm-dat-fable-review</code> worktree; campaign report
+<code>report.md</code> in the same folder. Tooling: <code>launch_campaign.py --video</code>, <code>compose_videos.py</code>, <code>build_video_page.py</code>.</li>
+<li>Design review of the implementation: <a href="https://github.com/AnkaChan/newton/pull/9">AnkaChan/newton PR #9</a> (decisions D1, D3, D15, D16).
+The towel with one against two detections, on the D3 code before D15 and D16: <a href="../alm-dat-towel-two-detections-20261106/">separate page</a>.</li>
 <li>Benchmark: Anka's collision-fidelity suite (<code>asv/collision_fidelity</code>, 45 cases), full profile, with the solver-configuration switch,
-the self-contact pool and self-intersection probes added for this campaign. Rigid-soft DAT is off in every ALM-DAT configuration because the
-ALM-DAT path does not yet run together with it; the "VBD, rigid-soft DAT off" column is the control for that difference.</li>
+the self-contact pool and self-intersection probes added for this campaign.</li>
 </ul>
 </body></html>
