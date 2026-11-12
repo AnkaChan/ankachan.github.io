@@ -100,7 +100,7 @@ body{margin:0}</style>
   <h1>LeCO ablation results</h1>
   <p class="lede">Every model is trained for 500,000 steps with the same data and then runs the same test scene. This page shows which changes still give a usable solver at inference, and which do not.</p>
   <div class="status">
-    <span>Data as of <b>2026-11-12 23:15 UTC</b></span>
+    <span>Data as of <b>2026-11-12 23:42 UTC</b></span>
     <span>Trainings finished <b>30 of 31</b></span>
     <span>Inference runs finished <b>199 of 199</b></span>
   </div>
@@ -160,6 +160,7 @@ body{margin:0}</style>
     <li>No timing on this page. The inference runs shared the GPUs with the trainings, so their step times are not clean. Models of other widths also cannot use the fused width-96 network path yet.</li>
     <li>No model was trained with DAT. DAT, the 7 mm radius and the truncated scale act at inference only.</li>
     <li>The baseline row is <code>width_96</code>, retrained with the same configuration as all ablations (<code>neighbor_projection: true</code>, <code>node_update_input: combined</code>).</li>
+    <li>Related report: <a href="https://ankachan.github.io/report/leco-tet-cuboid-20261112/">the same network on a tetrahedral cuboid, without retraining</a>.</li>
     <li>Branch <code>ankac/leco-tensorcore-inference</code>. Training configurations are under <code>ablations/</code>; each run name maps to <code>runs/&lt;name&gt;/</code>.</li>
   </ul>
 </footer>

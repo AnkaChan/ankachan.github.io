@@ -1,0 +1,149 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>LeCO Tet Cuboid Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one lab-notebook column. Findings first, then one result table per ablation group, training log last. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #18212d; --muted: #5b6777; --line: #dde2ea; --accent: #2b55c7; --base: #eef2fb;
+  --ok: #1c7f47; --ok-bg: #e2f3e9; --warn: #9a5b00; --warn-bg: #fbedd3; --bad: #b8322a; --bad-bg: #fbe3e0; --mute-bg: #e8ebf0; --info: #2b55c7; --info-bg: #e3eafb;
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif; --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151b; --surface: #181e27; --ink: #e5e9f0; --muted: #98a4b4; --line: #2a323e; --accent: #86a6ff; --base: #1d2636;
+  --ok: #56c98a; --ok-bg: #173527; --warn: #e5a745; --warn-bg: #3a2c12; --bad: #f37d74; --bad-bg: #40201d; --mute-bg: #262d38; --info: #86a6ff; --info-bg: #1f2b47;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #181e27; --ink: #e5e9f0; --muted: #98a4b4; --line: #2a323e; --accent: #86a6ff; --base: #1d2636;
+  --ok: #56c98a; --ok-bg: #173527; --warn: #e5a745; --warn-bg: #3a2c12; --bad: #f37d74; --bad-bg: #40201d; --mute-bg: #262d38; --info: #86a6ff; --info-bg: #1f2b47;
+  color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 36px; }
+header { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--display); font-weight: 600; font-size: 15px; margin: 0; }
+p { margin: 0; max-width: 72ch; }
+code { font-family: var(--mono); font-size: .86em; }
+a { color: var(--accent); }
+.lede { color: var(--muted); max-width: 72ch; }
+.status { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+.status b { color: var(--ink); font-weight: 500; }
+nav { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+nav a { font-size: 13px; text-decoration: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface); }
+nav a:hover, nav a:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+section { display: flex; flex-direction: column; gap: 14px; min-width: 0; scroll-margin-top: 12px; }
+.intro { color: var(--muted); }
+.findings { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.findings ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 10px; max-width: 78ch; }
+.findings li::marker { font-family: var(--mono); color: var(--muted); font-size: .9em; }
+.howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 28px; }
+.howto > div { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.howto dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13.5px; align-items: baseline; }
+.howto dt { font-family: var(--mono); font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+.howto dd { margin: 0; color: var(--muted); }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table.res { border-collapse: collapse; width: 100%; font-size: 13px; }
+table.res th, table.res td { padding: 8px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+table.res tbody tr:last-child td { border-bottom: 0; }
+table.res th { font-weight: 600; font-size: 12px; color: var(--muted); white-space: nowrap; vertical-align: bottom; }
+table.res th.set { color: var(--ink); }
+table.res tr.base td { background: var(--base); }
+table.res td.lead { white-space: nowrap; }
+table.res td.none { color: var(--muted); }
+table.res td.training { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+table.res .n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+table.res .hot { color: var(--bad); }
+table.res td.good { color: var(--ok); } table.res td.poor { color: var(--bad); }
+table.fixed th.grp { text-align: center; color: var(--ink); border-left: 1px solid var(--line); }
+table.fixed .first { border-left: 1px solid var(--line); }
+table.fixed tr.grouprow td { font-size: 11.5px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; padding-top: 12px; }
+table.train { width: auto; min-width: min(100%, 620px); }
+.var { display: block; font-weight: 600; }
+.sub { display: block; color: var(--muted); font-size: 12px; }
+td.lead code { display: block; color: var(--muted); font-size: 11.5px; }
+.rep { display: grid; grid-template-columns: 4.3em 2.4em 2.9em 6.3em; gap: 0 6px; align-items: center; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; white-space: nowrap; }
+.rep + .rep { margin-top: 4px; }
+.rep > span:not(.chip) { text-align: right; }
+.rep.wide { display: block; }
+.rep.legend { font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 3px; font-family: var(--body); }
+table.nonum .rep { display: block; }
+.chip { display: inline-block; justify-self: start; font-family: var(--body); font-size: 11.5px; font-weight: 600; line-height: 1.5; padding: 0 7px; border-radius: 4px; white-space: nowrap; }
+.chip.ok { color: var(--ok); background: var(--ok-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.bad { color: var(--bad); background: var(--bad-bg); }
+.chip.mute { color: var(--muted); background: var(--mute-bg); }
+.chip.info { color: var(--info); background: var(--info-bg); }
+.reading { display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; }
+.reading ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 5px; max-width: 76ch; }
+.tabletitle { margin-top: 6px; }
+.matrices { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.matrix { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.mtitle { font-family: var(--display); font-weight: 600; font-size: 14px; }
+.mgrid { display: grid; grid-template-columns: minmax(64px, .7fr) 1fr 1fr; gap: 6px; }
+.mh { font-size: 11.5px; color: var(--muted); font-weight: 600; align-self: end; }
+.mh.side { align-self: center; }
+.mcell { min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.mcell code { font-size: 10.5px; color: var(--muted); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+footer { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 18px; }
+footer ul { margin: 0; padding-left: 1.1em; max-width: 80ch; }
+
+video { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; display: block; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+figcaption { color: var(--muted); font-size: 13px; max-width: 80ch; }
+table.gap td, table.gap th { text-align: right; white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; }
+table.gap td.lead, table.gap th.lead { text-align: left; font-family: var(--body); font-size: 13px; }
+table.gap th.grp { text-align: center; color: var(--ink); border-left: 1px solid var(--line); }
+table.gap td.first, table.gap th.first { border-left: 1px solid var(--line); }
+table.gap td.good { color: var(--ok); } table.gap td.poor { color: var(--bad); } table.gap td.wait { color: var(--muted); font-family: var(--body); }
+body{margin:0}</style>
+</head><body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Learned Cloth Optimizer · zero-shot test on tetrahedra</div>
+  <h1>The cloth-trained optimizer on a tet cuboid</h1>
+  <p class="lede">The network was trained on cloth only. Here it solves a volumetric beam without retraining and without any change to the network or its inputs.</p>
+  <div class="status"><span>Data as of <b>2026-11-12 23:42 UTC</b></span><span>1,225 vertices · 5,184 tets · 150 steps of 1/300 s</span></div>
+</header>
+<section class="findings" id="findings">
+  <h2>Findings</h2>
+  <ol>
+  <li><strong>It works without retraining.</strong> The baseline model is stable in all 8 cases and at every iteration count: no NaN, no blow-up. On soft and medium material (10 to 100 kPa) it converges about as fast as on cloth: 8 % of the step energy is missing after 5 iterations and 0.4 % after 10, against 8 % and 0.3 % on the cloth control.</li>
+  <li><strong>It gets slower with stiffness.</strong> At 1 MPa it needs 30 iterations for the accuracy it has at 10 iterations on cloth. At 10 MPa it stalls: 40 % of the step energy is still missing after 30 iterations. Near-incompressible material is also slow (ν = 0.49: 20 % missing after 10 iterations).</li>
+  <li><strong>Against VBD at equal iteration count:</strong> VBD is far better on very soft material (10 kPa). From 100 kPa upward LeCO is ahead, and the distance grows with stiffness: at 1 MPa LeCO misses 6 % of the step energy after 10 iterations, plain VBD 66 %. Undamped block Jacobi diverges at 5 iterations in most cases.</li>
+  <li><strong>The context-window-5 model transfers best.</strong> It is 3 to 100 times closer to the minimum than the baseline at the same iteration count, at 5 message-passing rounds per iteration.</li>
+  <li><strong>The per-node normalization model does not transfer.</strong> It explodes in every case within 2 to 19 time steps. It was the best cloth model at 5 iterations, so it is less robust outside the training data.</li>
+</ol>
+
+</section>
+<section id="videos"><h2>Animations</h2>
+  <p class="intro">Each panel uses the same number of iterations per time step. The dashed box is the converged Newton solution at the same time. Playback is 10 times slower than real time.</p>
+  <figure><video src="tet_beam_E1e5.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Cantilever, E = 100 kPa. The beam swings down by more than its own length. LeCO at 10 iterations follows the reference within 5 mm.</figcaption></figure><figure><video src="tet_beam_E1e6.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Cantilever, E = 1 MPa. Ten times stiffer. LeCO lags the reference; VBD and block Jacobi lag more at the same iteration count.</figcaption></figure><figure><video src="tet_twist_E1e5.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Both ends held, one end turns by 90° in 0.5 s, E = 100 kPa.</figcaption></figure>
+</section>
+<section id="gap"><h2>Energy gap per time step</h2>
+  <p class="intro">Share of the energy decrease of one time step that is still missing after the given number of iterations: (E<sub>k</sub> − E*) / (E<sub>0</sub> − E*), geometric mean over the run. E* is the Newton minimum of that step. 0 % is converged. Each method runs its own trajectory.</p>
+  <div class="scroll"><table class="res gap"><thead><tr><th class="lead" rowspan="2">Case</th><th rowspan="2">E·h / (m/Δt²)</th><th class="grp" colspan="3">LeCO baseline</th><th class="grp" colspan="3">LeCO, context window 5</th><th class="grp" colspan="3">VBD</th><th class="grp" colspan="3">Block Jacobi, damping 0.5</th></tr><tr><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th></tr></thead><tbody><tr class="base"><td class="lead"><span class="var">Cloth sheet (control)</span><span class="sub">the energy it was trained on</span></td><td>–</td><td class="first">8.0 %</td><td class="">0.3 %</td><td class="">6e-7</td><td class="wait first" colspan="9">not run</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 10 kPa</span><span class="sub">ν 0.3 · beam moves up to 1020 mm</span></td><td>0.4</td><td class=" first">1.4 %</td><td class="good">7e-6</td><td class="good">9e-10</td><td class="good first">7e-4</td><td class="good">3e-6</td><td class="good">7e-11</td><td class="good first">8e-6</td><td class="good">8e-11</td><td class="good">9e-14</td><td class=" first">4.9 %</td><td class="good">0.3 %</td><td class="good">6e-8</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.3 · beam moves up to 677 mm</span></td><td>3.9</td><td class=" first">8.4 %</td><td class="good">0.4 %</td><td class="good">4e-8</td><td class=" first">1.3 %</td><td class="good">3e-5</td><td class="good">3e-10</td><td class=" first">15 %</td><td class="">2.2 %</td><td class="good">2e-5</td><td class="poor first">60 %</td><td class="poor">37 %</td><td class="">5.4 %</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 1 MPa</span><span class="sub">ν 0.3 · beam moves up to 111 mm</span></td><td>39.4</td><td class=" first">26 %</td><td class="">5.8 %</td><td class="good">8e-4</td><td class=" first">3.6 %</td><td class="">2.1 %</td><td class="good">9e-7</td><td class="poor first">81 %</td><td class="poor">66 %</td><td class="">29 %</td><td class="poor first">95 %</td><td class="poor">90 %</td><td class="poor">73 %</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 10 MPa</span><span class="sub">ν 0.3 · beam moves up to 10 mm</span></td><td>393.8</td><td class="poor first">79 %</td><td class="poor">71 %</td><td class="poor">40 %</td><td class="poor first">54 %</td><td class="">28 %</td><td class="">2.4 %</td><td class="poor first">97 %</td><td class="poor">95 %</td><td class="poor">87 %</td><td class="poor first">99 %</td><td class="poor">99 %</td><td class="poor">96 %</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.45 · beam moves up to 600 mm</span></td><td>3.9</td><td class=" first">6.6 %</td><td class="">1.4 %</td><td class="good">3e-6</td><td class=" first">7.2 %</td><td class="good">0.3 %</td><td class="good">1e-7</td><td class="poor first">43 %</td><td class="">19 %</td><td class="">1.0 %</td><td class="poor first">80 %</td><td class="poor">63 %</td><td class="">28 %</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.49 · beam moves up to 501 mm</span></td><td>3.9</td><td class="poor first">44 %</td><td class="">19 %</td><td class="">1.1 %</td><td class=" first">23 %</td><td class="">6.2 %</td><td class="good">4e-4</td><td class="poor first">81 %</td><td class="poor">66 %</td><td class="poor">31 %</td><td class="poor first">95 %</td><td class="poor">91 %</td><td class="poor">73 %</td></tr><tr><td class="lead"><span class="var">Twist 90°, E = 100 kPa</span><span class="sub">ν 0.3 · beam moves up to 0 mm</span></td><td>3.9</td><td class=" first">10 %</td><td class="good">0.3 %</td><td class="good">2e-8</td><td class=" first">1.7 %</td><td class="good">2e-5</td><td class="good">3e-10</td><td class=" first">16 %</td><td class="">2.6 %</td><td class="good">2e-5</td><td class="poor first">61 %</td><td class="poor">39 %</td><td class="">6.1 %</td></tr><tr><td class="lead"><span class="var">Twist 90°, E = 1 MPa</span><span class="sub">ν 0.3 · beam moves up to 0 mm</span></td><td>39.4</td><td class=" first">24 %</td><td class="">3.3 %</td><td class="good">1e-4</td><td class=" first">4.9 %</td><td class="good">0.2 %</td><td class="good">1e-7</td><td class="poor first">77 %</td><td class="poor">61 %</td><td class="">18 %</td><td class="poor first">91 %</td><td class="poor">86 %</td><td class="poor">67 %</td></tr></tbody></table></div>
+</section>
+<section id="error"><h2>Distance to the reference trajectory</h2>
+  <p class="intro">Mean vertex distance to the converged Newton trajectory, in mm, averaged over the 150 steps. The beam is 480 mm long.</p>
+  <div class="scroll"><table class="res gap"><thead><tr><th class="lead" rowspan="2">Case</th><th rowspan="2">E·h / (m/Δt²)</th><th class="grp" colspan="3">LeCO baseline</th><th class="grp" colspan="3">LeCO, context window 5</th><th class="grp" colspan="3">VBD</th><th class="grp" colspan="3">Block Jacobi, damping 0.5</th></tr><tr><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th><th class="first">5 it</th><th class="">10 it</th><th class="">30 it</th></tr></thead><tbody><tr><td class="lead"><span class="var">Cantilever, E = 10 kPa</span><span class="sub">ν 0.3 · beam moves up to 1020 mm</span></td><td>0.4</td><td class="first">11.6</td><td class="">1.0</td><td class="good">&lt;0.1</td><td class="first">0.5</td><td class="good">&lt;0.1</td><td class="good">&lt;0.1</td><td class="first">0.3</td><td class="good">&lt;0.1</td><td class="good">&lt;0.1</td><td class="first">41.2</td><td class="">8.9</td><td class="good">&lt;0.1</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.3 · beam moves up to 677 mm</span></td><td>3.9</td><td class="first">23.8</td><td class="">4.7</td><td class="good">&lt;0.1</td><td class="first">2.0</td><td class="">0.1</td><td class="good">&lt;0.1</td><td class="first">46.2</td><td class="">15.7</td><td class="">0.4</td><td class="first">116.1</td><td class="">83.8</td><td class="">26.2</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 1 MPa</span><span class="sub">ν 0.3 · beam moves up to 111 mm</span></td><td>39.4</td><td class="first">14.0</td><td class="">5.6</td><td class="">0.6</td><td class="first">0.9</td><td class="">3.1</td><td class="good">&lt;0.1</td><td class="first">21.5</td><td class="">22.9</td><td class="">15.3</td><td class="first">18.1</td><td class="">19.0</td><td class="">22.7</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 10 MPa</span><span class="sub">ν 0.3 · beam moves up to 10 mm</span></td><td>393.8</td><td class="first">4.4</td><td class="">2.5</td><td class="">1.3</td><td class="first">1.3</td><td class="">1.0</td><td class="">0.4</td><td class="first">1.4</td><td class="">1.7</td><td class="">1.6</td><td class="first">1.8</td><td class="">1.4</td><td class="">1.6</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.45 · beam moves up to 600 mm</span></td><td>3.9</td><td class="first">8.3</td><td class="">5.9</td><td class="">0.1</td><td class="first">5.2</td><td class="">1.6</td><td class="good">&lt;0.1</td><td class="first">75.0</td><td class="">42.6</td><td class="">8.2</td><td class="first">122.3</td><td class="">103.7</td><td class="">55.4</td></tr><tr><td class="lead"><span class="var">Cantilever, E = 100 kPa</span><span class="sub">ν 0.49 · beam moves up to 501 mm</span></td><td>3.9</td><td class="first">55.3</td><td class="">24.6</td><td class="">5.2</td><td class="first">11.4</td><td class="">6.5</td><td class="">0.3</td><td class="first">105.0</td><td class="">88.2</td><td class="">48.5</td><td class="first">121.2</td><td class="">114.9</td><td class="">96.1</td></tr><tr><td class="lead"><span class="var">Twist 90°, E = 100 kPa</span><span class="sub">ν 0.3 · beam moves up to 0 mm</span></td><td>3.9</td><td class="first">3.9</td><td class="">0.5</td><td class="good">&lt;0.1</td><td class="first">0.8</td><td class="good">&lt;0.1</td><td class="good">&lt;0.1</td><td class="first">6.7</td><td class="">2.8</td><td class="">0.1</td><td class="first">7.6</td><td class="">8.3</td><td class="">4.4</td></tr><tr><td class="lead"><span class="var">Twist 90°, E = 1 MPa</span><span class="sub">ν 0.3 · beam moves up to 0 mm</span></td><td>39.4</td><td class="first">0.3</td><td class="">0.1</td><td class="good">&lt;0.1</td><td class="first">0.1</td><td class="good">&lt;0.1</td><td class="good">&lt;0.1</td><td class="first">0.8</td><td class="">0.6</td><td class="">0.3</td><td class="first">1.9</td><td class="">1.2</td><td class="">0.7</td></tr></tbody></table></div>
+</section>
+<section id="method"><h2>Setup</h2>
+  <div class="howto">
+    <div><h3>Problem</h3><p class="intro">Cuboid 0.48 × 0.12 × 0.12 m, 24 × 6 × 6 cells of 6 tets, density 1000 kg/m³, gravity, time step 1/300 s (the training time step). Energy: inertia + gravity + stable Neo-Hookean. No contact, no DAT. Cantilever: one end face is fixed. Twist: both end faces are held and one turns.</p></div>
+    <div><h3>Network</h3><p class="intro">Input per vertex: gradient, previous gradient, last update. Graph: the tet edges (11.5 neighbours per vertex; cloth has about 6). The loop is the one of <code>SolverLearned.step</code>; the step scale carries over between time steps. Float32 network, float64 energy.</p></div>
+    <div><h3>Baselines</h3><p class="intro">Newton: projected Newton with line search, converged (reference). VBD: coloured Gauss-Seidel with 3 × 3 vertex blocks, 8 colours, no acceleration. Block Jacobi: the same blocks for all vertices at once. These are my own plain implementations for this test.</p></div>
+  </div>
+</section>
+<footer><h3>Limits</h3><ul>
+  <li>One mesh, one resolution, no contact. One sweep of VBD costs more than one LeCO iteration (8 colours, each with Hessian blocks); this page compares iteration counts, not time.</li>
+  <li>The stiffness column is E·h divided by m/Δt². It grows with a finer mesh and a larger time step, so a finer mesh moves every case towards the stiff rows.</li>
+  <li>Related report: <a href="https://ankachan.github.io/report/leco-ablations-20261112/">LeCO ablation results</a>.</li>
+  <li>Code: <code>leco/tensorcore_probe/tet_cuboid.py</code> and <code>tet_cuboid_cloth_control.py</code> on branch <code>ankac/leco-tensorcore-inference</code> (not committed yet).</li>
+</ul></footer>
+</div>
+</body></html>
