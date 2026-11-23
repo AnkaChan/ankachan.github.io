@@ -117,7 +117,7 @@ body{margin:0}</style>
   <h1>All ablations with history window 3</h1>
   <p class="lede">Every ablation of the optimizer network was trained again with a history window of 3. The network then reads the gradient and the applied update of each of the last 3 iterations, not only of the last one. This page compares each new model with the old model of the same variant.</p>
   <div class="status">
-    <span>Data as of <b>2026-11-23 19:18 UTC</b></span>
+    <span>Data as of <b>2026-11-23 19:19 UTC</b></span>
     <span>Trainings finished <b>36 of 38</b></span>
     <span>Models with all results <b>36 of 38</b></span>
   </div>
@@ -126,7 +126,17 @@ body{margin:0}</style>
 
 <section class="findings" id="findings">
   <h2>Findings</h2>
-  <p>Two trainings are still running. The findings come when all models are evaluated.</p>
+  <p class="intro">State: 36 of 38 models. The 16-ring and 32-ring variants of the per-node scale are still training. “×” is the gradient norm at the end of the step relative to a baseline; below 1 is better.</p>
+<ol>
+  <li><strong>The old conclusions hold.</strong> 30 of the 36 variants keep their verdict against the baseline when both have window 3. The window changes the level of the results, not their order.</li>
+  <li><strong>The window helps most variants by about the same factor as the baseline.</strong> The baseline gains 0.77×. Of the 24 variants that complete all rollouts with both windows, 20 gain with window 3, most of them between 0.66× and 0.89×.</li>
+  <li><strong>No variant is clearly better than the window-3 baseline on all criteria.</strong> The three best variants are the standard GNN with edge latents (0.82×), context depth 3 (0.82×) and context depth 5 (0.83×). Each of them loses clean runs on 00756 (2, 1 and 0 of 3; the baseline has 3 of 3).</li>
+  <li><strong>The window and a larger context overlap.</strong> With window 1 the same three variants were at 0.71× to 0.75× of their baseline. With window 3 the gain is smaller (0.82× to 0.83×). Against the original baseline they reach 0.62× to 0.64×, the lowest gradient norms of all models.</li>
+  <li><strong>The window repairs some weak variants.</strong> “No current gradient” and “last update / RMS” failed their rollouts with window 1 and complete all four with window 3 (5.78× and 2.09×). Hinge edges (1.23× → 0.96×), the adaptive initial guess (1.15× → 1.00×) and per-node normalization + magnitude (1.84× → 0.94×) reach the level of the baseline. The last one has no clean run on 00756.</li>
+  <li><strong>A per-node step scale still fails.</strong> All 10 evaluated variants with a per-node scale diverge in the rollout, with both windows. In the fixed-state test the ring variants miss about half as much as with window 1, but this does not carry over to a rollout.</li>
+  <li><strong>The window does not help the output-direction variants and the variants without a learned scale.</strong> “Direction / RMS, global scale” gets worse (1.07× → 2.02×, clean runs on 00756 from 2 of 3 to 0 of 3). “Unit direction per vertex” goes from 19× to 57×. “No scale” and “no iteration” stay far from the baseline.</li>
+  <li><strong>The history inputs still matter with window 3.</strong> Without the last updates the model is at 2.02×, without the previous gradients at 1.42×, without any gradient at 608×. The extra inputs (contact force, inertia gradient, position, cloth state, FiLM) stay within 0.92× to 1.13× of the baseline.</li>
+</ol>
 
 </section>
 
