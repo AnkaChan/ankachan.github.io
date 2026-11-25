@@ -8,14 +8,12 @@ main { max-width:1120px; margin:0 auto; padding:28px 16px 64px; }
 h1 { font-size:1.9rem; margin:0 0 4px; } h2 { font-size:1.35rem; margin:42px 0 10px; padding-top:14px; border-top:1px solid var(--line); }
 h3 { font-size:1.08rem; margin:26px 0 6px; } p, li { max-width:78ch; } .muted { color:var(--muted); }
 code { font:0.9em ui-monospace,SFMono-Regular,Menlo,monospace; background:color-mix(in srgb,var(--fg) 8%,transparent); padding:1px 5px; border-radius:4px; }
-.videos { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:10px 0 6px; }
-.videos figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-.videos video { width:100%; display:block; background:#000; } .videos figcaption { padding:6px 10px; font-size:0.86rem; color:var(--muted); }
+figure.video { margin:10px 0 6px; background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+figure.video video { width:100%; display:block; background:#000; } figure.video figcaption { padding:6px 10px; font-size:0.86rem; color:var(--muted); }
 .failed { color:var(--bad); font-weight:600; } .ok { color:var(--good); }
 .scroll { overflow-x:auto; } table { border-collapse:collapse; font-size:0.9rem; margin:8px 0 4px; }
 th, td { border-bottom:1px solid var(--line); padding:6px 10px; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
 th:first-child, td:first-child { text-align:left; } th { color:var(--muted); font-weight:600; }
-@media (max-width:760px) { .videos { grid-template-columns:1fr; } }
 </style></head><body><main>
 <h1>NeIO stage 1: first results</h1>
 <p class="muted">Neural Intrinsic Optimizer on Newton. Rigid bodies, deformables and their coupling, inference only. 2026-11-24 (Pacific time).</p>
@@ -41,8 +39,9 @@ damping terms of <code>SolverVBD</code>. All contact numbers come from the model
 
 <h2 id="read">How to read the page</h2>
 <ul>
-<li>Each scene shows three videos: <code>SolverVBD</code> with 30 iterations (compliant ALM, its recommended mode), NeIO
-with 10 iterations, NeIO with 30 iterations. All three use the same model and the same time step.</li>
+<li>Each scene has one video with three panels that play in step. Left to right: <code>SolverVBD</code> with 30
+iterations (compliant ALM, its recommended mode), NeIO with 10 iterations, NeIO with 30 iterations. All three use the
+same model and the same time step. The first video of the page shows all nine scenes in sequence.</li>
 <li><code>SolverVBD</code> is a reference for the look only. In scenes with contact it uses another contact law
 (quadratic, not cubic), so the two solvers do not minimise the same objective there and the motion can differ.</li>
 <li>The NeIO runs on this page use one normalisation group per world, the grouping of the training. The ablation table
@@ -55,80 +54,45 @@ number to use when two arms start a step at different points.</li>
 <li>Time per step is the wall time of a captured step, video and state readback excluded.</li>
 </ul>
 
+<h2 id="all">All scenes in one video</h2><figure class="video"><video src="all_scenes.b826f8aa.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>All scenes in sequence. Left to right: SolverVBD, 30 iterations, NeIO, 10 iterations, NeIO, 30 iterations.</figcaption></figure>
 <h2 id="rigid">Rigid bodies (NeIO rigid)</h2>
 <h3 id="rigid_chain">Rigid chain</h3>
 <p>Six links on revolute joints with alternating axes, released from the horizontal. No contact. <span class="muted">(6 bodies, 6 joints; time step 1/240 s)</span></p>
-<div class="videos">
-<figure><video src="rigid_chain_vbd.d9c0d552.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="rigid_chain_neio10.29ae62c7.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="rigid_chain_neio30.dcd88c47.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="rigid_chain_combined.4a4a0762.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>n/a</td><td>n/a</td><td>10.1</td><td>20.8</td><td>8.8</td></tr><tr><td>NeIO, 30 iterations</td><td>n/a</td><td>n/a</td><td>3.1</td><td>6.8</td><td>21.8</td></tr></table></div>
 <h3 id="box_stack">Box stack</h3>
 <p>Five free boxes fall onto each other and come to rest. Body-body contact with friction. <span class="muted">(5 bodies, 5 joints; time step 1/240 s)</span></p>
-<div class="videos">
-<figure><video src="box_stack_vbd.87bd6dac.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="box_stack_neio10.f4034028.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="box_stack_neio30.9980af19.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="box_stack_combined.5355dda6.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>n/a</td><td>n/a</td><td>11.6</td><td>33.9</td><td>8.8</td></tr><tr><td>NeIO, 30 iterations</td><td>n/a</td><td>n/a</td><td>1.1</td><td>4.2</td><td>21.2</td></tr></table></div>
 <h3 id="chain_on_ground">Chain on the ground</h3>
 <p>A free chain of six capsules on ball joints starts as a zig-zag in the air, falls on the ground and settles. One articulation with contact and friction. <span class="muted">(6 bodies, 6 joints; time step 1/240 s)</span></p>
-<div class="videos">
-<figure><video src="chain_on_ground_vbd.99227e3d.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="chain_on_ground_neio10.8bc3f472.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="chain_on_ground_neio30.f9e594e6.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="chain_on_ground_combined.36c1690c.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>n/a</td><td>n/a</td><td>8.3</td><td>27.9</td><td>12.2</td></tr><tr><td>NeIO, 30 iterations</td><td>n/a</td><td>n/a</td><td>0.1</td><td>0.5</td><td>20.0</td></tr></table></div>
 <h2 id="deformable">Deformables (NeIO deformable)</h2>
 <h3 id="cloth_hang">Hanging cloth</h3>
 <p>A cloth of 1089 particles held along one edge swings down. Membrane and bending, no contact. <span class="muted">(1089 particles, 2048 triangles; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="cloth_hang_vbd.003e7f5a.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_hang_neio10.cd8edfed.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_hang_neio30.6d6182d5.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="cloth_hang_combined.cf242cc9.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>12.8</td><td>16.8</td><td>n/a</td><td>n/a</td><td>12.1</td></tr><tr><td>NeIO, 30 iterations</td><td>0.3</td><td>0.5</td><td>n/a</td><td>n/a</td><td>17.0</td></tr></table></div>
 <h3 id="cloth_sphere">Cloth on a sphere</h3>
 <p>A cloth of 2401 particles falls on a fixed sphere and drapes. Body-particle contact and self-contact. <span class="muted">(2401 particles, 4608 triangles; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="cloth_sphere_vbd.b4c5d701.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_sphere_neio10.bc730451.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_sphere_neio30.6712b8b3.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="cloth_sphere_combined.533a330c.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>2.7</td><td>3.0</td><td>n/a</td><td>n/a</td><td>15.3</td></tr><tr><td>NeIO, 30 iterations</td><td>0.1</td><td>0.2</td><td>n/a</td><td>n/a</td><td>20.1</td></tr></table></div>
 <h3 id="tet_drop">Tet blocks</h3>
 <p>Two tet blocks of 343 particles each fall on the ground: a soft one (30 kPa) and a stiff one (600 kPa). <span class="muted">(686 particles, 2160 tets; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="tet_drop_vbd.645e9efc.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="tet_drop_neio10.d772078a.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="tet_drop_neio30.33590ffc.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="tet_drop_combined.67156de4.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>24.8</td><td>43.7</td><td>n/a</td><td>n/a</td><td>11.7</td></tr><tr><td>NeIO, 30 iterations</td><td>1.8</td><td>7.2</td><td>n/a</td><td>n/a</td><td>17.1</td></tr></table></div>
 <h2 id="coupling">Coupling: both in one step</h2>
 <h3 id="cloth_on_boxes">Cloth over free bodies</h3>
 <p>A cloth falls over two free boxes and a free ball. Rigid and deformable are solved in the same step; the contact acts on both sides. <span class="muted">(3 bodies, 3 joints; 2025 particles, 3872 triangles; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="cloth_on_boxes_vbd.99872d88.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_on_boxes_neio10.697a05f3.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="cloth_on_boxes_neio30.ea368936.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="cloth_on_boxes_combined.13ab05f4.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>3.3</td><td>5.4</td><td>0.6</td><td>2.0</td><td>17.2</td></tr><tr><td>NeIO, 30 iterations</td><td>0.1</td><td>0.1</td><td>0.0</td><td>0.0</td><td>22.7</td></tr></table></div>
 <h3 id="box_on_soft">Rigid box on a soft block</h3>
 <p>A rigid box of 0.8 kg falls flat on a soft tet block (50 kPa), sinks in and comes to rest on it. Two-way rigid-soft contact. <span class="muted">(1 bodies, 1 joints; 605 particles, 2000 tets; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="box_on_soft_vbd.14d523a1.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="box_on_soft_neio10.654923f7.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="box_on_soft_neio30.3f430bf7.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="box_on_soft_combined.6c76c92e.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>3.9</td><td>6.6</td><td>4.2</td><td>15.1</td><td>17.1</td></tr><tr><td>NeIO, 30 iterations</td><td>0.1</td><td>0.8</td><td>0.2</td><td>2.6</td><td>18.1</td></tr></table></div>
 <h3 id="grasp">Coupled grasp</h3>
 <p>A gripper on three driven prismatic joints lowers, closes on a soft tet cube and lifts it. Drives, friction and two-way rigid-soft contact in one step. <span class="muted">(3 bodies, 3 joints; 216 particles, 625 tets; time step 1/300 s)</span></p>
-<div class="videos">
-<figure><video src="grasp_vbd.00fa43ac.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>SolverVBD, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="grasp_neio10.1584709b.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 10 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-<figure><video src="grasp_neio30.9e1dedb1.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
-</div>
+<figure class="video"><video src="grasp_combined.fa06a03e.mp4" controls loop muted playsinline preload="metadata"></video><figcaption>Left to right. SolverVBD, 30 iterations: <span class="ok">ran to the end</span>; NeIO, 10 iterations: <span class="ok">ran to the end</span>; NeIO, 30 iterations: <span class="ok">ran to the end</span></figcaption></figure>
 <div class="scroll"><table><tr><th>Run</th><th>Particles: error left, median [%]</th><th>90th percentile [%]</th><th>Bodies: error left, median [%]</th><th>90th percentile [%]</th><th>Time per step [ms]</th></tr><tr><td>NeIO, 10 iterations</td><td>20.7</td><td>140</td><td>14.3</td><td>128</td><td>16.3</td></tr><tr><td>NeIO, 30 iterations</td><td>2.5</td><td>160</td><td>1.7</td><td>127</td><td>18.3</td></tr></table></div>
 
 <h2 id="difference">Difference to SolverVBD without contact</h2>
